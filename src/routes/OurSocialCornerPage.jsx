@@ -59,19 +59,34 @@ export default function OurSocialCornerPage() {
           {/* Floating shell motifs */}
           <ShellDrift tone="dark" />
 
-          <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 py-14 sm:py-18 lg:py-24">
+          <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 pt-12 sm:pt-16 pb-8 sm:pb-10">
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="max-w-3xl"
+              className="flex flex-col justify-between gap-6 sm:gap-8"
             >
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight text-content-ondark">
-                Our Social Corner
-              </h1>
-              <p className="mt-5 text-base sm:text-lg lg:text-xl text-content-ondark-muted leading-relaxed max-w-2xl">
-                80% of our products are made by women from self-help groups. This is the part of the store that matters most to us.
-              </p>
+              <div className="max-w-2xl">
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight text-content-ondark">
+                  Our Social Corner
+                </h1>
+                <p className="mt-4 sm:mt-5 text-base sm:text-lg lg:text-xl text-content-ondark-muted leading-relaxed max-w-2xl">
+                  80% of our products are made by women from self-help groups. This is the part of the store that matters most to us.
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-2 sm:pt-4">
+                <a
+                  href="https://www.instagram.com/globaltolocalgoa/"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-pill border border-border bg-surface px-6 py-2.5 sm:py-3 text-sm font-semibold text-content hover:bg-surface-muted hover:border-content-subtle transition-all duration-200 active:scale-[0.985] shadow-sm"
+                >
+                  <InstagramIcon className="h-4 w-4 text-accent" />
+                  <span>Follow on Instagram</span>
+                  <ArrowUpRight className="h-4 w-4 text-content-subtle" />
+                </a>
+              </div>
             </motion.div>
           </div>
         </section>
@@ -122,38 +137,6 @@ export default function OurSocialCornerPage() {
               </div>
             </motion.div>
           </div>
-        </div>
-      </section>
-
-      {/* 3. WHAT WE HAVE BEEN UP TO (INSTAGRAM) */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-ground text-content">
-        <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="max-w-2xl"
-          >
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content">
-              What we have been up to
-            </h2>
-            <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">
-              Photographs from the shop floor live on Instagram. This page does not embed a feed that is not connected.
-            </p>
-            <div className="mt-8">
-              <a
-                href="https://www.instagram.com/globaltolocalgoa/"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-pill border border-border bg-surface px-7 py-3 text-sm font-semibold text-content hover:bg-surface-muted hover:border-content-subtle transition-all duration-200 active:scale-[0.985] shadow-xs"
-              >
-                <InstagramIcon className="h-4 w-4 text-accent" />
-                <span>Follow on Instagram</span>
-                <ArrowUpRight className="h-4 w-4 text-content-subtle" />
-              </a>
-            </div>
-          </motion.div>
         </div>
       </section>
 

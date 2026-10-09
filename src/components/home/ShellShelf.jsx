@@ -98,8 +98,14 @@ export default function ShellShelf() {
     const el = scrollRef.current;
     if (!el) return;
     const maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll <= 0) {
+      setScrollProgress(100);
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+      return;
+    }
     const currentScroll = el.scrollLeft;
-    const progress = maxScroll > 0 ? (currentScroll / maxScroll) * 100 : 0;
+    const progress = Math.min(100, Math.max(0, (currentScroll / maxScroll) * 100));
     setScrollProgress(progress);
     setCanScrollLeft(currentScroll > 10);
     setCanScrollRight(currentScroll < maxScroll - 10);
@@ -109,16 +115,56 @@ export default function ShellShelf() {
     const el = scrollRef.current;
     if (!el) return;
     el.addEventListener('scroll', updateScrollState, { passive: true });
+    window.addEventListener('resize', updateScrollState);
     updateScrollState();
-    return () => el.removeEventListener('scroll', updateScrollState);
+    return () => {
+      el.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
   }, []);
 
   const handleScroll = (direction) => {
     const el = scrollRef.current;
     if (!el) return;
-    const scrollAmount = el.clientWidth * 0.75;
-    el.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
+    const cards = el.querySelectorAll('.snap-start');
+    if (!cards.length) {
+      const scrollAmount = el.clientWidth * 0.75;
+      el.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+      return;
+    }
+
+    const currentLeft = el.scrollLeft;
+    let targetLeft = currentLeft;
+
+    if (direction === 'right') {
+      for (let i = 0; i < cards.length; i++) {
+        const cardOffset = cards[i].offsetLeft - el.offsetLeft;
+        if (cardOffset > currentLeft + 15) {
+          targetLeft = cardOffset;
+          break;
+        }
+      }
+      if (targetLeft === currentLeft) {
+        targetLeft = el.scrollWidth - el.clientWidth;
+      }
+    } else {
+      for (let i = cards.length - 1; i >= 0; i--) {
+        const cardOffset = cards[i].offsetLeft - el.offsetLeft;
+        if (cardOffset < currentLeft - 15) {
+          targetLeft = cardOffset;
+          break;
+        }
+      }
+      if (targetLeft === currentLeft) {
+        targetLeft = 0;
+      }
+    }
+
+    el.scrollTo({
+      left: Math.max(0, targetLeft),
       behavior: 'smooth',
     });
   };
@@ -165,9 +211,10 @@ export default function ShellShelf() {
           {/* Scrollable track */}
           <div
             ref={scrollRef}
+            onScroll={updateScrollState}
             tabIndex={0}
             aria-label="Shell craft shelf"
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-5 sm:px-8 lg:px-12 pb-4 pt-1 hide-scrollbar"
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-5 sm:px-8 lg:px-12 pb-4 pt-1 hide-scrollbar scroll-smooth"
           >
             {shellItems.map((item) => (
               <Link
@@ -224,8 +271,8 @@ export default function ShellShelf() {
             {/* Progress Track */}
             <div className="h-1 flex-1 overflow-hidden rounded-full bg-border/40">
               <div
-                className="h-full bg-accent transition-[width] duration-200 ease-out rounded-full"
-                style={{ width: `${Math.max(12, scrollProgress)}%` }}
+                className="h-full bg-accent rounded-full will-change-[width] transition-[width] duration-150 ease-out"
+                style={{ width: `${Math.max(10, scrollProgress)}%` }}
               />
             </div>
 

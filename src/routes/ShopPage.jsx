@@ -68,9 +68,45 @@ export default function ShopPage() {
   const scrollRail = (direction) => {
     const el = shelfRailRef.current;
     if (!el) return;
-    const cardWidth = el.clientWidth * 0.75;
-    const delta = direction === 'left' ? -cardWidth : cardWidth;
-    el.scrollBy({ left: delta, behavior: 'smooth' });
+    const cards = el.querySelectorAll('.snap-start');
+    if (!cards.length) {
+      const cardWidth = el.clientWidth * 0.75;
+      const delta = direction === 'left' ? -cardWidth : cardWidth;
+      el.scrollBy({ left: delta, behavior: 'smooth' });
+      return;
+    }
+
+    const currentLeft = el.scrollLeft;
+    let targetLeft = currentLeft;
+
+    if (direction === 'right') {
+      for (let i = 0; i < cards.length; i++) {
+        const cardOffset = cards[i].offsetLeft - el.offsetLeft;
+        if (cardOffset > currentLeft + 15) {
+          targetLeft = cardOffset;
+          break;
+        }
+      }
+      if (targetLeft === currentLeft) {
+        targetLeft = el.scrollWidth - el.clientWidth;
+      }
+    } else {
+      for (let i = cards.length - 1; i >= 0; i--) {
+        const cardOffset = cards[i].offsetLeft - el.offsetLeft;
+        if (cardOffset < currentLeft - 15) {
+          targetLeft = cardOffset;
+          break;
+        }
+      }
+      if (targetLeft === currentLeft) {
+        targetLeft = 0;
+      }
+    }
+
+    el.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior: 'smooth',
+    });
   };
 
   // Filtered & Sorted Products
@@ -160,10 +196,11 @@ export default function ShopPage() {
           <div className="relative">
             <div
               ref={shelfRailRef}
+              onScroll={updateRailScrollState}
               role="region"
               aria-label="Product categories"
               tabIndex={0}
-              className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:gap-6 hide-scrollbar rail-gutter"
+              className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:gap-6 hide-scrollbar rail-gutter scroll-smooth"
             >
               {categories.map((cat) => {
                 const count = products.filter((p) => p.categorySlug === cat.slug).length;
@@ -214,7 +251,7 @@ export default function ShopPage() {
             <div className="mt-6 flex items-center gap-5 rail-gutter">
               <div className="h-1 flex-1 overflow-hidden rounded-full bg-border/40" role="presentation">
                 <div
-                  className="h-full rounded-full bg-accent transition-all duration-200 ease-out"
+                  className="h-full rounded-full bg-accent will-change-[width] transition-[width] duration-150 ease-out"
                   style={{ width: `${Math.max(8, railProgress)}%` }}
                 />
               </div>
