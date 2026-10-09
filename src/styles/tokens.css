@@ -1,0 +1,76 @@
+/**
+ * Global to Local — Locked Design Tokens
+ * Read-only extracted CSS variables
+ */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('/fonts/af4bf8399d1aacdf-s.p.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/9cf9c6e84ed13b5e-s.p.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/b6a6f0b43d027304-s.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Source Sans 3';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/36d711d427a06e51-s.woff2') format('woff2');
+}
+
+:root {
+  /* Brand and Semantic Colors */
+  --color-ground: #F7F0E2;              /* warm cream background */
+  --color-ground-alt: #FBF6EB;          /* light cream */
+  --color-surface: #FFFFFF;             /* pure white card background */
+  --color-surface-muted: #F4E8D0;       /* cream section tone */
+  --color-surface-tint: #ECE0C8;        /* subtle warm border/tint */
+  
+  --color-palm: #1C393F;                /* Goan palm green */
+  --color-palm-shade: #17332D;          /* deep palm green */
+  --color-ink-deep: #12262B;            /* dark ink */
+  
+  --color-accent: #C45C4A;              /* Goan terracotta / red-clay */
+  --color-accent-hover: #B04F3E;        /* darker terracotta */
+  --color-accent-soft: rgba(196, 92, 74, 0.12);
+  
+  --color-content: #2A221C;             /* deep brown-black text */
+  --color-content-muted: #6B625B;       /* secondary text */
+  --color-content-subtle: #8C827A;      /* caption text */
+  --color-content-ondark: #F7F0E2;      /* cream text on dark backgrounds */
+  --color-content-ondark-muted: rgba(247, 240, 226, 0.72);
+  
+  --color-border: #D4C2A4;              /* natural cane border */
+  --color-border-subtle: rgba(212, 194, 164, 0.45);
+  --color-border-ondark: rgba(247, 240, 226, 0.25);
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+
+  /* Spacing and Dimensions */
+  --max-w-shell: 1320px;
+  --max-w-wide: 1520px;
+  --max-w-narrow: 768px;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}

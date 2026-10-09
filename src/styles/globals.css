@@ -1,0 +1,71 @@
+@import './tokens.css';
+@import "tailwindcss";
+
+@theme {
+  --color-ground: var(--color-ground);
+  --color-ground-alt: var(--color-ground-alt);
+  --color-surface: var(--color-surface);
+  --color-surface-muted: var(--color-surface-muted);
+  --color-surface-tint: var(--color-surface-tint);
+  --color-palm: var(--color-palm);
+  --color-palm-shade: var(--color-palm-shade);
+  --color-ink-deep: var(--color-ink-deep);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-content: var(--color-content);
+  --color-content-muted: var(--color-content-muted);
+  --color-content-subtle: var(--color-content-subtle);
+  --color-content-ondark: var(--color-content-ondark);
+  --color-content-ondark-muted: var(--color-content-ondark-muted);
+  --color-border: var(--color-border);
+  --color-border-subtle: var(--color-border-subtle);
+  --color-border-ondark: var(--color-border-ondark);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-pill: 9999px;
+  --max-w-shell: 1320px;
+  --max-w-wide: 1520px;
+  --max-w-narrow: 768px;
+}
+
+body {
+  background-color: var(--color-ground);
+  color: var(--color-content);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+.palm-shade {
+  background: radial-gradient(circle at 50% 20%, rgba(28, 57, 63, 0.95), rgba(18, 38, 43, 1));
+}
+
+/* 
+ * Exact Live Site Film Scrim:
+ * 3-layer blend: Radial corner vignette + Horizontal left gradient + Top/bottom vertical fade
+ */
+.film-scrim {
+  background: radial-gradient(120% 78% at 8% 92%, rgba(18,38,43,.9) 0, rgba(18,38,43,.48) 38%, rgba(18,38,43,0) 72%),
+              linear-gradient(90deg, rgba(18,38,43,.78), rgba(18,38,43,.32) 36%, rgba(18,38,43,0) 66%),
+              linear-gradient(180deg, rgba(28,57,63,.28), rgba(18,38,43,.04) 24%, rgba(18,38,43,.55));
+}
+
+.rounded-pill {
+  border-radius: 9999px;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
