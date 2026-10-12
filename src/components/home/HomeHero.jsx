@@ -45,7 +45,7 @@ export default function HomeHero() {
       <audio ref={audioRef} src="/audio/fontainhas-street.wav" loop preload="none" />
 
       {/* Main Hero Content */}
-      <div className="relative z-10 flex min-h-dvh flex-col justify-end mx-auto max-w-shell px-5 pb-8 sm:px-8 sm:pb-10 lg:px-12 lg:pb-12 w-full">
+      <div className="relative z-10 flex min-h-dvh flex-col justify-end mx-auto max-w-shell px-5 pb-[max(5.5rem,calc(4.5rem+env(safe-area-inset-bottom)))] sm:px-8 sm:pb-10 lg:px-12 lg:pb-12 w-full">
         <motion.div
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,7 +90,7 @@ export default function HomeHero() {
           </div>
 
           {/* Address */}
-          <p className="mt-4 text-xs sm:text-sm text-content-ondark/80 [text-shadow:0_1px_8px_rgba(18,38,43,0.45)]">
+          <p className="mt-4 text-xs sm:text-sm text-content-ondark/80 [text-shadow:0_1px_8px_rgba(18,38,43,0.45)] max-w-[calc(100%-9.5rem)] sm:max-w-none">
             {siteConfig.contact.address}
           </p>
         </motion.div>
@@ -114,26 +114,26 @@ export default function HomeHero() {
       </div>
 
       {/* "Hear the street" Audio Control (Bottom Right) */}
-      <div className="pointer-events-auto absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-5 z-20 sm:right-8 lg:right-12">
+      <div className="pointer-events-auto absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 z-20 sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:right-8 lg:right-12">
         <button
           type="button"
           onClick={() => setIsPlayingAudio(!isPlayingAudio)}
           aria-pressed={isPlayingAudio}
-          className={`flex items-center gap-2 rounded-pill border px-4 py-2 text-sm font-medium backdrop-blur-xs transition-all duration-200 cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 rounded-pill border px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 select-none shadow-md ${
             isPlayingAudio
               ? 'border-content-ondark bg-content-ondark text-palm shadow-lg font-semibold'
-              : 'border-content-ondark/35 bg-ink-deep/30 text-content-ondark hover:border-content-ondark/60 hover:bg-content-ondark/15 shadow-md'
+              : 'border-content-ondark/35 bg-ink-deep/45 text-content-ondark hover:border-content-ondark/60 hover:bg-content-ondark/15'
           }`}
         >
           {isPlayingAudio ? (
             <>
-              <Volume2 className="w-4 h-4 animate-pulse" />
-              <span>Quiet the street</span>
+              <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse shrink-0" />
+              <span className="whitespace-nowrap">Quiet the street</span>
             </>
           ) : (
             <>
-              <VolumeX className="w-4 h-4" />
-              <span>Hear the street</span>
+              <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="whitespace-nowrap">Hear the street</span>
             </>
           )}
         </button>
