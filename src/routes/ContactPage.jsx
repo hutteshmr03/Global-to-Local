@@ -85,7 +85,7 @@ const liveFaqs = [
 ];
 
 export default function ContactPage() {
-  const [openFaq, setOpenFaq] = useState(0);
+  const [openFaq, setOpenFaq] = useState(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -225,12 +225,6 @@ export default function ContactPage() {
 
               <div className="mt-6">
                 <form onSubmit={handleEmailSubmit} className="space-y-6">
-                  <p className="text-xs sm:text-sm leading-relaxed text-content-muted">
-                    This form is not connected to a server. Submit opens your email app addressed to{' '}
-                    <span className="font-semibold text-content">customerservice@globaltolocal.in</span>. If
-                    nothing opens, write to that address or call the store.
-                  </p>
-
                   <div>
                     <label htmlFor="name" className="mb-2 block text-xs sm:text-sm font-semibold text-content">
                       Name <span className="text-accent">*</span>

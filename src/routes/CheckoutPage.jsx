@@ -1,27 +1,68 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Check, AlertCircle } from 'lucide-react';
 import { useCartStore } from '../lib/cart-store';
+import { useAuthStore } from '../lib/auth-store';
 import { formatPrice } from '../lib/data';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const user = useAuthStore(state => state.user);
+  const updateProfile = useAuthStore(state => state.updateProfile);
+  const addOrder = useAuthStore(state => state.addOrder);
   const items = useCartStore(state => state.items);
   const clearCart = useCartStore(state => state.clearCart);
   const subtotal = useCartStore(state => state.getSubtotalPaise());
 
-  const [address, setAddress] = useState({
-    fullName: '',
-    phone: '',
+  if (!user) {
+    return <Navigate to="/login?redirect=/checkout" replace />;
+  }
+
+  const savedAddresses = user?.addresses || [];
+  const defaultAddr = savedAddresses.find(a => a.isDefault) || savedAddresses[0] || null;
+
+  // Selected address id: either a saved address ID or 'new'
+  const [selectedAddressId, setSelectedAddressId] = useState(defaultAddr ? defaultAddr.id : 'new');
+  const [saveToProfile, setSaveToProfile] = useState(true);
+
+  // Custom/New Address Fields
+  const [newAddress, setNewAddress] = useState({
+    fullName: user?.name || '',
+    phone: user?.phone || '',
     line1: '',
-    line2: '',
     city: '',
-    state: 'Goa',
-    pincode: '403001',
+    state: '',
+    pincode: '',
   });
 
-  const [shippingCostPaise, setShippingCostPaise] = useState(12000); // 120 INR default
+  // Calculate current active address
+  const activeSavedAddress = selectedAddressId !== 'new'
+    ? savedAddresses.find(a => a.id === selectedAddressId)
+    : null;
+
+  const activeAddress = activeSavedAddress
+    ? {
+        fullName: activeSavedAddress.name,
+        phone: user?.phone || newAddress.phone,
+        line1: activeSavedAddress.street,
+        city: activeSavedAddress.city,
+        state: activeSavedAddress.state,
+        pincode: activeSavedAddress.pincode,
+      }
+    : newAddress;
+
+  const [shippingCostPaise, setShippingCostPaise] = useState(
+    activeAddress.pincode?.startsWith('403') ? 8000 : 12000
+  );
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (activeAddress.pincode?.startsWith('403')) {
+      setShippingCostPaise(8000);
+    } else {
+      setShippingCostPaise(12000);
+    }
+  }, [activeAddress.pincode]);
 
   if (items.length === 0) {
     return (
@@ -37,24 +78,71 @@ export default function CheckoutPage() {
 
   const totalPaise = subtotal + shippingCostPaise;
 
-  const handlePincodeChange = (e) => {
-    const val = e.target.value;
-    setAddress({ ...address, pincode: val });
-    // If Goa pincode (starts with 403), local rate 80 INR, else 120 INR
-    if (val.startsWith('403')) {
-      setShippingCostPaise(8000);
-    } else {
-      setShippingCostPaise(12000);
-    }
-  };
+  const hasValidAddress = Boolean(
+    activeAddress.fullName?.trim() &&
+    activeAddress.phone?.trim() &&
+    activeAddress.line1?.trim() &&
+    activeAddress.city?.trim() &&
+    activeAddress.pincode?.trim()?.length === 6
+  );
 
   const handlePlaceOrder = (e) => {
     e.preventDefault();
+
+    if (!hasValidAddress) {
+      alert('Please provide a complete delivery address before you can book an order.');
+      return;
+    }
+
     setIsProcessing(true);
 
-    // Simulate Razorpay payment modal or test completion
+    // Save newly entered address to customer profile if chosen or if they had 0 addresses
+    if (selectedAddressId === 'new' && (saveToProfile || savedAddresses.length === 0)) {
+      const newAddressObj = {
+        id: 'addr_' + Date.now().toString(36),
+        name: newAddress.fullName.trim(),
+        street: newAddress.line1.trim(),
+        city: newAddress.city.trim() || 'Panaji',
+        state: newAddress.state.trim() || 'Goa',
+        pincode: newAddress.pincode.trim(),
+        isDefault: savedAddresses.length === 0,
+      };
+      updateProfile({ addresses: [...savedAddresses, newAddressObj] });
+    }
+
+    // Simulate Razorpay payment completion
     setTimeout(() => {
       const orderNumber = `GTL-26-${Math.floor(100000 + Math.random() * 900000)}`;
+      const newOrder = {
+        id: orderNumber,
+        orderNumber: orderNumber,
+        date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+        items: items.map(item => ({
+          id: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          weight: item.product.weight,
+          qty: item.qty,
+          imageSrc: item.product.imageSrc,
+        })),
+        subtotalPaise: subtotal,
+        shippingCostPaise: shippingCostPaise,
+        totalPaise: totalPaise,
+        status: 'Preparing for dispatch',
+        address: {
+          fullName: activeAddress.fullName,
+          phone: activeAddress.phone,
+          line1: activeAddress.line1,
+          city: activeAddress.city,
+          state: activeAddress.state,
+          pincode: activeAddress.pincode,
+        },
+      };
+
+      if (addOrder) {
+        addOrder(newOrder);
+      }
+
       clearCart();
       setIsProcessing(false);
       navigate(`/order/${orderNumber}`);
@@ -81,85 +169,177 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-8">
             {/* Delivery Address */}
             <div className="rounded-2xl border border-border/40 bg-surface p-6 sm:p-8 shadow-xs">
-              <div className="flex items-center gap-2.5 font-display text-xl font-bold text-content mb-6">
-                <MapPin className="w-5 h-5 text-accent" />
-                <h2>1. Delivery Address</h2>
+              <div className="flex items-center justify-between gap-3 font-display text-xl font-bold text-content mb-6 border-b border-border/30 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-5 h-5 text-accent" />
+                  <h2>1. Delivery Address</h2>
+                </div>
+                {savedAddresses.length > 0 && selectedAddressId !== 'new' && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAddressId('new')}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Use a Different Address</span>
+                  </button>
+                )}
+                {selectedAddressId === 'new' && savedAddresses.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAddressId(defaultAddr ? defaultAddr.id : savedAddresses[0].id)}
+                    className="text-xs font-semibold text-content-muted hover:text-content cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                )}
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-content mb-1">Full Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={address.fullName}
-                      onChange={e => setAddress({ ...address, fullName: e.target.value })}
-                      placeholder="e.g. Maria Fernandes"
-                      className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-content mb-1">Phone Number *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={address.phone}
-                      onChange={e => setAddress({ ...address, phone: e.target.value })}
-                      placeholder="+91 98765 43210"
-                      className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
-                    />
-                  </div>
+              {/* Case 1: Customer has saved addresses and is picking one */}
+              {savedAddresses.length > 0 && selectedAddressId !== 'new' ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-content-muted mb-2">Select a delivery location for this order:</p>
+                  {savedAddresses.map((addr) => {
+                    const isSelected = selectedAddressId === addr.id;
+                    return (
+                      <div
+                        key={addr.id}
+                        onClick={() => setSelectedAddressId(addr.id)}
+                        className={`cursor-pointer rounded-2xl border p-4 sm:p-5 transition-all ${
+                          isSelected
+                            ? 'border-palm bg-palm/5 ring-1 ring-palm shadow-xs'
+                            : 'border-border/60 bg-ground hover:border-border'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="radio"
+                              name="selectedAddress"
+                              checked={isSelected}
+                              onChange={() => setSelectedAddressId(addr.id)}
+                              className="mt-1 text-palm focus:ring-palm"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-display text-sm font-bold text-content uppercase tracking-wider">
+                                  {addr.name}
+                                </span>
+                                {addr.isDefault && (
+                                  <span className="inline-flex items-center gap-1 rounded-pill bg-palm/15 text-palm px-2 py-0.5 text-[10px] font-bold border border-palm/25">
+                                    Default
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-1.5 text-xs sm:text-sm text-content-muted leading-relaxed">
+                                {addr.street}, {addr.city}, {addr.state} - {addr.pincode}
+                              </p>
+                            </div>
+                          </div>
+                          {isSelected && <Check className="w-4 h-4 text-palm shrink-0" />}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              ) : (
+                /* Case 2: Enter new delivery address (no address saved yet or user clicked add new) */
+                <div className="space-y-4">
+                  {savedAddresses.length === 0 && (
+                    <div className="flex items-start gap-2.5 rounded-xl border border-accent/25 bg-accent/5 p-3.5 text-xs font-medium text-accent">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold">No delivery address saved.</span>
+                        <p className="text-content-muted mt-0.5">Please add your shipping address below. Delivery address is required to book an order.</p>
+                      </div>
+                    </div>
+                  )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-content mb-1">Street Address / House No. *</label>
-                  <input
-                    type="text"
-                    required
-                    value={address.line1}
-                    onChange={e => setAddress({ ...address, line1: e.target.value })}
-                    placeholder="House / Flat No., Street, Landmark"
-                    className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
-                  />
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-content mb-1">Full Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newAddress.fullName}
+                        onChange={e => setNewAddress({ ...newAddress, fullName: e.target.value })}
+                        placeholder="Recipient full name"
+                        className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-content mb-1">Phone Number *</label>
+                      <input
+                        type="tel"
+                        required
+                        value={newAddress.phone}
+                        onChange={e => setNewAddress({ ...newAddress, phone: e.target.value })}
+                        placeholder="+91 98765 43210"
+                        className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
+                      />
+                    </div>
+                  </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-content mb-1">City *</label>
+                    <label className="block text-xs font-semibold text-content mb-1">Street Address / House No. *</label>
                     <input
                       type="text"
                       required
-                      value={address.city}
-                      onChange={e => setAddress({ ...address, city: e.target.value })}
-                      placeholder="Panaji, Margao..."
+                      value={newAddress.line1}
+                      onChange={e => setNewAddress({ ...newAddress, line1: e.target.value })}
+                      placeholder="House / Flat No., Street, Landmark"
                       className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-content mb-1">State *</label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-content mb-1">City *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newAddress.city}
+                        onChange={e => setNewAddress({ ...newAddress, city: e.target.value })}
+                        placeholder="City"
+                        className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-content mb-1">State *</label>
+                      <input
+                        type="text"
+                        required
+                        value={newAddress.state}
+                        onChange={e => setNewAddress({ ...newAddress, state: e.target.value })}
+                        placeholder="State"
+                        className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-content mb-1">Pincode *</label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={newAddress.pincode}
+                        onChange={e => setNewAddress({ ...newAddress, pincode: e.target.value.replace(/\D/g, '') })}
+                        placeholder="6-digit pincode"
+                        className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
+                      />
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 text-xs font-medium text-content cursor-pointer pt-1">
                     <input
-                      type="text"
-                      required
-                      value={address.state}
-                      onChange={e => setAddress({ ...address, state: e.target.value })}
-                      className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
+                      type="checkbox"
+                      checked={saveToProfile}
+                      onChange={e => setSaveToProfile(e.target.checked)}
+                      className="rounded border-border text-palm focus:ring-palm"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-content mb-1">Pincode *</label>
-                    <input
-                      type="text"
-                      required
-                      pattern="[1-9][0-9]{5}"
-                      value={address.pincode}
-                      onChange={handlePincodeChange}
-                      placeholder="6-digit pincode"
-                      className="w-full rounded-lg border border-border bg-ground px-4 py-2.5 text-sm text-content outline-none focus:border-palm"
-                    />
-                  </div>
+                    <span>Save this address to my profile for future orders</span>
+                  </label>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Payment Method */}
@@ -213,7 +393,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-content-muted">
-                    Shipping ({address.pincode.startsWith('403') ? 'Goa Express' : 'Pan-India Standard'})
+                    Shipping ({activeAddress.pincode?.startsWith('403') ? 'Goa Express' : 'Pan-India Standard'})
                   </span>
                   <span className="font-sans font-bold tabular-nums tracking-tight text-content">{formatPrice(shippingCostPaise)}</span>
                 </div>
@@ -223,17 +403,27 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Action Button */}
               <button
                 type="submit"
-                disabled={isProcessing}
-                className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent py-4 text-base font-bold text-white hover:bg-accent-hover disabled:opacity-50 transition-all shadow-md"
+                disabled={!hasValidAddress || isProcessing}
+                className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent py-4 text-base font-bold text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md"
               >
                 {isProcessing ? (
                   <span>Processing Payment...</span>
+                ) : !hasValidAddress ? (
+                  <span>Add Delivery Address to Place Order</span>
                 ) : (
                   <span>Pay <span className="font-sans font-bold tabular-nums">{formatPrice(totalPaise)}</span> via Razorpay</span>
                 )}
               </button>
+
+              {!hasValidAddress && (
+                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-accent text-center">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>Please provide your delivery address to enable booking.</span>
+                </div>
+              )}
 
               <div className="flex items-center justify-center gap-2 text-xs text-content-muted">
                 <ShieldCheck className="w-4 h-4 text-palm" />

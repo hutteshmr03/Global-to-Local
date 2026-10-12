@@ -252,20 +252,6 @@ export default function ShellShelf() {
             ))}
           </div>
 
-          {/* Left / Right Gradient Fade Edges */}
-          <div
-            aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-16 bg-gradient-to-r from-ground to-transparent transition-opacity duration-300 ${
-              canScrollLeft ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-          <div
-            aria-hidden="true"
-            className={`pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-16 bg-gradient-to-l from-ground to-transparent transition-opacity duration-300 ${
-              canScrollRight ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-
           {/* Progress Bar & Navigation Controls */}
           <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell mt-6 flex items-center gap-5">
             {/* Progress Track */}

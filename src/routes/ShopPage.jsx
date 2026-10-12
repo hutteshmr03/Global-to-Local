@@ -309,7 +309,7 @@ export default function ShopPage() {
                     : 'border-border/60 bg-surface text-content hover:bg-surface-muted'
                 }`}
               >
-                All Shelves ({products.length})
+                All
               </button>
               {categories.map((cat) => {
                 const count = products.filter((p) => p.categorySlug === cat.slug).length;

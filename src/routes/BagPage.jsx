@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Plus, Minus, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { useCartStore } from '../lib/cart-store';
+import { useAuthStore } from '../lib/auth-store';
 import { formatPrice } from '../lib/data';
 
 export default function BagPage() {
+  const user = useAuthStore(state => state.user);
   const items = useCartStore(state => state.items);
   const updateQty = useCartStore(state => state.updateQty);
   const removeItem = useCartStore(state => state.removeItem);
@@ -131,7 +133,7 @@ export default function BagPage() {
                 </p>
 
                 <Link
-                  to="/checkout"
+                  to={user ? '/checkout' : '/login?redirect=/checkout'}
                   className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent py-4 text-sm font-bold text-white hover:bg-accent-hover transition-colors shadow-sm"
                 >
                   <span>Proceed to Checkout</span>

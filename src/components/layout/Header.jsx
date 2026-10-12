@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Search, Menu, X } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, Search } from 'lucide-react';
 import { useCartStore } from '../../lib/cart-store';
 import { siteConfig } from '../../lib/data';
 
@@ -24,6 +24,12 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Automatically close mobile menu and search drawer on ANY route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsSearchOpen(false);
+  }, [location.pathname, location.search]);
 
   const totalItems = useCartStore(state => state.getTotalItems());
   const openCart = useCartStore(state => state.openCart);
@@ -105,6 +111,22 @@ export default function Header() {
         Skip to main content
       </a>
 
+      {/* Tap-outside Mobile Backdrop Overlay (behind header) */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            key="mobile-nav-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 z-30 bg-ink-deep/25 backdrop-blur-xs lg:hidden"
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
+
       <header
         className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
           isTransparentOnVideo
@@ -112,10 +134,13 @@ export default function Header() {
             : 'bg-ground/95 backdrop-blur-md border-b border-border/50 py-3.5 shadow-xs'
         }`}
       >
-        <div className="mx-auto flex max-w-shell items-center justify-between px-5 sm:px-8 lg:px-12">
+        <div className={`mx-auto flex max-w-shell items-center justify-between px-5 sm:px-8 lg:px-12 ${
+          isMobileMenuOpen ? 'pb-3.5' : ''
+        }`}>
           {/* Brand Logo & Title */}
           <Link
             to="/"
+            onClick={() => setIsMobileMenuOpen(false)}
             className="group flex items-center gap-3 transition-opacity duration-200 hover:opacity-95"
             aria-label="Global to Local — home"
           >
@@ -196,25 +221,15 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Right Action Icons & Shop Pill Button */}
+          {/* Right Action Icons: Bag & Customer Symbol Button (Flipkart Style) */}
           <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
-            {/* Search Trigger */}
-            <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={`grid h-10 w-10 sm:h-11 sm:w-11 cursor-pointer place-items-center rounded-pill border transition-colors ${
-                isTransparentOnVideo
-                  ? 'border-content-ondark/30 text-content-ondark hover:bg-content-ondark/10'
-                  : 'border-border/50 text-content bg-surface hover:bg-surface-muted shadow-xs'
-              }`}
-              aria-label="Search products"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-
             {/* Bag Button */}
             <motion.button
               id="header-bag-btn"
-              onClick={openCart}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                openCart();
+              }}
               animate={isBumping ? {
                 scale: [1, 1.35, 0.88, 1.15, 1],
                 rotate: [0, -10, 10, -5, 0],
@@ -241,19 +256,20 @@ export default function Header() {
               )}
             </motion.button>
 
-            {/* Shop CTA Button */}
-            <div className="hidden sm:block">
-              <Link
-                to="/shop"
-                className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border font-sans font-medium tracking-[-0.01em] transition-colors duration-200 ease-out active:scale-[0.985] h-10 sm:h-11 min-w-11 px-5 text-sm ${
-                  isTransparentOnVideo
-                    ? 'border-content-ondark bg-content-ondark text-palm hover:bg-surface hover:border-surface hover:text-ink-deep shadow-sm'
-                    : 'border-palm bg-palm text-white hover:bg-palm-shade shadow-sm'
-                }`}
-              >
-                Shop
-              </Link>
-            </div>
+            {/* Customer Symbol Button (Flipkart Style) */}
+            <Link
+              to="/account"
+              onClick={() => setIsMobileMenuOpen(false)}
+              aria-label="Customer Account / Profile"
+              title="My Account"
+              className={`grid h-10 w-10 sm:h-11 sm:w-11 cursor-pointer place-items-center rounded-pill border transition-all duration-200 active:scale-95 ${
+                isTransparentOnVideo
+                  ? 'border-content-ondark/30 text-content-ondark hover:bg-content-ondark/10 hover:border-content-ondark/60'
+                  : 'border-border/60 bg-surface text-content hover:bg-surface-muted shadow-xs'
+              }`}
+            >
+              <User className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+            </Link>
 
             {/* Mobile Hamburger Toggle */}
             <button
@@ -274,6 +290,7 @@ export default function Header() {
         <AnimatePresence>
           {isSearchOpen && (
             <motion.div
+              key="search-dropdown"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -316,42 +333,61 @@ export default function Header() {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
+              key="mobile-nav-drawer"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25 }}
-              className={`border-t px-5 py-6 shadow-2xl lg:hidden overflow-hidden ${
-                isTransparentOnVideo ? 'border-white/10 bg-ink-deep/95 text-white' : 'border-border/40 bg-ground text-content'
+              className={`border-t border-border/50 px-5 py-6 shadow-2xl lg:hidden overflow-hidden ${
+                isTransparentOnVideo ? 'border-white/10 bg-ink-deep/95 text-white' : 'bg-ground text-content'
               }`}
             >
-              <nav className="flex flex-col gap-3">
-                {navLinks.map((link) => {
-                  const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
-                  return (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center justify-between rounded-xl px-4 py-2.5 text-base font-medium transition-colors ${
-                        isActive
-                          ? isTransparentOnVideo ? 'bg-white/15 text-white font-semibold' : 'bg-surface-muted text-accent font-semibold'
-                          : isTransparentOnVideo ? 'text-white/80 hover:bg-white/5' : 'text-content-muted hover:bg-surface'
-                      }`}
-                    >
-                      <span>{link.label}</span>
-                      {isActive && <span className="text-accent text-xs">●</span>}
-                    </Link>
-                  );
-                })}
-                <Link
-                  to="/shop"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="mt-3 flex w-full items-center justify-center rounded-pill bg-palm py-3 text-sm font-bold text-white hover:bg-palm-shade"
-                >
-                  Shop the Shelves
-                </Link>
-              </nav>
-            </motion.div>
+                <nav className="flex flex-col gap-3">
+                  {navLinks.map((link) => {
+                    const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
+                    return (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`flex items-center justify-between rounded-xl px-4 py-2.5 text-base font-medium transition-colors ${
+                          isActive
+                            ? isTransparentOnVideo ? 'bg-white/15 text-white font-semibold' : 'bg-surface-muted text-accent font-semibold'
+                            : isTransparentOnVideo ? 'text-white/80 hover:bg-white/5' : 'text-content-muted hover:bg-surface'
+                        }`}
+                      >
+                        <span>{link.label}</span>
+                        {isActive && <span className="text-accent text-xs">●</span>}
+                      </Link>
+                    );
+                  })}
+
+                  {/* My Account Option in Drawer */}
+                  <Link
+                    to="/account"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center justify-between rounded-xl px-4 py-2.5 text-base font-medium transition-colors ${
+                      pathname.startsWith('/account') || pathname.startsWith('/login')
+                        ? isTransparentOnVideo ? 'bg-white/15 text-white font-semibold' : 'bg-surface-muted text-accent font-semibold'
+                        : isTransparentOnVideo ? 'text-white/80 hover:bg-white/5' : 'text-content-muted hover:bg-surface'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <User className="w-4 h-4 text-accent" />
+                      <span>My Account / Profile</span>
+                    </span>
+                    {(pathname.startsWith('/account') || pathname.startsWith('/login')) && <span className="text-accent text-xs">●</span>}
+                  </Link>
+
+                  <Link
+                    to="/shop"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="mt-3 flex w-full items-center justify-center rounded-pill bg-palm py-3 text-sm font-bold text-white hover:bg-palm-shade"
+                  >
+                    Shop the Shelves
+                  </Link>
+                </nav>
+              </motion.div>
           )}
         </AnimatePresence>
       </header>

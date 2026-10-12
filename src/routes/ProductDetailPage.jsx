@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Minus, Check, ShieldCheck, Truck, MapPin } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Check, ShieldCheck, Truck, MapPin, ShoppingBag } from 'lucide-react';
 import { getProductBySlug, getCategoryBySlug, getProductsByCategory, formatPrice } from '../lib/data';
 import { useCartStore } from '../lib/cart-store';
 import { useFlyToCart } from '../components/cart/FlyToCart';
@@ -14,6 +14,10 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [isAdded, setIsAdded] = useState(false);
   const addItem = useCartStore(state => state.addItem);
+  const inCartQty = useCartStore(state => {
+    const item = state.items.find(i => i.product.id === product?.id);
+    return item ? item.qty : 0;
+  });
   const flyToCart = useFlyToCart();
 
   if (!product) {
@@ -122,9 +126,17 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Availability Status */}
-            <div className="mt-6 flex items-center gap-2 text-xs sm:text-sm font-semibold text-palm">
-              <Check className="w-4 h-4 text-palm shrink-0 stroke-[2.5]" />
-              <span>In stock and ready to dispatch from Fontainhas</span>
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold">
+              <div className="flex items-center gap-2 text-palm">
+                <Check className="w-4 h-4 text-palm shrink-0 stroke-[2.5]" />
+                <span>In stock and ready to dispatch from Fontainhas</span>
+              </div>
+              {inCartQty > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-pill bg-palm/15 border border-palm/25 text-palm px-3 py-1 text-xs font-bold">
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>{inCartQty} currently in your bag</span>
+                </span>
+              )}
             </div>
 
             {/* Stepper and Add To Bag Button */}

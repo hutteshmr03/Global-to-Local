@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, ShoppingBag, ArrowRight, Trash2 } from 'lucide-react';
 import { useCartStore } from '../../lib/cart-store';
+import { useAuthStore } from '../../lib/auth-store';
 import { formatPrice } from '../../lib/data';
 
 export default function BagDrawer() {
+  const user = useAuthStore(state => state.user);
   const isOpen = useCartStore(state => state.isOpen);
   const closeCart = useCartStore(state => state.closeCart);
   const items = useCartStore(state => state.items);
@@ -149,7 +151,7 @@ export default function BagDrawer() {
                 </p>
                 <div className="flex flex-col gap-2.5">
                   <Link
-                    to="/checkout"
+                    to={user ? '/checkout' : '/login?redirect=/checkout'}
                     onClick={closeCart}
                     className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent px-6 py-3.5 text-sm font-bold text-white hover:bg-accent-hover transition-colors shadow-sm"
                   >

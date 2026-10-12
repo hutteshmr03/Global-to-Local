@@ -39,10 +39,10 @@ export default function OurStoryPage() {
   return (
     <main id="main" className="min-w-0 bg-ground">
       {/* 1. HERO SECTION */}
-      <section className="relative isolate overflow-hidden bg-ground pt-12 sm:pt-16 lg:pt-20">
+      <section className="relative isolate overflow-hidden bg-ground pt-24 sm:pt-28">
         <ShellDrift tone="light" />
 
-        <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-2 lg:gap-20 lg:py-28">
+        <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 grid items-center gap-8 sm:gap-12 pt-2 sm:pt-4 lg:pt-6 pb-8 sm:pb-14 lg:grid-cols-2 lg:gap-16 lg:pb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -80,14 +80,14 @@ export default function OurStoryPage() {
       </section>
 
       {/* 2. SOCIAL VENTURE GENESIS */}
-      <section className="py-16 sm:py-24 lg:py-28 bg-ground text-content border-t border-border/40">
+      <section className="pt-6 pb-8 sm:pt-16 sm:pb-16 lg:py-28 bg-ground text-content border-t border-border/40">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20"
+            className="grid gap-6 sm:gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20"
           >
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-content">
               Conceptualised during the pandemic, as a social venture
@@ -111,7 +111,7 @@ export default function OurStoryPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-14 aspect-[21/9] overflow-hidden rounded-2xl border border-border bg-surface shadow-md lg:mt-20 group"
+            className="mt-6 sm:mt-12 aspect-[21/9] overflow-hidden rounded-2xl border border-border bg-surface shadow-md lg:mt-20 group"
           >
             <img
               alt="Wide interior of the store: shelves, baskets, warm lamps"
@@ -123,7 +123,7 @@ export default function OurStoryPage() {
       </section>
 
       {/* 3. WHERE IT ALL COMES FROM */}
-      <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden bg-ground border-t border-border/40">
+      <section className="relative pt-6 pb-8 sm:pt-14 sm:pb-16 lg:py-28 overflow-hidden bg-ground border-t border-border/40">
         <div className="mx-auto w-full max-w-shell px-5 sm:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,7 +160,7 @@ export default function OurStoryPage() {
       </section>
 
       {/* 4. WHAT TWO YEARS OF BUYING LOCAL ADDS UP TO (STATS) */}
-      <section className="relative isolate py-16 sm:py-20 lg:py-24 mx-[clamp(12px,2.5vw,32px)] my-4 overflow-clip rounded-2xl bg-palm text-content-ondark palm-shade shadow-xl">
+      <section className="relative isolate py-12 sm:py-20 lg:py-24 mx-[clamp(12px,2.5vw,32px)] my-2 sm:my-4 overflow-clip rounded-2xl bg-palm text-content-ondark palm-shade shadow-xl">
         {/* Floating Goan motifs */}
         <ShellDrift tone="dark" />
 
