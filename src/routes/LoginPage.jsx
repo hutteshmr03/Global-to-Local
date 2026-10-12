@@ -11,7 +11,11 @@ import ShellDrift from '../components/common/ShellDrift';
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const login = useAuthStore((state) => state.login);
+  const findUserByPhone = useAuthStore((state) => state.findUserByPhone);
+  const findUserByEmail = useAuthStore((state) => state.findUserByEmail);
+  const registerUser = useAuthStore((state) => state.registerUser);
+  const loginWithPhone = useAuthStore((state) => state.loginWithPhone);
+  const loginWithEmail = useAuthStore((state) => state.loginWithEmail);
 
   // 'phone' or 'email'
   const [authMethod, setAuthMethod] = useState('phone');
@@ -31,59 +35,130 @@ export default function LoginPage() {
   const [timer, setTimer] = useState(30);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Destination after login
   const redirectTarget = new URLSearchParams(location.search).get('redirect') || '/account';
 
-  // Request OTP simulation (Flipkart/Blinkit style)
+  // Request OTP with strict account check
   const handleRequestOtp = (e) => {
     e.preventDefault();
-    if (!phoneNumber || phoneNumber.replace(/\D/g, '').length < 10) {
-      alert('Please enter a valid 10-digit mobile number');
+    setErrorMessage('');
+    const cleanDigits = (phoneNumber || '').replace(/\D/g, '');
+    if (!cleanDigits || cleanDigits.length < 10) {
+      setErrorMessage('Please enter a valid 10-digit mobile number');
       return;
     }
+
+    if (mode === 'signin') {
+      const existingUser = findUserByPhone(cleanDigits);
+      if (!existingUser) {
+        setErrorMessage('No account found with this mobile number.');
+        return;
+      }
+    } else {
+      // signup mode
+      if (!fullName.trim()) {
+        setErrorMessage('Please enter your full name to create an account.');
+        return;
+      }
+      const existingUser = findUserByPhone(cleanDigits);
+      if (existingUser) {
+        setErrorMessage('An account already exists with this mobile number.');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       setOtpSent(true);
-      setOtpCode(['1', '2', '3', '4']); // Pre-fill demo OTP for delightful testing
-    }, 600);
+      setOtpCode(['1', '2', '3', '4']); // Pre-fill demo OTP
+    }, 500);
   };
 
-  // Verify OTP
+  // Verify OTP & Complete Auth
   const handleVerifyOtp = (e) => {
     e.preventDefault();
+    setErrorMessage('');
+    const entered = otpCode.join('');
+    if (entered.length < 4) {
+      setErrorMessage('Please enter the 4-digit OTP');
+      return;
+    }
+
     setIsSubmitting(true);
     setTimeout(() => {
-      login({
-        phone: '+91 ' + phoneNumber.replace(/\D/g, ''),
-        name: mode === 'signup' && fullName ? fullName : 'Goan Foodie',
-        email: email || '',
-      });
-      setIsSubmitting(false);
-      setSuccessMessage('Welcome! Signed in successfully.');
-      setTimeout(() => navigate(redirectTarget), 700);
-    }, 700);
+      if (mode === 'signup') {
+        const result = registerUser({
+          name: fullName.trim(),
+          phone: phoneNumber.replace(/\D/g, ''),
+          email: email.trim(),
+        });
+        if (result.error) {
+          setIsSubmitting(false);
+          setErrorMessage(result.error);
+          return;
+        }
+        setIsSubmitting(false);
+        setSuccessMessage(`Account created successfully! Welcome, ${result.user.name}.`);
+        setTimeout(() => navigate(redirectTarget), 700);
+      } else {
+        const result = loginWithPhone(phoneNumber.replace(/\D/g, ''));
+        if (result.error) {
+          setIsSubmitting(false);
+          setErrorMessage(result.error);
+          return;
+        }
+        setIsSubmitting(false);
+        setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
+        setTimeout(() => navigate(redirectTarget), 700);
+      }
+    }, 500);
   };
 
   // Handle Email & Password Submit
   const handleEmailAuth = (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      alert('Please enter both email and password');
+    setErrorMessage('');
+    if (!email.trim() || !password) {
+      setErrorMessage('Please enter both email and password');
       return;
     }
+
     setIsSubmitting(true);
     setTimeout(() => {
-      login({
-        email: email.trim(),
-        name: mode === 'signup' && fullName ? fullName : email.split('@')[0],
-        phone: phoneNumber ? '+91 ' + phoneNumber : '',
-      });
-      setIsSubmitting(false);
-      setSuccessMessage('Welcome back! Signed in successfully.');
-      setTimeout(() => navigate(redirectTarget), 700);
-    }, 700);
+      if (mode === 'signup') {
+        if (!fullName.trim()) {
+          setIsSubmitting(false);
+          setErrorMessage('Please enter your full name to create an account.');
+          return;
+        }
+        const result = registerUser({
+          name: fullName.trim(),
+          email: email.trim(),
+          phone: phoneNumber ? phoneNumber.replace(/\D/g, '') : '',
+        });
+        if (result.error) {
+          setIsSubmitting(false);
+          setErrorMessage(result.error);
+          return;
+        }
+        setIsSubmitting(false);
+        setSuccessMessage(`Account created! Welcome, ${result.user.name}.`);
+        setTimeout(() => navigate(redirectTarget), 700);
+      } else {
+        const result = loginWithEmail(email.trim(), password);
+        if (result.error) {
+          setIsSubmitting(false);
+          setErrorMessage(result.error);
+          return;
+        }
+        setIsSubmitting(false);
+        setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
+        setTimeout(() => navigate(redirectTarget), 700);
+      }
+    }, 500);
   };
 
   return (
@@ -157,16 +232,24 @@ export default function LoginPage() {
                   <div className="flex gap-1 rounded-pill bg-ground p-1 border border-border/40 text-xs">
                     <button
                       type="button"
-                      onClick={() => setAuthMethod('phone')}
+                      onClick={() => {
+                        setAuthMethod('phone');
+                        setErrorMessage('');
+                        setOtpSent(false);
+                      }}
                       className={`px-3 py-1 rounded-pill font-semibold transition-all ${
                         authMethod === 'phone' ? 'bg-surface text-content shadow-xs' : 'text-content-muted hover:text-content'
                       }`}
                     >
-                      Phone OTP
+                      Phone
                     </button>
                     <button
                       type="button"
-                      onClick={() => setAuthMethod('email')}
+                      onClick={() => {
+                        setAuthMethod('email');
+                        setErrorMessage('');
+                        setOtpSent(false);
+                      }}
                       className={`px-3 py-1 rounded-pill font-semibold transition-all ${
                         authMethod === 'email' ? 'bg-surface text-content shadow-xs' : 'text-content-muted hover:text-content'
                       }`}
@@ -218,7 +301,10 @@ export default function LoginPage() {
                             type="text"
                             required
                             value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
+                            onChange={(e) => {
+                              if (errorMessage) setErrorMessage('');
+                              setFullName(e.target.value);
+                            }}
                             placeholder="e.g. Rahul Naik"
                             className="w-full rounded-pill border border-border bg-ground px-4 py-3 text-sm text-content outline-none focus:border-accent transition-colors shadow-xs"
                           />
@@ -227,8 +313,20 @@ export default function LoginPage() {
 
                       <div>
                         <label className="block text-xs font-semibold text-content mb-1">Mobile Number</label>
-                        <div className="flex rounded-pill border border-border bg-ground focus-within:border-accent transition-colors shadow-xs overflow-hidden">
-                          <span className="flex items-center px-4 bg-surface-muted border-r border-border/50 text-xs font-bold text-content select-none">
+                        <div
+                          className={`flex rounded-pill border transition-all shadow-xs overflow-hidden ${
+                            errorMessage
+                              ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
+                              : 'border-border bg-ground focus-within:border-accent'
+                          }`}
+                        >
+                          <span
+                            className={`flex items-center px-4 border-r text-xs font-bold select-none ${
+                              errorMessage
+                                ? 'bg-accent/5 border-accent/30 text-accent'
+                                : 'bg-surface-muted border-border/50 text-content'
+                            }`}
+                          >
                             +91
                           </span>
                           <input
@@ -236,12 +334,50 @@ export default function LoginPage() {
                             maxLength={10}
                             required
                             value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                            onChange={(e) => {
+                              if (errorMessage) setErrorMessage('');
+                              setPhoneNumber(e.target.value.replace(/\D/g, ''));
+                            }}
                             placeholder="Enter 10-digit number"
                             className="w-full bg-transparent px-4 py-3 text-sm font-medium text-content outline-none"
                             autoFocus
                           />
                         </div>
+                        {errorMessage && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-1.5 px-3 text-xs font-medium text-accent flex flex-wrap items-center gap-1"
+                          >
+                            <span>{errorMessage}</span>
+                            {mode === 'signin' && errorMessage.toLowerCase().includes('no account') && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setErrorMessage('');
+                                  setMode('signup');
+                                  setOtpSent(false);
+                                }}
+                                className="font-bold underline hover:text-accent-hover cursor-pointer ml-1"
+                              >
+                                Create an account
+                              </button>
+                            )}
+                            {mode === 'signup' && errorMessage.toLowerCase().includes('already exists') && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setErrorMessage('');
+                                  setMode('signin');
+                                  setOtpSent(false);
+                                }}
+                                className="font-bold underline hover:text-accent-hover cursor-pointer ml-1"
+                              >
+                                Sign in
+                              </button>
+                            )}
+                          </motion.div>
+                        )}
                       </div>
 
                       <button
@@ -277,15 +413,29 @@ export default function LoginPage() {
                               maxLength={1}
                               value={digit}
                               onChange={(e) => {
+                                if (errorMessage) setErrorMessage('');
                                 const val = e.target.value.replace(/\D/g, '');
                                 const copy = [...otpCode];
                                 copy[idx] = val;
                                 setOtpCode(copy);
                               }}
-                              className="h-12 w-12 rounded-xl border border-border bg-ground text-center text-lg font-bold text-content outline-none focus:border-accent shadow-xs"
+                              className={`h-12 w-12 rounded-xl border bg-ground text-center text-lg font-bold text-content outline-none transition-all shadow-xs ${
+                                errorMessage
+                                  ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
+                                  : 'border-border focus:border-accent'
+                              }`}
                             />
                           ))}
                         </div>
+                        {errorMessage && (
+                          <motion.p
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-center text-xs font-medium text-accent mt-1"
+                          >
+                            {errorMessage}
+                          </motion.p>
+                        )}
                         <p className="text-center text-[11px] text-content-muted mt-1.5">
                           Demo OTP: <strong>1234</strong>
                         </p>
@@ -323,7 +473,10 @@ export default function LoginPage() {
                         type="text"
                         required
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        onChange={(e) => {
+                          if (errorMessage) setErrorMessage('');
+                          setFullName(e.target.value);
+                        }}
                         placeholder="e.g. Maria D'Souza"
                         className="w-full rounded-pill border border-border bg-ground px-4 py-3 text-sm text-content outline-none focus:border-accent transition-colors shadow-xs"
                       />
@@ -337,9 +490,16 @@ export default function LoginPage() {
                         type="email"
                         required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          if (errorMessage) setErrorMessage('');
+                          setEmail(e.target.value);
+                        }}
                         placeholder="name@example.com"
-                        className="w-full rounded-pill border border-border bg-ground pl-11 pr-4 py-3 text-sm text-content outline-none focus:border-accent transition-colors shadow-xs"
+                        className={`w-full rounded-pill border bg-ground pl-11 pr-4 py-3 text-sm text-content outline-none transition-colors shadow-xs ${
+                          errorMessage && errorMessage.toLowerCase().includes('email')
+                            ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
+                            : 'border-border focus:border-accent'
+                        }`}
                       />
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted" />
                     </div>
@@ -363,9 +523,16 @@ export default function LoginPage() {
                         type={showPassword ? 'text' : 'password'}
                         required
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                          if (errorMessage) setErrorMessage('');
+                          setPassword(e.target.value);
+                        }}
                         placeholder="••••••••"
-                        className="w-full rounded-pill border border-border bg-ground pl-11 pr-11 py-3 text-sm text-content outline-none focus:border-accent transition-colors shadow-xs"
+                        className={`w-full rounded-pill border bg-ground pl-11 pr-11 py-3 text-sm text-content outline-none transition-colors shadow-xs ${
+                          errorMessage && !errorMessage.toLowerCase().includes('email')
+                            ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
+                            : 'border-border focus:border-accent'
+                        }`}
                       />
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-content-muted" />
                       <button
@@ -376,6 +543,15 @@ export default function LoginPage() {
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
+                    {errorMessage && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1.5 px-3 text-xs font-medium text-accent"
+                      >
+                        {errorMessage}
+                      </motion.p>
+                    )}
                   </div>
 
                   <button
@@ -395,8 +571,12 @@ export default function LoginPage() {
                     New to Global to Local?{' '}
                     <button
                       type="button"
-                      onClick={() => setMode('signup')}
-                      className="font-bold text-accent hover:underline ml-1"
+                      onClick={() => {
+                        setMode('signup');
+                        setErrorMessage('');
+                        setOtpSent(false);
+                      }}
+                      className="font-bold text-accent hover:underline ml-1 cursor-pointer"
                     >
                       Create an account
                     </button>
@@ -406,8 +586,12 @@ export default function LoginPage() {
                     Already have an account?{' '}
                     <button
                       type="button"
-                      onClick={() => setMode('signin')}
-                      className="font-bold text-accent hover:underline ml-1"
+                      onClick={() => {
+                        setMode('signin');
+                        setErrorMessage('');
+                        setOtpSent(false);
+                      }}
+                      className="font-bold text-accent hover:underline ml-1 cursor-pointer"
                     >
                       Sign in here
                     </button>

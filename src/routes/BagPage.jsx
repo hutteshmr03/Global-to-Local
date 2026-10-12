@@ -61,7 +61,10 @@ export default function BagPage() {
                           {product.name}
                         </Link>
                       </div>
-                      <p className="text-xs text-content-muted mt-1">{product.weight}</p>
+                      <p className="text-xs text-content-muted mt-1">
+                        {product.weight ? `${product.weight} · ` : ''}
+                        <span className="font-semibold text-content">{formatPrice(product.price)}</span>
+                      </p>
                     </div>
 
                     <div className="flex items-center justify-between mt-4">
