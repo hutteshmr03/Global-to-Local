@@ -45,7 +45,7 @@ export default function HomeHero() {
       <audio ref={audioRef} src="/audio/fontainhas-street.wav" loop preload="none" />
 
       {/* Main Hero Content */}
-      <div className="relative z-10 flex min-h-dvh flex-col justify-end mx-auto max-w-shell px-5 pb-[max(5.5rem,calc(4.5rem+env(safe-area-inset-bottom)))] sm:px-8 sm:pb-10 lg:px-12 lg:pb-12 w-full">
+      <div className="relative z-10 flex min-h-dvh flex-col justify-end mx-auto max-w-shell px-5 pb-[max(3.6rem,calc(3.2rem+env(safe-area-inset-bottom)))] sm:px-8 sm:pb-8 lg:px-12 lg:pb-10 w-full">
         <motion.div
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
@@ -89,8 +89,8 @@ export default function HomeHero() {
             </Link>
           </div>
 
-          {/* Address */}
-          <p className="mt-4 text-xs sm:text-sm text-content-ondark/80 [text-shadow:0_1px_8px_rgba(18,38,43,0.45)] max-w-[calc(100%-9.5rem)] sm:max-w-none">
+          {/* Address - Always in a single row */}
+          <p className="mt-3.5 whitespace-nowrap text-[12px] sm:text-sm text-content-ondark/85 tracking-tight [text-shadow:0_1px_8px_rgba(18,38,43,0.45)]">
             {siteConfig.contact.address}
           </p>
         </motion.div>
@@ -114,7 +114,7 @@ export default function HomeHero() {
       </div>
 
       {/* "Hear the street" Audio Control (Bottom Right) */}
-      <div className="pointer-events-auto absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 z-20 sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:right-8 lg:right-12">
+      <div className="pointer-events-auto absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-20 sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:right-8 lg:right-12">
         <button
           type="button"
           onClick={() => setIsPlayingAudio(!isPlayingAudio)}
