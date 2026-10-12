@@ -374,7 +374,7 @@ export default function Header() {
                   >
                     <span className="flex items-center gap-2.5">
                       <User className="w-4 h-4 text-accent" />
-                      <span>My Account / Profile</span>
+                      <span>My Account</span>
                     </span>
                     {(pathname.startsWith('/account') || pathname.startsWith('/login')) && <span className="text-accent text-xs">●</span>}
                   </Link>

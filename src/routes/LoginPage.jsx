@@ -228,9 +228,8 @@ export default function LoginPage() {
                       <div>
                         <label className="block text-xs font-semibold text-content mb-1">Mobile Number</label>
                         <div className="flex rounded-pill border border-border bg-ground focus-within:border-accent transition-colors shadow-xs overflow-hidden">
-                          <span className="flex items-center gap-1.5 px-3.5 bg-surface-muted border-r border-border/50 text-xs font-bold text-content select-none">
-                            <span>🇮🇳</span>
-                            <span>+91</span>
+                          <span className="flex items-center px-4 bg-surface-muted border-r border-border/50 text-xs font-bold text-content select-none">
+                            +91
                           </span>
                           <input
                             type="tel"
