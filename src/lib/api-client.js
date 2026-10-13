@@ -3,6 +3,8 @@
  * Uses httpOnly SameSite=Lax cookies + double-submit X-CSRF-Token header.
  */
 
+import { handleMockBackend } from './mock-backend';
+
 let inMemoryCsrfToken = null;
 let inMemoryAccessToken = null;
 
@@ -72,7 +74,33 @@ export async function apiFetch(path, options = {}) {
         : options.body,
   };
 
-  let res = await fetch(path, fetchOptions);
+  let res = null;
+  let networkFailed = false;
+
+  try {
+    res = await fetch(path, fetchOptions);
+  } catch (err) {
+    networkFailed = true;
+  }
+
+  // Standalone fallback: If backend server is not hosted (any 5xx error like 500/502/503/504 or 404, or network unreachable)
+  if (networkFailed || (res && (res.status === 404 || res.status >= 500))) {
+    try {
+      const mockResult = await handleMockBackend(path, options, method);
+      if (mockResult !== undefined) {
+        return mockResult;
+      }
+    } catch (mockErr) {
+      if (mockErr instanceof ApiProblemError) {
+        throw mockErr;
+      }
+      throw new ApiProblemError(400, { detail: mockErr.message || 'Request failed' });
+    }
+  }
+
+  if (networkFailed || !res) {
+    throw new ApiProblemError(503, { detail: 'Backend server is unreachable.' });
+  }
 
   // Automatic token refresh on 401 (except for auth endpoints themselves)
   if (

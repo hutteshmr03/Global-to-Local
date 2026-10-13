@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -41,8 +41,7 @@ export default function AdminLayout() {
 
   // Not logged in -> redirect to /login
   if (!user) {
-    navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`, { replace: true });
-    return null;
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
   // Logged in as customer (not admin) -> 403 Forbidden Screen
