@@ -28,6 +28,7 @@ from backend.database import get_db
 from backend.deps import get_current_user
 from backend.models import (
     Address,
+    LoginEvent,
     OtpChallenge,
     PasswordResetToken,
     User,
@@ -494,8 +495,28 @@ def login_with_email(
         .first()
     )
 
+    # Stricter rate limit on admin login (max 5 attempts per 15 minutes)
+    if user and user.role == UserRole.admin:
+        admin_allowed, _, admin_ttl = check_rate_limit(f"rl:admin_login:{clean_email}", max_attempts=5, window_seconds=900)
+        if not admin_allowed:
+            raise ProblemException(
+                status_code=429,
+                title="Too Many Admin Sign-In Attempts",
+                detail="Too many admin sign-in attempts. Please wait 15 minutes before trying again.",
+                problem_type="https://globaltolocal.in/problems/rate-limited",
+                headers={"Retry-After": str(admin_ttl)},
+            )
+
     # Neutral message: never reveal whether the email is registered
     if not user or not user.password_hash or not verify_password(payload.password, user.password_hash):
+        # Record failed login event
+        db.add(LoginEvent(
+            user_id=user.id if user else None,
+            ip=client_ip,
+            user_agent=request.headers.get("User-Agent"),
+            success=False,
+        ))
+        db.commit()
         raise ProblemException(
             status_code=401,
             title="Sign-In Failed",
@@ -504,12 +525,29 @@ def login_with_email(
         )
 
     if not user.is_active:
+        # Record failed login event for deactivated user
+        db.add(LoginEvent(
+            user_id=user.id,
+            ip=client_ip,
+            user_agent=request.headers.get("User-Agent"),
+            success=False,
+        ))
+        db.commit()
         raise ProblemException(
             status_code=403,
             title="Account Deactivated",
             detail="This account has been deactivated. Please contact customer support.",
             problem_type="https://globaltolocal.in/problems/account-inactive",
         )
+
+    # Record successful login event
+    db.add(LoginEvent(
+        user_id=user.id,
+        ip=client_ip,
+        user_agent=request.headers.get("User-Agent"),
+        success=True,
+    ))
+    db.commit()
 
     return issue_session_and_cookies(
         db=db,

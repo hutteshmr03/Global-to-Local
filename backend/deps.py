@@ -9,7 +9,7 @@ from backend.core.security import (
     enforce_csrf_if_cookie_auth,
 )
 from backend.database import get_db
-from backend.models import Product, User
+from backend.models import Product, User, UserRole
 
 
 def get_current_user_optional(
@@ -60,6 +60,19 @@ def get_current_user(
             title="Authentication Required",
             detail="Please sign in to continue.",
             problem_type="https://globaltolocal.in/problems/unauthorized",
+        )
+    return user
+
+
+def get_current_admin_user(
+    user: User = Depends(get_current_user),
+) -> User:
+    if user.role != UserRole.admin or not user.is_active:
+        raise ProblemException(
+            status_code=403,
+            title="Forbidden",
+            detail="Admin privileges required to access this resource.",
+            problem_type="https://globaltolocal.in/problems/forbidden",
         )
     return user
 

@@ -20,6 +20,15 @@ import AccountPage from './routes/AccountPage';
 import LoginPage from './routes/LoginPage';
 import NotFoundPage from './routes/NotFoundPage';
 
+// Admin Routes (Part 2 Back Office)
+import AdminLayout from './routes/admin/AdminLayout';
+import AdminDashboard from './routes/admin/AdminDashboard';
+import AdminProducts from './routes/admin/AdminProducts';
+import AdminOrders from './routes/admin/AdminOrders';
+import AdminOrderDetail from './routes/admin/AdminOrderDetail';
+import AdminCustomers from './routes/admin/AdminCustomers';
+import AdminEnquiries from './routes/admin/AdminEnquiries';
+
 import ScrollProgress from './components/common/ScrollProgress';
 
 function ScrollToTop() {
@@ -32,14 +41,32 @@ function ScrollToTop() {
 
 function AppShell() {
   const { pathname } = useLocation();
-  const hideFooter = [
-    '/login',
-    '/account',
-    '/bag',
-    '/checkout',
-    '/terms-and-conditions',
-    '/privacy-policy'
-  ].includes(pathname) || pathname.startsWith('/order');
+  const isAdmin = pathname.startsWith('/admin');
+
+  const hideFooter =
+    [
+      '/login',
+      '/account',
+      '/bag',
+      '/checkout',
+      '/terms-and-conditions',
+      '/privacy-policy',
+    ].includes(pathname) || pathname.startsWith('/order');
+
+  if (isAdmin) {
+    return (
+      <Routes>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="orders/:id" element={<AdminOrderDetail />} />
+          <Route path="customers" element={<AdminCustomers />} />
+          <Route path="enquiries" element={<AdminEnquiries />} />
+        </Route>
+      </Routes>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-ground text-content">

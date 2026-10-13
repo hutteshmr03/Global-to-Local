@@ -150,7 +150,8 @@ export default function LoginPage() {
         return;
       }
       setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
-      setTimeout(() => navigate(redirectTarget), 500);
+      const destination = result.user?.role === 'admin' ? '/admin' : redirectTarget;
+      setTimeout(() => navigate(destination), 500);
     }
   };
 

@@ -9,7 +9,7 @@ from backend.config import settings
 from backend.core.errors import ProblemException, register_exception_handlers
 from backend.core.providers import DEV_EMAIL_OUTBOX, DEV_SMS_OUTBOX
 from backend.database import SessionLocal, get_db
-from backend.routers import auth_account, cart, catalogue, checkout_orders, content
+from backend.routers import admin, auth_account, cart, catalogue, checkout_orders, content
 from backend.routers.checkout_orders import release_expired_reservations
 
 
@@ -86,6 +86,7 @@ app.include_router(content.router)
 app.include_router(cart.router)
 app.include_router(auth_account.router)
 app.include_router(checkout_orders.router)
+app.include_router(admin.router)
 
 
 @app.get("/api/v1/health", tags=["System"])
