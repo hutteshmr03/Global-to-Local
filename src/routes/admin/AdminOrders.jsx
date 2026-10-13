@@ -104,7 +104,7 @@ export default function AdminOrders() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl text-content font-bold">Orders Management</h1>
+          <h1 className="font-sans text-2xl sm:text-3xl text-content font-bold">Orders Management</h1>
           <p className="text-sm text-content-muted mt-1">
             Track customer orders, confirm packaging, assign tracking, and update dispatch status.
           </p>
@@ -202,82 +202,152 @@ export default function AdminOrders() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-ground/75 border-b border-border text-xs font-semibold text-content-muted uppercase tracking-wider">
-                <tr>
-                  <th className="px-5 py-3.5">Order #</th>
-                  <th className="px-5 py-3.5">Date Placed</th>
-                  <th className="px-5 py-3.5">Recipient & Destination</th>
-                  <th className="px-5 py-3.5">Items</th>
-                  <th className="px-5 py-3.5">Total (₹)</th>
-                  <th className="px-5 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60">
-                {orders.map((o) => {
-                  const badge = getStatusBadge(o.status);
-                  const dateStr = o.placed_at
-                    ? new Date(o.placed_at).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : '—';
+          <>
+            {/* Desktop Table View (>= 768px) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-ground/75 border-b border-border text-xs font-semibold text-content-muted uppercase tracking-wider">
+                  <tr>
+                    <th className="px-5 py-3.5">Order #</th>
+                    <th className="px-5 py-3.5">Date Placed</th>
+                    <th className="px-5 py-3.5">Recipient & Destination</th>
+                    <th className="px-5 py-3.5">Items</th>
+                    <th className="px-5 py-3.5">Total (₹)</th>
+                    <th className="px-5 py-3.5">Status</th>
+                    <th className="px-5 py-3.5 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {orders.map((o) => {
+                    const badge = getStatusBadge(o.status);
+                    const dateStr = o.placed_at
+                      ? new Date(o.placed_at).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : '—';
 
-                  return (
-                    <tr key={o.id} className="hover:bg-ground/40 transition-colors">
-                      <td className="px-5 py-4 font-mono font-medium text-accent">
+                    return (
+                      <tr key={o.id} className="hover:bg-ground/40 transition-colors">
+                        <td className="px-5 py-4 font-sans font-bold text-accent">
+                          <Link
+                            to={`/admin/orders/${o.id}`}
+                            className="hover:underline flex items-center gap-1 group"
+                          >
+                            {o.order_number}
+                          </Link>
+                        </td>
+                        <td className="px-5 py-4 text-xs text-content-muted whitespace-nowrap">
+                          {dateStr}
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="font-medium text-content">{o.recipient_name}</div>
+                          <div className="text-xs text-content-muted mt-0.5">
+                            {o.city}, {o.state} {o.pincode ? `(${o.pincode})` : ''}
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-content-muted">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded bg-ground border border-border/40 text-content text-xs font-medium">
+                            {o.item_count} {o.item_count === 1 ? 'item' : 'items'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 font-medium text-content whitespace-nowrap">
+                          <div className="font-semibold text-content" title={`${o.total_paise} paise`}>
+                            ₹{((o.total_paise || 0) / 100).toLocaleString('en-IN')}
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs border ${badge.bg}`}
+                          >
+                            {badge.icon}
+                            {badge.label}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right whitespace-nowrap">
+                          <Link
+                            to={`/admin/orders/${o.id}`}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-border bg-surface hover:bg-ground text-content text-xs font-semibold shadow-xs transition-all min-h-[36px]"
+                          >
+                            View & Process
+                            <ChevronRight className="h-3 w-3 text-content-subtle" />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Stacked Card View (< 768px) */}
+            <div className="md:hidden divide-y divide-border/60">
+              {orders.map((o) => {
+                const badge = getStatusBadge(o.status);
+                const dateStr = o.placed_at
+                  ? new Date(o.placed_at).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : '—';
+
+                return (
+                  <div key={o.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
                         <Link
                           to={`/admin/orders/${o.id}`}
-                          className="hover:underline flex items-center gap-1 group"
+                          className="font-sans font-bold text-accent text-sm hover:underline"
                         >
                           {o.order_number}
                         </Link>
-                      </td>
-                      <td className="px-5 py-4 text-xs text-content-muted whitespace-nowrap">
-                        {dateStr}
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-content">{o.recipient_name}</div>
-                        <div className="text-xs text-content-muted mt-0.5">
-                          {o.city}, {o.state} {o.pincode ? `(${o.pincode})` : ''}
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 text-content-muted">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded bg-ground border border-border/40 text-content text-xs font-medium">
-                          {o.item_count} {o.item_count === 1 ? 'item' : 'items'}
+                        <p className="text-xs text-content-muted mt-0.5">{dateStr}</p>
+                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs border ${badge.bg}`}>
+                        {badge.icon}
+                        {badge.label}
+                      </span>
+                    </div>
+
+                    <div className="text-xs space-y-0.5 pt-1">
+                      <div className="font-semibold text-content text-sm">{o.recipient_name}</div>
+                      <div className="text-content-muted">
+                        {o.city}, {o.state} {o.pincode ? `(${o.pincode})` : ''}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-2 border-t border-border/40">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-ground border border-border/60 text-content text-xs font-medium">
+                        {o.item_count} {o.item_count === 1 ? 'item' : 'items'}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-content-muted text-[11px]">Total: </span>
+                        <span className="font-bold text-sm text-content">
+                          ₹{((o.total_paise || 0) / 100).toLocaleString('en-IN')}
                         </span>
-                      </td>
-                      <td className="px-5 py-4 font-medium text-content whitespace-nowrap">
-                        <div className="font-semibold text-content" title={`${o.total_paise} paise`}>{o.total_formatted}</div>
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs border ${badge.bg}`}
-                        >
-                          {badge.icon}
-                          {badge.label}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4 text-right whitespace-nowrap">
-                        <Link
-                          to={`/admin/orders/${o.id}`}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-border bg-surface hover:bg-ground text-content text-xs font-semibold shadow-xs transition-all"
-                        >
-                          View & Process
-                          <ChevronRight className="h-3 w-3 text-content-subtle" />
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <Link
+                        to={`/admin/orders/${o.id}`}
+                        className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-ground text-content text-xs font-bold shadow-xs transition-all min-h-[44px]"
+                      >
+                        <span>View & Process</span>
+                        <ChevronRight className="h-3.5 w-3.5 text-content-subtle" />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>

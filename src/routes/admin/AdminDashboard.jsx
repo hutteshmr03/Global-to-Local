@@ -36,7 +36,7 @@ export default function AdminDashboard() {
 
   if (loading && !data) {
     return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 text-center">
+      <div className="py-12 text-center">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-palm border-t-transparent mb-3" />
         <p className="text-sm font-semibold text-content-muted">Loading live database metrics...</p>
       </div>
@@ -45,13 +45,13 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="py-12">
         <div className="rounded-2xl border border-accent/30 bg-accent/5 p-6 text-center space-y-3">
           <AlertCircle className="w-8 h-8 text-accent mx-auto" />
           <p className="text-sm font-semibold text-accent">{error}</p>
           <button
             onClick={loadDashboard}
-            className="inline-flex items-center gap-2 rounded-pill bg-palm px-4 py-2 text-xs font-bold text-white hover:bg-palm-shade shadow-xs"
+            className="inline-flex items-center gap-2 rounded-pill bg-palm px-4 py-2 text-xs font-bold text-white hover:bg-palm-shade shadow-xs min-h-[44px] cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Try Again</span>
@@ -62,12 +62,12 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="space-y-8">
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/40 pb-5">
         <div>
-          <span className="font-mono text-xs font-bold uppercase tracking-wider text-accent">Operations Overview</span>
-          <h1 className="mt-1 font-display text-2xl sm:text-3xl font-bold text-content">Admin Dashboard</h1>
+          <span className="font-sans text-xs font-bold uppercase tracking-wider text-accent">Operations Overview</span>
+          <h1 className="mt-1 font-sans text-2xl sm:text-3xl font-bold text-content">Admin Dashboard</h1>
           <p className="mt-1 text-xs sm:text-sm text-content-muted">
             Live database counts for orders, catalogue pricing, and enquiries dispatched from Fontainhas.
           </p>
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-3xl font-bold text-content tabular-nums">
+            <span className="font-sans text-3xl font-bold text-content tabular-nums">
               {data.today_orders_count}
             </span>
             <span className="text-xs text-content-muted">placed today</span>
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-3xl font-bold text-accent tabular-nums">
+            <span className="font-sans text-3xl font-bold text-accent tabular-nums">
               {data.pending_orders_count}
             </span>
             <span className="text-xs text-content-muted">need action</span>
@@ -139,8 +139,8 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="font-display text-2xl font-bold text-content tabular-nums">
-              {data.revenue_formatted}
+            <span className="font-sans text-2xl font-bold text-content tabular-nums">
+              ₹{((data.revenue_paise || 0) / 100).toLocaleString('en-IN')}
             </span>
           </div>
           <p className="text-[11px] text-content-subtle pt-1">
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-3xl font-bold text-content tabular-nums">
+            <span className="font-sans text-3xl font-bold text-content tabular-nums">
               {data.products_count}
             </span>
             <span className="text-xs text-content-muted">in 13 shelves</span>
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-3xl font-bold text-content tabular-nums">
+            <span className="font-sans text-3xl font-bold text-content tabular-nums">
               {data.new_enquiries_count}
             </span>
             <span className="text-xs text-content-muted">inbox</span>
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
           className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all space-y-2"
         >
           <div className="flex items-center justify-between">
-            <span className="font-display text-lg font-bold text-content group-hover:text-palm transition-colors">
+            <span className="font-sans text-base sm:text-lg font-bold text-content group-hover:text-palm transition-colors">
               Catalogue & Price Editing
             </span>
             <ArrowRight className="w-4 h-4 text-content-muted group-hover:text-palm group-hover:translate-x-1 transition-all" />
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
           className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all space-y-2"
         >
           <div className="flex items-center justify-between">
-            <span className="font-display text-lg font-bold text-content group-hover:text-palm transition-colors">
+            <span className="font-sans text-base sm:text-lg font-bold text-content group-hover:text-palm transition-colors">
               Orders & Tracking
             </span>
             <ArrowRight className="w-4 h-4 text-content-muted group-hover:text-palm group-hover:translate-x-1 transition-all" />
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
           className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all space-y-2"
         >
           <div className="flex items-center justify-between">
-            <span className="font-display text-lg font-bold text-content group-hover:text-palm transition-colors">
+            <span className="font-sans text-base sm:text-lg font-bold text-content group-hover:text-palm transition-colors">
               Enquiries & Custom Hampers
             </span>
             <ArrowRight className="w-4 h-4 text-content-muted group-hover:text-palm group-hover:translate-x-1 transition-all" />
@@ -247,12 +247,12 @@ export default function AdminDashboard() {
       <div className="rounded-2xl border border-border/60 bg-surface p-6 sm:p-8 shadow-xs space-y-5">
         <div className="flex items-center justify-between border-b border-border/30 pb-4">
           <div>
-            <h2 className="font-display text-lg font-bold text-content">Recent Orders Feed</h2>
+            <h2 className="font-sans text-lg font-bold text-content">Recent Orders Feed</h2>
             <p className="text-xs text-content-muted">Real-time orders placed across Pan-India and Goa Express</p>
           </div>
           <Link
             to="/admin/orders"
-            className="inline-flex items-center gap-1.5 rounded-pill bg-palm px-4 py-2 text-xs font-semibold text-white hover:bg-palm-shade transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-pill bg-palm px-4 py-2 text-xs font-semibold text-white hover:bg-palm-shade transition-all shadow-xs min-h-[44px]"
           >
             <span>All Orders</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -262,41 +262,75 @@ export default function AdminDashboard() {
         {(!data.recent_orders || data.recent_orders.length === 0) ? (
           <p className="text-center py-6 text-xs text-content-muted">No orders found in database yet.</p>
         ) : (
-          <div className="overflow-x-auto hide-scrollbar">
-            <table className="w-full text-left text-xs text-content">
-              <thead>
-                <tr className="border-b border-border/40 text-content-subtle uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 font-bold">Order ID</th>
-                  <th className="py-2.5 font-bold">Customer</th>
-                  <th className="py-2.5 font-bold">Total</th>
-                  <th className="py-2.5 font-bold">Status</th>
-                  <th className="py-2.5 font-bold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/20">
-                {data.recent_orders.map((ord) => (
-                  <tr key={ord.id} className="hover:bg-ground/50 transition-colors">
-                    <td className="py-3 font-mono font-bold text-palm">{ord.order_number}</td>
-                    <td className="py-3 font-medium">{ord.customer_name}</td>
-                    <td className="py-3 font-mono font-bold">{ord.total_formatted}</td>
-                    <td className="py-3">
-                      <span className="inline-block rounded-pill bg-palm/10 border border-palm/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-palm">
-                        {ord.status}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      <Link
-                        to={`/admin/orders/${ord.id}`}
-                        className="font-bold text-accent hover:underline"
-                      >
-                        Details
-                      </Link>
-                    </td>
+          <>
+            {/* Desktop Table View (>= 768px) */}
+            <div className="hidden md:block overflow-x-auto hide-scrollbar">
+              <table className="w-full text-left text-xs text-content">
+                <thead>
+                  <tr className="border-b border-border/40 text-content-subtle uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 font-bold">Order ID</th>
+                    <th className="py-2.5 font-bold">Customer</th>
+                    <th className="py-2.5 font-bold">Total</th>
+                    <th className="py-2.5 font-bold">Status</th>
+                    <th className="py-2.5 font-bold text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-border/20">
+                  {data.recent_orders.map((ord) => (
+                    <tr key={ord.id} className="hover:bg-ground/50 transition-colors">
+                      <td className="py-3 font-sans font-bold text-palm">{ord.order_number}</td>
+                      <td className="py-3 font-medium">{ord.customer_name}</td>
+                      <td className="py-3 font-sans font-bold tabular-nums">₹{((ord.total_paise || 0) / 100).toLocaleString('en-IN')}</td>
+                      <td className="py-3">
+                        <span className="inline-block rounded-pill bg-palm/10 border border-palm/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-palm">
+                          {ord.status}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right">
+                        <Link
+                          to={`/admin/orders/${ord.id}`}
+                          className="font-bold text-accent hover:underline py-1 px-2 inline-block min-h-[44px] leading-[44px]"
+                        >
+                          Details
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Stacked Card View (< 768px) */}
+            <div className="md:hidden space-y-3">
+              {data.recent_orders.map((ord) => (
+                <div
+                  key={ord.id}
+                  className="rounded-2xl border border-border/60 bg-ground/40 p-4 space-y-3 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-sans font-bold text-palm text-sm">{ord.order_number}</span>
+                    <span className="rounded-pill bg-palm/10 border border-palm/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-palm">
+                      {ord.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-content-muted">
+                    <span>Customer: <strong className="text-content font-medium">{ord.customer_name}</strong></span>
+                    <span className="font-sans font-bold tabular-nums text-content text-sm">
+                      ₹{((ord.total_paise || 0) / 100).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="pt-1">
+                    <Link
+                      to={`/admin/orders/${ord.id}`}
+                      className="w-full min-h-[44px] flex items-center justify-center rounded-xl border border-border bg-surface text-content font-bold hover:bg-surface-muted transition-colors shadow-xs"
+                    >
+                      Details &rarr;
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

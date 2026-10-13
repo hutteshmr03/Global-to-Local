@@ -41,8 +41,13 @@ export async function apiFetch(path, options = {}) {
     ...(options.headers || {}),
   };
 
-  if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
+  if (
+    (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) ||
+    (typeof options.body === 'string' && (options.body.startsWith('{') || options.body.startsWith('[')))
+  ) {
+    if (!headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
   }
 
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {

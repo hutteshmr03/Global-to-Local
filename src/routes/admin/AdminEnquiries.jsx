@@ -27,16 +27,32 @@ const STATUS_FILTERS = [
 
 const TYPE_FILTERS = [
   { value: 'all', label: 'All Types' },
-  { value: 'contact', label: 'General Contact' },
-  { value: 'bulk', label: 'Bulk Order' },
-  { value: 'hamper', label: 'Goa-Only Hamper' },
+  { value: 'contact', label: 'General Inquiry' },
+  { value: 'bulk', label: 'Bulk Corporate' },
+  { value: 'hamper', label: 'Custom Hamper' },
 ];
+
+function getEnquiryTypeLabel(type) {
+  switch (type) {
+    case 'bulk':
+      return 'Bulk Corporate';
+    case 'hamper':
+    case 'custom_hamper':
+      return 'Custom Hamper';
+    case 'contact':
+    case 'general':
+      return 'General Inquiry';
+    default:
+      return type ? type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Enquiry';
+  }
+}
 
 function getTypeIcon(type) {
   switch (type) {
     case 'bulk':
       return <Package className="h-4 w-4 text-amber-600" />;
     case 'hamper':
+    case 'custom_hamper':
       return <Gift className="h-4 w-4 text-emerald-600" />;
     case 'contact':
     default:
@@ -116,7 +132,7 @@ export default function AdminEnquiries() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl text-content font-bold">Enquiries & Leads</h1>
+          <h1 className="font-sans text-2xl sm:text-3xl text-content font-bold">Enquiries & Leads</h1>
           <p className="text-sm text-content-muted mt-1">
             General questions, bulk corporate orders, and Goa-only bespoke heritage hampers.
           </p>
@@ -124,7 +140,7 @@ export default function AdminEnquiries() {
         <button
           onClick={fetchEnquiries}
           disabled={loading}
-          className="inline-flex items-center gap-2 self-start sm:self-auto px-3.5 py-2 rounded-lg border border-edge bg-canvas hover:bg-stone-50 text-content text-sm transition-colors shadow-2xs"
+          className="inline-flex items-center gap-2 self-start sm:self-auto px-3.5 py-2 rounded-xl border border-border bg-surface hover:bg-ground text-content text-sm transition-colors shadow-xs min-h-[44px] cursor-pointer"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -132,14 +148,14 @@ export default function AdminEnquiries() {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-canvas border border-edge rounded-xl p-4 shadow-2xs flex flex-col md:flex-row gap-3">
+      <div className="bg-surface border border-border rounded-2xl p-4 shadow-xs flex flex-col md:flex-row gap-3">
         <div className="flex items-center gap-2 flex-1">
-          <Filter className="h-4 w-4 text-stone-400 shrink-0" />
+          <Filter className="h-4 w-4 text-content-subtle shrink-0" />
           <span className="text-xs font-semibold text-content uppercase tracking-wider">Status:</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full md:w-48 px-3 py-1.5 bg-ground border border-edge rounded-lg text-sm text-content focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="w-full md:w-48 px-3.5 py-2.5 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent min-h-[44px] cursor-pointer"
           >
             {STATUS_FILTERS.map((s) => (
               <option key={s.value} value={s.value}>
@@ -154,7 +170,7 @@ export default function AdminEnquiries() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="w-full md:w-48 px-3 py-1.5 bg-ground border border-edge rounded-lg text-sm text-content focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+            className="w-full md:w-48 px-3.5 py-2.5 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent min-h-[44px] cursor-pointer"
           >
             {TYPE_FILTERS.map((t) => (
               <option key={t.value} value={t.value}>
@@ -179,12 +195,12 @@ export default function AdminEnquiries() {
       {/* Enquiries Feed / Cards */}
       <div className="space-y-4">
         {loading ? (
-          <div className="p-12 text-center text-content-muted bg-canvas border border-edge rounded-xl">
-            <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-3 text-terracotta" />
+          <div className="p-12 text-center text-content-muted bg-surface border border-border rounded-2xl">
+            <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-3 text-accent" />
             <p className="text-sm">Loading enquiries feed...</p>
           </div>
         ) : enquiries.length === 0 ? (
-          <div className="p-12 text-center bg-canvas border border-edge rounded-xl">
+          <div className="p-12 text-center bg-surface border border-border rounded-2xl">
             <Inbox className="h-10 w-10 text-stone-300 mx-auto mb-3" />
             <h3 className="text-base font-semibold text-content">No enquiries found</h3>
             <p className="text-sm text-content-muted mt-1 max-w-sm mx-auto">
@@ -203,16 +219,16 @@ export default function AdminEnquiries() {
             return (
               <div
                 key={item.id}
-                className="bg-canvas border border-edge rounded-xl p-5 shadow-2xs space-y-3 hover:border-stone-300 transition-colors"
+                className="bg-surface border border-border rounded-2xl p-5 shadow-xs space-y-3 hover:border-border/80 transition-colors"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-edge-subtle">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border/40">
                   <div className="flex items-center gap-2">
-                    <span className="p-1.5 rounded-lg bg-ground border border-edge">
+                    <span className="p-1.5 rounded-lg bg-ground border border-border">
                       {getTypeIcon(item.type)}
                     </span>
                     <div>
-                      <span className="font-semibold text-sm text-content capitalize">
-                        {item.type} Enquiry
+                      <span className="font-semibold text-sm text-content">
+                        {getEnquiryTypeLabel(item.type)}
                       </span>
                       <span className="text-xs text-content-muted ml-2">• {dateStr}</span>
                     </div>
@@ -225,7 +241,7 @@ export default function AdminEnquiries() {
                       value={item.status}
                       disabled={updatingId === item.id}
                       onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                      className={`text-xs px-2.5 py-1 rounded-full border focus:outline-none focus:ring-1 focus:ring-terracotta ${getStatusBadge(
+                      className={`text-xs px-3 py-1.5 rounded-full border focus:outline-none focus:ring-1 focus:ring-accent min-h-[36px] cursor-pointer ${getStatusBadge(
                         item.status
                       )}`}
                     >
@@ -240,18 +256,18 @@ export default function AdminEnquiries() {
 
                 {/* Sender Details */}
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-content">
-                  <div className="font-semibold text-sm font-serif">{item.name}</div>
+                  <div className="font-bold text-sm font-sans">{item.name}</div>
                   {item.email && (
                     <div className="flex items-center gap-1.5 text-content-muted">
-                      <Mail className="h-3 w-3 text-stone-400" />
+                      <Mail className="h-3 w-3 text-content-subtle" />
                       <a href={`mailto:${item.email}`} className="hover:underline text-content">
                         {item.email}
                       </a>
                     </div>
                   )}
                   {item.phone && (
-                    <div className="flex items-center gap-1.5 text-content-muted font-mono">
-                      <Phone className="h-3 w-3 text-stone-400" />
+                    <div className="flex items-center gap-1.5 text-content-muted font-sans">
+                      <Phone className="h-3 w-3 text-content-subtle" />
                       <a href={`tel:${item.phone}`} className="hover:underline text-content">
                         {item.phone}
                       </a>
@@ -259,14 +275,14 @@ export default function AdminEnquiries() {
                   )}
                   {item.pincode && (
                     <div className="flex items-center gap-1.5 text-content-muted">
-                      <MapPin className="h-3 w-3 text-stone-400" />
+                      <MapPin className="h-3 w-3 text-content-subtle" />
                       <span>Pincode: {item.pincode}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Message Body */}
-                <div className="p-3 bg-ground rounded-lg border border-edge text-xs text-content leading-relaxed whitespace-pre-wrap">
+                <div className="p-3 bg-ground rounded-xl border border-border text-xs text-content leading-relaxed whitespace-pre-wrap">
                   {item.message || 'No additional message text provided.'}
                 </div>
               </div>

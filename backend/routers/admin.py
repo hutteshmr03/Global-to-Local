@@ -1,7 +1,11 @@
+import io
+import os
 import uuid
+from pathlib import Path
 from datetime import datetime, timezone, time
 from typing import Any, Optional
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
+from PIL import Image
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy import desc, func, or_
 from sqlalchemy.orm import Session
@@ -12,6 +16,7 @@ from backend.deps import get_current_admin_user, serialize_product
 from backend.models import (
     Address,
     AuditLog,
+    AvailabilityState,
     Category,
     Enquiry,
     EnquiryStatus,
@@ -25,6 +30,7 @@ from backend.models import (
     Payment,
     PriceChange,
     Product,
+    ProductImage,
     Shipment,
     ShipmentStatus,
     User,
@@ -153,6 +159,63 @@ class AdminStatusChangePayload(BaseModel):
     is_active: bool
 
 
+class AdminProductImageIn(BaseModel):
+    url: Optional[str] = None
+    image_url: Optional[str] = None
+    alt_text: str = Field(default="", max_length=200)
+    is_primary: bool = False
+    sort_order: int = 0
+
+
+class AdminCreateProductPayload(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    slug: str = Field(..., min_length=1, max_length=160)
+    sku: str = Field(..., min_length=1, max_length=64)
+    shelf: Optional[str] = None
+    shelf_slug: Optional[str] = None
+    category_id: Optional[str] = None
+    category_slug: Optional[str] = None
+    price_rupees: Optional[float] = None
+    price_paise: Optional[int] = None
+    compare_at_paise: Optional[int] = None
+    unit_label: str = Field(default="1 unit", max_length=60)
+    net_weight_grams: Optional[int] = None
+    weight_grams: Optional[int] = None
+    description: Optional[str] = None
+    short_description: Optional[str] = None
+    origin_text: Optional[str] = None
+    origin: Optional[str] = None
+    stock_qty: int = Field(default=50, ge=0)
+    low_stock_threshold: int = Field(default=5, ge=0)
+    is_featured: bool = False
+    status: str = Field(default="published")
+    images: list[AdminProductImageIn] = Field(default_factory=list)
+
+
+class AdminUpdateProductPayload(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    slug: Optional[str] = Field(None, min_length=1, max_length=160)
+    sku: Optional[str] = Field(None, min_length=1, max_length=64)
+    shelf: Optional[str] = None
+    shelf_slug: Optional[str] = None
+    category_id: Optional[str] = None
+    category_slug: Optional[str] = None
+    price_rupees: Optional[float] = None
+    price_paise: Optional[int] = None
+    unit_label: Optional[str] = Field(None, max_length=60)
+    net_weight_grams: Optional[int] = None
+    weight_grams: Optional[int] = None
+    description: Optional[str] = None
+    short_description: Optional[str] = None
+    origin_text: Optional[str] = None
+    origin: Optional[str] = None
+    stock_qty: Optional[int] = Field(None, ge=0)
+    low_stock_threshold: Optional[int] = Field(None, ge=0)
+    is_featured: Optional[bool] = None
+    status: Optional[str] = None
+    images: Optional[list[AdminProductImageIn]] = None
+
+
 @router.get("/products")
 def list_admin_products(
     q: Optional[str] = None,
@@ -178,7 +241,7 @@ def list_admin_products(
         )
 
     total = query.count()
-    items = query.order_by(Product.name.asc()).offset((page - 1) * page_size).limit(page_size).all()
+    items = query.order_by(Product.created_at.desc(), Product.name.asc()).offset((page - 1) * page_size).limit(page_size).all()
 
     serialized = []
     for p in items:
@@ -193,10 +256,25 @@ def list_admin_products(
             "stock_qty": inv.on_hand if inv else 50,
             "reserved_qty": inv.reserved if inv else 0,
             "is_active": p.is_active,
+            "status": "published" if p.is_active else "draft",
             "category_name": p.category.name if p.category else "Uncategorized",
             "category_slug": p.category.slug if p.category else "",
             "unit_label": p.unit_label,
+            "net_weight_grams": p.net_weight_grams,
+            "description": p.description or "",
+            "origin_text": p.origin_text or "Made in Goa",
+            "is_featured": p.is_featured,
             "image_url": p.images[0].url if p.images else "/images/catalog/goan-themed-blue-mug.jpg",
+            "images": [
+                {
+                    "id": str(img.id),
+                    "url": img.url,
+                    "alt_text": img.alt_text,
+                    "is_primary": img.is_primary,
+                    "sort_order": img.sort_order,
+                }
+                for img in p.images
+            ],
         })
 
     return {
@@ -204,6 +282,483 @@ def list_admin_products(
         "total": total,
         "page": page,
         "page_size": page_size,
+    }
+
+
+@router.get("/products/next-sku")
+def get_next_suggested_sku(
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+) -> dict[str, str]:
+    skus = db.query(Product.sku).filter(Product.deleted_at.is_(None)).all()
+    gtl_nums = []
+    for (s,) in skus:
+        if s and s.upper().startswith("GTL-"):
+            parts = s.split("-")
+            if len(parts) >= 2 and parts[1].isdigit():
+                gtl_nums.append(int(parts[1]))
+    next_num = (max(gtl_nums) + 1) if gtl_nums else 1001
+    return {"suggested_sku": f"GTL-{next_num:04d}"}
+
+
+@router.post("/products/images")
+async def upload_product_image(
+    file: UploadFile = File(...),
+    admin: User = Depends(get_current_admin_user),
+) -> dict[str, Any]:
+    content = await file.read()
+    if len(content) == 0:
+        raise ProblemException(
+            status_code=422,
+            title="Empty File",
+            detail="The uploaded file is empty.",
+            problem_type="https://globaltolocal.in/problems/invalid-image",
+        )
+    if len(content) > 5 * 1024 * 1024:
+        raise ProblemException(
+            status_code=422,
+            title="File Too Large",
+            detail="Image size exceeds maximum allowed 5 MB.",
+            problem_type="https://globaltolocal.in/problems/file-too-large",
+        )
+    try:
+        img = Image.open(io.BytesIO(content))
+        fmt = (img.format or "").upper()
+        if fmt not in ["JPEG", "JPG", "PNG", "WEBP"]:
+            raise ProblemException(
+                status_code=422,
+                title="Unsupported Image Format",
+                detail=f"Only JPG, PNG, and WebP images are allowed. Received '{fmt or 'unknown'}'.",
+                problem_type="https://globaltolocal.in/problems/unsupported-image-type",
+            )
+        img.verify()
+        img = Image.open(io.BytesIO(content))
+    except ProblemException:
+        raise
+    except Exception:
+        raise ProblemException(
+            status_code=422,
+            title="Invalid Image",
+            detail="The uploaded file could not be decoded as a valid image.",
+            problem_type="https://globaltolocal.in/problems/invalid-image",
+        )
+
+    # Convert mode for safe web output
+    if img.mode not in ("RGB", "RGBA"):
+        img = img.convert("RGBA" if "A" in img.mode else "RGB")
+
+    # Resize to web-friendly dimensions if huge
+    orig_w, orig_h = img.size
+    if orig_w > 1200 or orig_h > 1200:
+        img.thumbnail((1200, 1200), Image.Resampling.LANCZOS)
+
+    token = uuid.uuid4().hex[:16]
+    out_filename = f"prod_{token}.webp"
+    uploads_dir = Path("public/images/uploads")
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    out_path = uploads_dir / out_filename
+    img.save(out_path, format="WEBP", quality=85, method=6)
+
+    return {
+        "status": "success",
+        "url": f"/images/uploads/{out_filename}",
+        "width": img.width,
+        "height": img.height,
+        "format": "webp",
+    }
+
+
+@router.post("/products", status_code=status.HTTP_201_CREATED)
+def create_admin_product(
+    payload: AdminCreateProductPayload,
+    request: Request,
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    # 1. Price validation
+    final_price_paise = payload.price_paise
+    if final_price_paise is None and payload.price_rupees is not None:
+        final_price_paise = int(round(payload.price_rupees * 100))
+    if not final_price_paise or final_price_paise <= 0:
+        raise ProblemException(
+            status_code=422,
+            title="Invalid Price",
+            detail="Price must be strictly positive (greater than 0 paise).",
+            problem_type="https://globaltolocal.in/problems/invalid-price",
+        )
+
+    # 2. Unique Slug validation
+    clean_slug = payload.slug.strip().lower()
+    if not clean_slug:
+        raise ProblemException(
+            status_code=422,
+            title="Invalid Slug",
+            detail="Slug cannot be empty.",
+            problem_type="https://globaltolocal.in/problems/invalid-slug",
+        )
+    existing_slug = (
+        db.query(Product)
+        .filter(func.lower(Product.slug) == clean_slug, Product.deleted_at.is_(None))
+        .first()
+    )
+    if existing_slug:
+        raise ProblemException(
+            status_code=409,
+            title="Duplicate Slug",
+            detail=f"Product slug '{clean_slug}' is already taken.",
+            problem_type="https://globaltolocal.in/problems/duplicate-slug",
+        )
+
+    # 3. Unique SKU validation
+    clean_sku = payload.sku.strip().upper()
+    if not clean_sku:
+        raise ProblemException(
+            status_code=422,
+            title="Invalid SKU",
+            detail="SKU cannot be empty.",
+            problem_type="https://globaltolocal.in/problems/invalid-sku",
+        )
+    existing_sku = (
+        db.query(Product)
+        .filter(func.upper(Product.sku) == clean_sku, Product.deleted_at.is_(None))
+        .first()
+    )
+    if existing_sku:
+        raise ProblemException(
+            status_code=409,
+            title="Duplicate SKU",
+            detail=f"Product SKU '{clean_sku}' already exists.",
+            problem_type="https://globaltolocal.in/problems/duplicate-sku",
+        )
+
+    # 4. Shelf / Category resolution
+    category = None
+    target_shelf = (payload.category_slug or payload.shelf or payload.shelf_slug or "").strip().lower()
+    if payload.category_id:
+        try:
+            category = db.query(Category).filter(Category.id == uuid.UUID(payload.category_id)).first()
+        except ValueError:
+            pass
+    if not category and target_shelf:
+        category = (
+            db.query(Category)
+            .filter(
+                or_(
+                    func.lower(Category.slug) == target_shelf,
+                    func.lower(Category.name) == target_shelf,
+                )
+            )
+            .first()
+        )
+    if not category:
+        raise ProblemException(
+            status_code=422,
+            title="Shelf Not Found",
+            detail=f"Shelf '{payload.shelf or payload.category_slug or payload.shelf_slug}' is not one of the 13 shelves.",
+            problem_type="https://globaltolocal.in/problems/invalid-category",
+        )
+
+    # 5. Status mapping
+    status_str = payload.status.strip().lower()
+    if status_str == "published":
+        is_active = True
+        published_at = datetime.now(timezone.utc)
+        avail = AvailabilityState.in_stock if payload.stock_qty > 0 else AvailabilityState.out_of_stock
+    elif status_str == "hidden":
+        is_active = False
+        published_at = None
+        avail = AvailabilityState.archived
+    else:  # draft
+        is_active = False
+        published_at = None
+        avail = AvailabilityState.in_stock
+
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    final_weight = payload.net_weight_grams or payload.weight_grams or 250
+    final_origin = (payload.origin_text or payload.origin or "Made in Goa").strip()
+
+    # 6. Create Product
+    product = Product(
+        name=payload.name.strip(),
+        slug=clean_slug,
+        sku=clean_sku,
+        category_id=category.id,
+        price_paise=final_price_paise,
+        compare_at_paise=payload.compare_at_paise,
+        unit_label=payload.unit_label.strip() or "1 unit",
+        net_weight_grams=final_weight,
+        description=payload.description.strip() if payload.description else None,
+        short_description=payload.short_description.strip() if payload.short_description else (payload.description[:300].strip() if payload.description else None),
+        origin_text=final_origin,
+        is_featured=payload.is_featured,
+        is_active=is_active,
+        published_at=published_at,
+        availability=avail,
+    )
+    db.add(product)
+    db.flush()
+
+    # 7. Create Inventory
+    inv = Inventory(
+        product_id=product.id,
+        on_hand=payload.stock_qty,
+        reserved=0,
+        low_stock_threshold=payload.low_stock_threshold,
+    )
+    db.add(inv)
+
+    # 8. Create Product Images
+    if payload.images:
+        has_primary = any(img.is_primary for img in payload.images)
+        for idx, img_in in enumerate(payload.images):
+            img_url = (img_in.url or img_in.image_url or "").strip()
+            if img_url:
+                db.add(
+                    ProductImage(
+                        product_id=product.id,
+                        url=img_url,
+                        alt_text=img_in.alt_text.strip() or product.name,
+                        sort_order=img_in.sort_order if img_in.sort_order is not None else idx,
+                        is_primary=img_in.is_primary if has_primary else (idx == 0),
+                    )
+                )
+    else:
+        db.add(
+            ProductImage(
+                product_id=product.id,
+                url="/images/catalog/goan-themed-blue-mug.jpg",
+                alt_text=product.name,
+                sort_order=0,
+                is_primary=True,
+            )
+        )
+
+    # 9. Create Starting PriceChange row
+    price_change = PriceChange(
+        product_id=product.id,
+        admin_user_id=admin.id,
+        old_paise=0,
+        new_paise=final_price_paise,
+        reason="Initial product creation",
+        ip=client_ip,
+    )
+    db.add(price_change)
+
+    # 10. Create AuditLog row
+    audit = AuditLog(
+        actor_user_id=admin.id,
+        action="product.create",
+        entity_type="product",
+        entity_id=str(product.id),
+        before_state=None,
+        after_state={
+            "id": str(product.id),
+            "sku": product.sku,
+            "slug": product.slug,
+            "name": product.name,
+            "category_slug": category.slug,
+            "price_paise": product.price_paise,
+            "stock_qty": payload.stock_qty,
+            "status": status_str,
+            "is_active": product.is_active,
+            "net_weight_grams": product.net_weight_grams,
+        },
+        ip_address=client_ip,
+    )
+    db.add(audit)
+    db.commit()
+    db.refresh(product)
+
+    prod_dict = {
+        "id": str(product.id),
+        "sku": product.sku,
+        "slug": product.slug,
+        "name": product.name,
+        "price_paise": product.price_paise,
+        "price_formatted": f"₹{product.price_paise / 100:.2f}".rstrip("0").rstrip("."),
+        "stock_qty": payload.stock_qty,
+        "reserved_qty": 0,
+        "is_active": product.is_active,
+        "status": status_str,
+        "category_name": category.name,
+        "category_slug": category.slug,
+        "unit_label": product.unit_label,
+        "net_weight_grams": product.net_weight_grams,
+        "description": product.description,
+        "origin_text": product.origin_text,
+        "is_featured": product.is_featured,
+        "image_url": product.images[0].url if product.images else "/images/catalog/goan-themed-blue-mug.jpg",
+        "images": [
+            {
+                "id": str(img.id),
+                "url": img.url,
+                "alt_text": img.alt_text,
+                "is_primary": img.is_primary,
+                "sort_order": img.sort_order,
+            }
+            for img in product.images
+        ],
+    }
+
+    return {
+        **prod_dict,
+        "status": "success",
+        "product": prod_dict,
+    }
+
+
+@router.put("/products/{product_id}")
+def update_admin_product_details(
+    product_id: str,
+    payload: AdminUpdateProductPayload,
+    request: Request,
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    try:
+        p_uuid = uuid.UUID(product_id)
+        product = db.query(Product).filter(Product.id == p_uuid).first()
+    except ValueError:
+        product = db.query(Product).filter(Product.slug == product_id).first()
+
+    if not product:
+        raise ProblemException(status_code=404, title="Product Not Found", detail="Product does not exist.")
+
+    before_state = {
+        "name": product.name,
+        "sku": product.sku,
+        "slug": product.slug,
+        "price_paise": product.price_paise,
+        "is_active": product.is_active,
+    }
+
+    if payload.name:
+        product.name = payload.name.strip()
+    if payload.slug:
+        clean_slug = payload.slug.strip().lower()
+        if clean_slug != product.slug:
+            existing = db.query(Product).filter(func.lower(Product.slug) == clean_slug, Product.id != product.id, Product.deleted_at.is_(None)).first()
+            if existing:
+                raise ProblemException(status_code=409, title="Duplicate Slug", detail=f"Slug '{clean_slug}' already in use.")
+            product.slug = clean_slug
+    if payload.sku:
+        clean_sku = payload.sku.strip().upper()
+        if clean_sku != product.sku:
+            existing = db.query(Product).filter(func.upper(Product.sku) == clean_sku, Product.id != product.id, Product.deleted_at.is_(None)).first()
+            if existing:
+                raise ProblemException(status_code=409, title="Duplicate SKU", detail=f"SKU '{clean_sku}' already in use.")
+            product.sku = clean_sku
+    if payload.shelf or payload.category_slug or payload.shelf_slug or payload.category_id:
+        target_shelf = (payload.category_slug or payload.shelf or payload.shelf_slug or "").strip().lower()
+        cat = None
+        if payload.category_id:
+            try:
+                cat = db.query(Category).filter(Category.id == uuid.UUID(payload.category_id)).first()
+            except ValueError:
+                pass
+        if not cat and target_shelf:
+            cat = db.query(Category).filter(or_(func.lower(Category.slug) == target_shelf, func.lower(Category.name) == target_shelf)).first()
+        if cat:
+            product.category_id = cat.id
+
+    if payload.unit_label:
+        product.unit_label = payload.unit_label.strip()
+    if payload.net_weight_grams or payload.weight_grams:
+        product.net_weight_grams = payload.net_weight_grams or payload.weight_grams
+    if payload.description is not None:
+        product.description = payload.description.strip()
+    if payload.origin_text is not None or payload.origin is not None:
+        product.origin_text = (payload.origin_text or payload.origin).strip()
+    if payload.is_featured is not None:
+        product.is_featured = payload.is_featured
+    if payload.status:
+        st = payload.status.strip().lower()
+        if st == "published":
+            product.is_active = True
+            if not product.published_at:
+                product.published_at = datetime.now(timezone.utc)
+            product.availability = AvailabilityState.in_stock
+        elif st == "hidden":
+            product.is_active = False
+            product.availability = AvailabilityState.archived
+        else: # draft
+            product.is_active = False
+            product.availability = AvailabilityState.in_stock
+
+    client_ip = request.client.host if request.client else "127.0.0.1"
+
+    if payload.images is not None:
+        db.query(ProductImage).filter(ProductImage.product_id == product.id).delete()
+        has_primary = any(img.is_primary for img in payload.images)
+        for idx, img_in in enumerate(payload.images):
+            img_url = (img_in.url or img_in.image_url or "").strip()
+            if img_url:
+                db.add(
+                    ProductImage(
+                        product_id=product.id,
+                        url=img_url,
+                        alt_text=img_in.alt_text.strip() or product.name,
+                        sort_order=img_in.sort_order if img_in.sort_order is not None else idx,
+                        is_primary=img_in.is_primary if has_primary else (idx == 0),
+                    )
+                )
+
+    product.updated_at = datetime.now(timezone.utc)
+    audit = AuditLog(
+        actor_user_id=admin.id,
+        action="product.update",
+        entity_type="product",
+        entity_id=str(product.id),
+        before_state=before_state,
+        after_state={
+            "name": product.name,
+            "sku": product.sku,
+            "slug": product.slug,
+            "is_active": product.is_active,
+        },
+        ip_address=client_ip,
+    )
+    db.add(audit)
+    db.commit()
+    db.refresh(product)
+
+    inv = product.inventory
+    prod_dict = {
+        "id": str(product.id),
+        "sku": product.sku,
+        "slug": product.slug,
+        "name": product.name,
+        "price_paise": product.price_paise,
+        "price_formatted": f"₹{product.price_paise / 100:.2f}".rstrip("0").rstrip("."),
+        "stock_qty": inv.on_hand if inv else 50,
+        "reserved_qty": inv.reserved if inv else 0,
+        "is_active": product.is_active,
+        "status": "published" if product.is_active else "draft",
+        "category_name": product.category.name if product.category else "Uncategorized",
+        "category_slug": product.category.slug if product.category else "",
+        "unit_label": product.unit_label,
+        "net_weight_grams": product.net_weight_grams,
+        "description": product.description or "",
+        "origin_text": product.origin_text or "Made in Goa",
+        "is_featured": product.is_featured,
+        "image_url": product.images[0].url if product.images else "/images/catalog/goan-themed-blue-mug.jpg",
+        "images": [
+            {
+                "id": str(img.id),
+                "url": img.url,
+                "alt_text": img.alt_text,
+                "is_primary": img.is_primary,
+                "sort_order": img.sort_order,
+            }
+            for img in product.images
+        ],
+    }
+
+    return {
+        **prod_dict,
+        "status": "success",
+        "product_id": str(product.id),
+        "product": prod_dict,
     }
 
 

@@ -8,6 +8,7 @@ import {
   Clock,
   XCircle,
   AlertTriangle,
+  AlertCircle,
   Send,
   MessageSquare,
   MapPin,
@@ -120,20 +121,16 @@ export default function AdminOrderDetail() {
   };
 
   const handleConfirmTransition = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setSubmittingStatus(true);
     setStatusError('');
 
     try {
       await apiFetch(`/api/v1/admin/orders/${order.id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({
+        body: {
           new_status: targetStatus,
-          carrier: targetStatus === 'shipped' ? carrier : undefined,
-          tracking_number: targetStatus === 'shipped' ? trackingNumber : undefined,
-          tracking_url: targetStatus === 'shipped' ? trackingUrl : undefined,
-          note: statusNote.trim() || undefined,
-        }),
+        },
       });
 
       setIsTransitionModalOpen(false);
@@ -197,8 +194,8 @@ export default function AdminOrderDetail() {
 
   return (
     <div className="space-y-6">
-      {/* Top Breadcrumb & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Top Breadcrumb */}
+      <div>
         <Link
           to="/admin/orders"
           className="inline-flex items-center gap-2 text-sm text-content-muted hover:text-content transition-colors"
@@ -206,16 +203,6 @@ export default function AdminOrderDetail() {
           <ArrowLeft className="h-4 w-4" />
           Back to orders
         </Link>
-
-        {nextTransition && (
-          <button
-            onClick={() => handleOpenTransitionModal(nextTransition.next)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white font-bold text-sm transition-all shadow-md cursor-pointer"
-          >
-            <nextTransition.icon className="h-4 w-4" />
-            <span>{nextTransition.label}</span>
-          </button>
-        )}
       </div>
 
       {/* Order Header Card */}
@@ -223,7 +210,7 @@ export default function AdminOrderDetail() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="font-mono text-2xl font-bold text-content">{order.order_number}</h1>
+              <h1 className="font-sans text-2xl sm:text-3xl font-extrabold tracking-tight text-content">{order.order_number}</h1>
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs border ${badge.bg}`}>
                 {badge.icon}
                 {badge.label}
@@ -251,8 +238,8 @@ export default function AdminOrderDetail() {
 
           <div className="text-left md:text-right">
             <div className="text-xs text-content-muted uppercase tracking-wider font-semibold">Total Amount</div>
-            <div className="font-serif text-2xl text-content font-bold">
-              ₹{(order.total_paise / 100).toFixed(2)}
+            <div className="font-sans text-2xl sm:text-3xl text-content font-extrabold tracking-tight tabular-nums">
+              ₹{((order.total_paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="text-[11px] text-content-muted">
               Tax inclusive
@@ -261,7 +248,7 @@ export default function AdminOrderDetail() {
         </div>
 
         {/* Forward-only progression ribbon */}
-        <div className="mt-6 pt-5 border-t border-edge-subtle">
+        <div className="mt-6 pt-5 border-t border-border-subtle">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <div className="text-xs font-semibold uppercase tracking-wider text-content-muted">
               Fulfillment Progression (Strict Forward Only)
@@ -282,42 +269,66 @@ export default function AdminOrderDetail() {
               const orderSteps = ['paid', 'packed', 'shipped', 'delivered'];
               const currentIdx = orderSteps.indexOf(order.status);
               const stepIdx = orderSteps.indexOf(step.key);
-              const isPast = stepIdx <= currentIdx && currentIdx !== -1;
-              const isCurrent = order.status === step.key;
+              const isCompleted = currentIdx !== -1 && stepIdx <= currentIdx;
               const isNext = nextTransition && nextTransition.next === step.key;
+              const isUpcoming = !isCompleted && !isNext;
 
               return (
                 <div
                   key={step.key}
-                  className={`p-3.5 rounded-xl border text-left text-xs transition-all relative ${
-                    isCurrent
-                      ? 'border-[#C45C4A] bg-[#C45C4A]/10 font-bold text-[#C45C4A] ring-1 ring-[#C45C4A]/30'
-                      : isPast
-                      ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-                      : isNext
-                      ? 'border-[#C45C4A] bg-white text-content shadow-xs ring-1 ring-[#C45C4A]/20'
-                      : 'border-border/60 bg-ground/50 text-content-muted opacity-70'
+                  className={`flex flex-col justify-between p-3.5 rounded-xl border text-left text-xs transition-all min-h-[110px] ${
+                    isNext
+                      ? 'border-[#C45C4A] bg-white shadow-xs ring-1 ring-[#C45C4A]/25'
+                      : isCompleted
+                      ? 'border-emerald-300 bg-emerald-50/70 text-emerald-900'
+                      : 'border-border/60 bg-ground/40 text-content-muted opacity-70'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">{step.label}</span>
-                    {isCurrent && (
-                      <span className="inline-block w-2 h-2 rounded-full bg-[#C45C4A] animate-pulse" />
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`font-semibold ${isNext ? 'text-content font-bold' : isCompleted ? 'text-emerald-900' : 'text-content-muted'}`}>
+                        {step.label}
+                      </span>
+                      {isCompleted && (
+                        <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                      )}
+                      {isNext && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#C45C4A]/10 text-[10px] font-bold text-[#C45C4A]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C45C4A] animate-pulse" />
+                          Next
+                        </span>
+                      )}
+                      {isUpcoming && (
+                        <span className="text-[10px] text-content-subtle">Upcoming</span>
+                      )}
+                    </div>
+                    <div className={`text-[11px] mt-1 ${isCompleted ? 'text-emerald-700/80' : isNext ? 'text-content-muted' : 'text-content-subtle'}`}>
+                      {step.desc}
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    {isNext && (
+                      <button
+                        type="button"
+                        onClick={() => handleOpenTransitionModal(step.key)}
+                        className="w-full py-2 px-3 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-xs font-bold text-center transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <nextTransition.icon className="h-3.5 w-3.5" />
+                        <span>{nextTransition.label} &rarr;</span>
+                      </button>
                     )}
-                    {isPast && (
-                      <CheckCircle className="h-3.5 w-3.5 text-emerald-600 inline" />
+                    {isCompleted && (
+                      <div className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1">
+                        <span>✓ Status Verified</span>
+                      </div>
+                    )}
+                    {isUpcoming && (
+                      <div className="text-[11px] text-content-subtle">
+                        <span>Pending prior step</span>
+                      </div>
                     )}
                   </div>
-                  <div className="text-[11px] opacity-75 mt-0.5">{step.desc}</div>
-                  {isNext && (
-                    <button
-                      type="button"
-                      onClick={() => handleOpenTransitionModal(step.key)}
-                      className="mt-2.5 w-full py-1.5 px-2 rounded-lg bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-[11px] font-bold text-center transition-colors shadow-xs cursor-pointer block"
-                    >
-                      {nextTransition.label} &rarr;
-                    </button>
-                  )}
                 </div>
               );
             })}
@@ -347,15 +358,15 @@ export default function AdminOrderDetail() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-content truncate">{item.name}</h3>
                     <p className="text-xs text-content-muted mt-0.5">
-                      SKU: <span className="font-mono">{item.sku}</span> {item.unit_label ? `• ${item.unit_label}` : ''}
+                      SKU: <span className="font-sans font-semibold text-content">{item.sku}</span> {item.unit_label ? `• ${item.unit_label}` : ''}
                     </p>
                     <p className="text-xs text-content-muted mt-1">
-                      ₹{(item.unit_price_paise / 100).toFixed(2)} × {item.quantity}
+                      ₹{((item.unit_price_paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × {item.quantity}
                     </p>
                   </div>
                   <div className="text-right whitespace-nowrap">
                     <div className="text-sm font-bold text-content">
-                      ₹{(item.line_total_paise / 100).toFixed(2)}
+                      ₹{((item.line_total_paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
@@ -366,23 +377,23 @@ export default function AdminOrderDetail() {
             <div className="p-5 bg-ground/40 border-t border-border text-sm space-y-2">
               <div className="flex justify-between text-content-muted">
                 <span>Subtotal</span>
-                <span>₹{(order.subtotal_paise / 100).toFixed(2)}</span>
+                <span>₹{((order.subtotal_paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <div className="flex justify-between text-content-muted">
                 <span>
                   Shipping ({order.shipping_method || 'Standard'})
                 </span>
-                <span>₹{(order.shipping_paise / 100).toFixed(2)}</span>
+                <span>₹{((order.shipping_paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               {order.discount_paise > 0 && (
                 <div className="flex justify-between text-emerald-700">
                   <span>Discount</span>
-                  <span>-₹{(order.discount_paise / 100).toFixed(2)}</span>
+                  <span>-₹{((order.discount_paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
               )}
               <div className="pt-2 border-t border-border flex justify-between font-bold text-base text-content">
                 <span>Grand Total</span>
-                <span>₹{(order.total_paise / 100).toFixed(2)}</span>
+                <span>₹{((order.total_paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <p className="text-[11px] text-content-muted pt-1">
                 * All prices tax-inclusive. Snapshot preserved at time of purchase.
@@ -468,7 +479,7 @@ export default function AdminOrderDetail() {
                 )}
                 <p className="text-content-muted text-xs">
                   {order.shipping_address.city}, {order.shipping_address.state}{' '}
-                  <span className="font-mono font-medium text-content">
+                  <span className="font-sans font-semibold text-content">
                     {order.shipping_address.pincode}
                   </span>
                 </p>
@@ -486,9 +497,15 @@ export default function AdminOrderDetail() {
             <div className="pt-3 border-t border-border-subtle">
               <div className="text-xs text-content-muted">Shipping Tier:</div>
               <div className="text-xs font-semibold text-content mt-0.5">
-                {order.shipping_method === 'goa_express'
-                  ? 'Goa Express (403xxx) · ₹80'
-                  : 'Pan-India Standard · ₹120'}
+                {(() => {
+                  const isGoa =
+                    order.shipping_method?.toLowerCase().includes('goa') ||
+                    String(order.shipping_address?.pincode || '').startsWith('403');
+                  const fee = order.shipping_paise != null
+                    ? `₹${((order.shipping_paise || 0) / 100).toLocaleString('en-IN')}`
+                    : (isGoa ? '₹80' : '₹120');
+                  return isGoa ? `Goa Express (403xxx) · ${fee}` : `Pan-India Standard · ${fee}`;
+                })()}
               </div>
             </div>
           </div>
@@ -511,7 +528,7 @@ export default function AdminOrderDetail() {
                     <div className="font-semibold text-content">{s.carrier}</div>
                     <div className="text-content-muted">
                       AWB / Tracking:{' '}
-                      <span className="font-mono font-medium text-content">
+                      <span className="font-sans font-semibold text-content">
                         {s.awb_or_tracking_number || 'Pending'}
                       </span>
                     </div>
@@ -533,102 +550,47 @@ export default function AdminOrderDetail() {
         </div>
       </div>
 
-      {/* Status Transition Confirmation Modal */}
+      {/* Direct Confirmation Modal: Are you sure to mark as... Yes or No */}
       {isTransitionModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-deep/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-surface p-6 sm:p-7 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <h3 className="font-serif text-xl font-bold text-content">
-              Confirm Status Transition: {NEXT_STATUS_MAP[order.status]?.label}
-            </h3>
-            <p className="text-xs text-content-muted mt-1.5">
-              Strict forward-only fulfillment. This update will log an audit event and dispatch an email notification to the customer.
-            </p>
+          <div className="w-full max-w-sm rounded-3xl border border-border bg-surface p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150 text-center max-h-[90vh] overflow-y-auto">
+            <div className="mx-auto w-12 h-12 rounded-full bg-[#C45C4A]/10 text-[#C45C4A] flex items-center justify-center">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+
+            <div>
+              <h3 className="font-sans text-xl font-bold text-content">
+                Are you sure to mark as {targetStatus ? targetStatus.charAt(0).toUpperCase() + targetStatus.slice(1) : ''}?
+              </h3>
+              <p className="text-xs text-content-muted mt-1.5">
+                Order <span className="font-sans font-bold text-content">{order.order_number}</span>
+              </p>
+            </div>
 
             {statusError && (
-              <div className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs text-left">
                 {statusError}
               </div>
             )}
 
-            <form onSubmit={handleConfirmTransition} className="mt-4 space-y-4">
-              {targetStatus === 'shipped' && (
-                <>
-                  <div>
-                    <label className="block text-xs font-semibold text-content mb-1">Courier Partner</label>
-                    <input
-                      type="text"
-                      value={carrier}
-                      onChange={(e) => setCarrier(e.target.value)}
-                      placeholder="e.g. Delhivery Express / BlueDart / Speed Post"
-                      className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-content mb-1">
-                      AWB / Tracking Number
-                    </label>
-                    <input
-                      type="text"
-                      value={trackingNumber}
-                      onChange={(e) => setTrackingNumber(e.target.value)}
-                      placeholder="e.g. DEL-99218204"
-                      className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content font-mono focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-content mb-1">
-                      Tracking Link (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      value={trackingUrl}
-                      onChange={(e) => setTrackingUrl(e.target.value)}
-                      placeholder="https://track.delhivery.com/..."
-                      className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
-                    />
-                  </div>
-                </>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-content mb-1">
-                  Transition Note / Customer Message (Optional)
-                </label>
-                <textarea
-                  rows={2}
-                  value={statusNote}
-                  onChange={(e) => setStatusNote(e.target.value)}
-                  placeholder="e.g. Packed safely with eco-friendly cushioning; ready for courier pickup."
-                  className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
-                />
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-ground/80 border border-border text-xs text-content-muted flex items-start gap-2.5">
-                <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>
-                  Audit row will be recorded with timestamp, old status ({order.status}), new status ({targetStatus}), and your admin IP.
-                </span>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsTransitionModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-border bg-surface hover:bg-ground text-content text-sm font-medium transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingStatus}
-                  className="px-5 py-2.5 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-sm font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
-                >
-                  {submittingStatus ? 'Updating...' : `Confirm: Mark as ${targetStatus}`}
-                </button>
-              </div>
-            </form>
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsTransitionModalOpen(false)}
+                disabled={submittingStatus}
+                className="w-full py-2.5 px-4 rounded-xl border border-border bg-surface hover:bg-ground text-content text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 min-h-[44px]"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmTransition}
+                disabled={submittingStatus}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-sm font-bold transition-all shadow-md cursor-pointer disabled:opacity-50 min-h-[44px]"
+              >
+                {submittingStatus ? 'Updating...' : 'Yes'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,7 +1,9 @@
+import os
 import uuid
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -80,6 +82,11 @@ async def add_security_and_trace_headers(request: Request, call_next):
 
 
 register_exception_handlers(app)
+
+# Serve uploaded / catalogue static images
+public_images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "public", "images"))
+if os.path.exists(public_images_dir):
+    app.mount("/images", StaticFiles(directory=public_images_dir), name="images")
 
 app.include_router(catalogue.router)
 app.include_router(content.router)

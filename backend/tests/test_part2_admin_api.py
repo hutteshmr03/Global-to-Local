@@ -1,3 +1,4 @@
+import io
 import os
 import uuid
 import pytest
@@ -431,3 +432,204 @@ def test_admin_enquiries_status_management(admin_test_setup):
     )
     assert res_upd.status_code == 200
     assert res_upd.json()["new_status"] == "in_progress"
+
+
+def test_admin_create_product_auth_and_validation(admin_test_setup):
+    client = TestClient(app)
+    admin_headers = {"Authorization": f"Bearer {admin_test_setup['admin_token']}"}
+    customer_headers = {"Authorization": f"Bearer {admin_test_setup['customer_token']}"}
+
+    payload = {
+        "name": "Artisanal Cashew Feni Jelly",
+        "slug": f"artisanal-cashew-feni-jelly-{uuid.uuid4().hex[:6]}",
+        "sku": f"GTL-{uuid.uuid4().hex[:6].upper()}",
+        "shelf": "chutneys-and-spreads",
+        "price_rupees": 450,
+        "unit_label": "200 g",
+        "net_weight_grams": 200,
+        "description": "Authentic cashew preserve made in Fontainhas.",
+        "origin_text": "Made in Panaji, Goa",
+        "stock_qty": 40,
+        "low_stock_threshold": 5,
+        "is_featured": True,
+        "status": "published",
+        "images": [
+            {
+                "url": "/images/catalog/pineapple-jam-250-grams.jpg",
+                "alt_text": "Cashew Feni Jelly Jar",
+                "is_primary": True,
+                "sort_order": 0,
+            }
+        ],
+    }
+
+    # 1. Visitor gets 401
+    res_vis = client.post("/api/v1/admin/products", json=payload)
+    assert res_vis.status_code == 401
+
+    # 2. Customer gets 403
+    res_cust = client.post("/api/v1/admin/products", headers=customer_headers, json=payload)
+    assert res_cust.status_code == 403
+
+    # 3. Admin successfully creates product -> 201
+    res_create = client.post("/api/v1/admin/products", headers=admin_headers, json=payload)
+    assert res_create.status_code == 201
+    created_data = res_create.json()["product"]
+    assert created_data["name"] == payload["name"]
+    assert created_data["price_paise"] == 45000
+    assert created_data["is_active"] is True
+    prod_id = created_data["id"]
+
+    # 4. Duplicate slug rejected -> 409
+    dup_slug_payload = dict(payload)
+    dup_slug_payload["sku"] = f"GTL-{uuid.uuid4().hex[:6].upper()}"
+    res_dup_slug = client.post("/api/v1/admin/products", headers=admin_headers, json=dup_slug_payload)
+    assert res_dup_slug.status_code == 409
+
+    # 5. Duplicate SKU rejected -> 409
+    dup_sku_payload = dict(payload)
+    dup_sku_payload["slug"] = f"unique-slug-{uuid.uuid4().hex[:6]}"
+    res_dup_sku = client.post("/api/v1/admin/products", headers=admin_headers, json=dup_sku_payload)
+    assert res_dup_sku.status_code == 409
+
+    # 6. Price 0 or negative rejected -> 422
+    invalid_price_payload = dict(payload)
+    invalid_price_payload["slug"] = f"slug-neg-{uuid.uuid4().hex[:6]}"
+    invalid_price_payload["sku"] = f"GTL-NEG-{uuid.uuid4().hex[:4].upper()}"
+    invalid_price_payload["price_rupees"] = 0
+    invalid_price_payload["price_paise"] = 0
+    res_zero = client.post("/api/v1/admin/products", headers=admin_headers, json=invalid_price_payload)
+    assert res_zero.status_code == 422
+
+    # 7. Check audit row exists in audit_logs
+    db = SessionLocal()
+    try:
+        audit = db.query(AuditLog).filter(AuditLog.entity_id == prod_id, AuditLog.action == "product.create").first()
+        assert audit is not None
+        assert audit.after_state["sku"] == payload["sku"]
+
+        # Check price_changes row exists
+        pc = db.query(PriceChange).filter(PriceChange.product_id == uuid.UUID(prod_id)).first()
+        assert pc is not None
+        assert pc.new_paise == 45000
+        assert pc.old_paise == 0
+    finally:
+        db.close()
+
+
+def test_admin_product_images_upload_validation(admin_test_setup):
+    client = TestClient(app)
+    admin_headers = {"Authorization": f"Bearer {admin_test_setup['admin_token']}"}
+
+    # 1. Bad image type rejected (e.g. text file or gif)
+    fake_txt = io.BytesIO(b"this is plain text not an image")
+    res_bad_type = client.post(
+        "/api/v1/admin/products/images",
+        headers=admin_headers,
+        files={"file": ("malicious.txt", fake_txt, "text/plain")},
+    )
+    assert res_bad_type.status_code == 422
+
+    # 2. File too large rejected (> 5 MB)
+    large_bytes = io.BytesIO(b"0" * (5 * 1024 * 1024 + 1024))
+    res_large = client.post(
+        "/api/v1/admin/products/images",
+        headers=admin_headers,
+        files={"file": ("too_large.jpg", large_bytes, "image/jpeg")},
+    )
+    assert res_large.status_code == 422
+
+    # 3. Valid image accepted (generate small valid PNG)
+    from PIL import Image as PILImage
+    img_buf = io.BytesIO()
+    test_img = PILImage.new("RGB", (100, 100), color="blue")
+    test_img.save(img_buf, format="PNG")
+    img_buf.seek(0)
+
+    res_valid = client.post(
+        "/api/v1/admin/products/images",
+        headers=admin_headers,
+        files={"file": ("blue_box.png", img_buf, "image/png")},
+    )
+    assert res_valid.status_code == 200
+    assert res_valid.json()["status"] == "success"
+    assert "/images/uploads/" in res_valid.json()["url"]
+
+
+def test_published_product_visible_and_purchasable_vs_draft(admin_test_setup):
+    client = TestClient(app)
+    admin_headers = {"Authorization": f"Bearer {admin_test_setup['admin_token']}"}
+
+    # 1. Create Published Product
+    pub_slug = f"published-mango-chutney-{uuid.uuid4().hex[:6]}"
+    pub_sku = f"GTL-PUB-{uuid.uuid4().hex[:4].upper()}"
+    pub_res = client.post(
+        "/api/v1/admin/products",
+        headers=admin_headers,
+        json={
+            "name": "Published Sweet Mango Chutney",
+            "slug": pub_slug,
+            "sku": pub_sku,
+            "shelf": "chutneys-and-spreads",
+            "price_rupees": 320,
+            "stock_qty": 25,
+            "status": "published",
+        },
+    )
+    assert pub_res.status_code == 201
+
+    # 2. Create Draft Product
+    draft_slug = f"draft-secret-spice-{uuid.uuid4().hex[:6]}"
+    draft_sku = f"GTL-DFT-{uuid.uuid4().hex[:4].upper()}"
+    draft_res = client.post(
+        "/api/v1/admin/products",
+        headers=admin_headers,
+        json={
+            "name": "Draft Secret Spice Blend",
+            "slug": draft_slug,
+            "sku": draft_sku,
+            "shelf": "spices",
+            "price_rupees": 190,
+            "stock_qty": 10,
+            "status": "draft",
+        },
+    )
+    assert draft_res.status_code == 201
+
+    # 3. Check /shop (catalogue list): Published shows on its shelf and in newest, Draft does NOT
+    shelf_list = client.get("/api/v1/products?category=chutneys-and-spreads")
+    assert shelf_list.status_code == 200
+    shelf_slugs = [p["slug"] for p in shelf_list.json()["items"]]
+    assert pub_slug in shelf_slugs
+
+    newest_list = client.get("/api/v1/products?sort=newest")
+    assert newest_list.status_code == 200
+    newest_slugs = [p["slug"] for p in newest_list.json()["items"]]
+    assert pub_slug in newest_slugs
+    assert draft_slug not in newest_slugs
+
+    # 4. Search: Published shows
+    search_res = client.get(f"/api/v1/products?q=Sweet+Mango+Chutney")
+    assert search_res.status_code == 200
+    search_slugs = [p["slug"] for p in search_res.json()["items"]]
+    assert pub_slug in search_slugs
+
+    # 5. /product/{slug}: Published returns 200, Draft returns 404
+    detail_pub = client.get(f"/api/v1/products/{pub_slug}")
+    assert detail_pub.status_code == 200
+    assert detail_pub.json()["name"] == "Published Sweet Mango Chutney"
+
+    detail_draft = client.get(f"/api/v1/products/{draft_slug}")
+    assert detail_draft.status_code == 404
+
+    # 6. Bag & Cart: Published product can be added to bag and bought at database price
+    cart_res = client.post(
+        "/api/v1/cart/items",
+        json={"product_id": pub_slug, "quantity": 2},
+    )
+    assert cart_res.status_code == 200
+    cart_data = cart_res.json()
+    matching_item = next((it for it in cart_data["items"] if it["slug"] == pub_slug), None)
+    assert matching_item is not None
+    assert matching_item["unit_price_paise"] == 32000
+    assert matching_item["line_total_paise"] == 64000
