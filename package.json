@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "python start_all.py",
+    "dev:all": "python start_all.py",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",

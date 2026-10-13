@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Check, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { useCategories, useAllProducts } from '../lib/catalogue-hooks';
+import { useCategories, useAllProducts, ProductGridSkeleton } from '../lib/catalogue-hooks';
 import ProductCard from '../components/product/ProductCard';
 import ShellShelf from '../components/home/ShellShelf';
 import StoreBanner from '../components/home/StoreBanner';
@@ -10,8 +10,8 @@ import ShellDrift from '../components/common/ShellDrift';
 import { ShellCockleIcon } from '../components/common/Icons';
 
 export default function ShopPage() {
-  const { data: categories = [] } = useCategories();
-  const { data: products = [] } = useAllProducts();
+  const { data: categories = [], isLoading: isCategoriesLoading, isError: isCategoriesError, refetch: refetchCategories } = useCategories();
+  const { data: products = [], isLoading: isProductsLoading, isError: isProductsError, refetch: refetchProducts } = useAllProducts();
   const [searchParams, setSearchParams] = useSearchParams();
   const shelfRailRef = useRef(null);
   const [railProgress, setRailProgress] = useState(0);
@@ -408,7 +408,30 @@ export default function ShopPage() {
           </div>
 
           {/* Products Grid */}
-          {filteredProducts.length === 0 ? (
+          {isProductsLoading && products.length === 0 ? (
+            <ProductGridSkeleton count={8} />
+          ) : isProductsError && products.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-16 rounded-2xl border border-rose-200 bg-rose-50/60 p-12 text-center max-w-lg mx-auto shadow-xs"
+            >
+              <h3 className="font-display text-xl font-semibold text-content">Could not load products</h3>
+              <p className="mt-2 text-sm text-content-muted leading-relaxed">
+                Could not connect to the live store API. Please check that the backend is running and retry.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  refetchProducts();
+                  refetchCategories();
+                }}
+                className="mt-6 inline-flex items-center rounded-pill bg-palm px-6 py-2.5 text-xs font-semibold text-white hover:bg-palm-shade transition-colors shadow-sm cursor-pointer"
+              >
+                Retry
+              </button>
+            </motion.div>
+          ) : filteredProducts.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}

@@ -13,7 +13,7 @@ import {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,
+      staleTime: 60 * 1000,
       refetchOnWindowFocus: false,
       retry: 1,
     },
@@ -24,9 +24,18 @@ export function useCategories() {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const res = await apiFetch('/api/v1/categories');
-      return res.items || fallbackCategories;
+      try {
+        const res = await apiFetch('/api/v1/categories');
+        if (res && Array.isArray(res.items) && res.items.length > 0) {
+          return res.items;
+        }
+        return fallbackCategories;
+      } catch (err) {
+        console.warn('API /api/v1/categories unreachable; using Goan fallback categories:', err);
+        return fallbackCategories;
+      }
     },
+    initialData: fallbackCategories,
     placeholderData: fallbackCategories,
   });
 }
@@ -34,7 +43,19 @@ export function useCategories() {
 export function useAllProducts() {
   return useQuery({
     queryKey: ['products', 'all'],
-    queryFn: fetchAllCatalogueProducts,
+    queryFn: async () => {
+      try {
+        const items = await fetchAllCatalogueProducts();
+        if (items && Array.isArray(items) && items.length > 0) {
+          return items;
+        }
+        return fallbackProducts;
+      } catch (err) {
+        console.warn('API /api/v1/products unreachable; using Goan fallback products:', err);
+        return fallbackProducts;
+      }
+    },
+    initialData: fallbackProducts,
     placeholderData: fallbackProducts,
   });
 }
@@ -47,10 +68,19 @@ export function useCategoryProducts(categorySlug) {
   return useQuery({
     queryKey: ['products', 'category', categorySlug],
     queryFn: async () => {
-      const res = await apiFetch(`/api/v1/products?category=${encodeURIComponent(categorySlug)}&page_size=60`);
-      return res.items || [];
+      try {
+        const res = await apiFetch(`/api/v1/products?category=${encodeURIComponent(categorySlug)}&page_size=60`);
+        if (res && Array.isArray(res.items) && res.items.length > 0) {
+          return res.items;
+        }
+        return fallback;
+      } catch (err) {
+        console.warn(`API /api/v1/products?category=${categorySlug} unreachable; using fallback:`, err);
+        return fallback;
+      }
     },
     enabled: Boolean(categorySlug),
+    initialData: fallback,
     placeholderData: fallback,
   });
 }
@@ -68,9 +98,16 @@ export function useProductDetail(slug) {
   return useQuery({
     queryKey: ['product', slug],
     queryFn: async () => {
-      return await apiFetch(`/api/v1/products/${encodeURIComponent(slug)}`);
+      try {
+        const res = await apiFetch(`/api/v1/products/${encodeURIComponent(slug)}`);
+        return res || fallback;
+      } catch (err) {
+        console.warn(`API /api/v1/products/${slug} unreachable; using fallback:`, err);
+        return fallback;
+      }
     },
     enabled: Boolean(slug),
+    initialData: fallback,
     placeholderData: fallback,
   });
 }
@@ -79,10 +116,18 @@ export function useCollection(slug, fallbackItems = []) {
   return useQuery({
     queryKey: ['collection', slug],
     queryFn: async () => {
-      const res = await apiFetch(`/api/v1/collections/${encodeURIComponent(slug)}`);
-      return res.items || [];
+      try {
+        const res = await apiFetch(`/api/v1/collections/${encodeURIComponent(slug)}`);
+        if (res && Array.isArray(res.items) && res.items.length > 0) {
+          return res.items;
+        }
+        return fallbackItems;
+      } catch {
+        return fallbackItems;
+      }
     },
     enabled: Boolean(slug),
+    initialData: fallbackItems,
     placeholderData: fallbackItems,
   });
 }
@@ -91,9 +136,17 @@ export function useFaqs(fallbackFaqs = []) {
   return useQuery({
     queryKey: ['faqs'],
     queryFn: async () => {
-      const res = await apiFetch('/api/v1/faqs');
-      return res.items || fallbackFaqs;
+      try {
+        const res = await apiFetch('/api/v1/faqs');
+        if (res && Array.isArray(res.items) && res.items.length > 0) {
+          return res.items;
+        }
+        return fallbackFaqs;
+      } catch {
+        return fallbackFaqs;
+      }
     },
+    initialData: fallbackFaqs,
     placeholderData: fallbackFaqs,
   });
 }
@@ -102,12 +155,20 @@ export function useReviews(source, fallbackList = fallbackReviews) {
   return useQuery({
     queryKey: ['reviews', source || 'all'],
     queryFn: async () => {
-      const url = source
-        ? `/api/v1/reviews?source=${encodeURIComponent(source)}`
-        : '/api/v1/reviews';
-      const res = await apiFetch(url);
-      return res.items || fallbackList;
+      try {
+        const url = source
+          ? `/api/v1/reviews?source=${encodeURIComponent(source)}`
+          : '/api/v1/reviews';
+        const res = await apiFetch(url);
+        if (res && Array.isArray(res.items) && res.items.length > 0) {
+          return res.items;
+        }
+        return fallbackList;
+      } catch {
+        return fallbackList;
+      }
     },
+    initialData: fallbackList,
     placeholderData: fallbackList,
   });
 }
@@ -116,27 +177,39 @@ export function usePress(fallbackData = { articles: [], awards: [] }) {
   return useQuery({
     queryKey: ['press'],
     queryFn: async () => {
-      const res = await apiFetch('/api/v1/press');
-      return {
-        articles: res.articles || fallbackData.articles,
-        awards: res.awards || fallbackData.awards,
-      };
+      try {
+        const res = await apiFetch('/api/v1/press');
+        return {
+          articles: res.articles || fallbackData.articles,
+          awards: res.awards || fallbackData.awards,
+        };
+      } catch {
+        return fallbackData;
+      }
     },
+    initialData: fallbackData,
     placeholderData: fallbackData,
   });
 }
 
 export function usePublicSettings() {
+  const fallback = {
+    siteConfig: fallbackSiteConfig,
+    makerSteps: fallbackMakerSteps,
+    videos: fallbackVideos,
+  };
   return useQuery({
     queryKey: ['settings', 'public'],
     queryFn: async () => {
-      return await apiFetch('/api/v1/settings/public');
+      try {
+        const res = await apiFetch('/api/v1/settings/public');
+        return res || fallback;
+      } catch {
+        return fallback;
+      }
     },
-    placeholderData: {
-      siteConfig: fallbackSiteConfig,
-      makerSteps: fallbackMakerSteps,
-      videos: fallbackVideos,
-    },
+    initialData: fallback,
+    placeholderData: fallback,
   });
 }
 
@@ -145,7 +218,22 @@ export function useSearchSuggestions(query) {
   return useQuery({
     queryKey: ['search', 'suggest', clean],
     queryFn: async () => {
-      return await apiFetch(`/api/v1/search/suggest?q=${encodeURIComponent(clean)}&limit=8`);
+      try {
+        return await apiFetch(`/api/v1/search/suggest?q=${encodeURIComponent(clean)}&limit=8`);
+      } catch {
+        const q = clean.toLowerCase();
+        return fallbackProducts
+          .filter((p) => p.name.toLowerCase().includes(q) || (p.shortDescription || '').toLowerCase().includes(q))
+          .slice(0, 8)
+          .map((p) => ({
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            category_slug: p.categorySlug,
+            price_paise: p.price,
+            image_url: p.imageSrc,
+          }));
+      }
     },
     enabled: clean.length >= 2,
   });
@@ -154,7 +242,7 @@ export function useSearchSuggestions(query) {
 export function ProductGridSkeleton({ count = 8 }) {
   return React.createElement(
     'div',
-    { className: 'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 sm:gap-6' },
+    { className: 'mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 sm:gap-6' },
     Array.from({ length: count }).map((_, idx) =>
       React.createElement(
         'div',

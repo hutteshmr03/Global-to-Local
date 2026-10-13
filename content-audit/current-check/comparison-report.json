@@ -1,0 +1,173 @@
+[
+  {
+    "page": "Home",
+    "route": "http://localhost:5173/",
+    "viewport": "1440px",
+    "filename": "home_1440px.png",
+    "currentSize": 3709655,
+    "baselineSize": 3710476,
+    "sizeDiffPct": "0.02%",
+    "baselineExists": true,
+    "domInfo": {
+      "shelvesCount": 13,
+      "heroHeading": "An exclusive Goansupermarket."
+    }
+  },
+  {
+    "page": "Home",
+    "route": "http://localhost:5173/",
+    "viewport": "768px",
+    "filename": "home_768px.png",
+    "currentSize": 2255321,
+    "baselineSize": 2256139,
+    "sizeDiffPct": "0.04%",
+    "baselineExists": true,
+    "domInfo": {
+      "shelvesCount": 13,
+      "heroHeading": "An exclusive Goansupermarket."
+    }
+  },
+  {
+    "page": "Home",
+    "route": "http://localhost:5173/",
+    "viewport": "360px",
+    "filename": "home_360px.png",
+    "currentSize": 1060622,
+    "baselineSize": 1058492,
+    "sizeDiffPct": "0.20%",
+    "baselineExists": true,
+    "domInfo": {
+      "shelvesCount": 13,
+      "heroHeading": "An exclusive Goansupermarket."
+    }
+  },
+  {
+    "page": "Shop",
+    "route": "http://localhost:5173/shop",
+    "viewport": "1440px",
+    "filename": "shop_1440px.png",
+    "currentSize": 6191276,
+    "baselineSize": 6191165,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {
+      "shelfPills": 245,
+      "productCards": 255,
+      "resultsText": "Showing 230 of 230 products"
+    }
+  },
+  {
+    "page": "Shop",
+    "route": "http://localhost:5173/shop",
+    "viewport": "768px",
+    "filename": "shop_768px.png",
+    "currentSize": 2934141,
+    "baselineSize": 2933946,
+    "sizeDiffPct": "0.01%",
+    "baselineExists": true,
+    "domInfo": {
+      "shelfPills": 245,
+      "productCards": 255,
+      "resultsText": "Showing 230 of 230 products"
+    }
+  },
+  {
+    "page": "Shop",
+    "route": "http://localhost:5173/shop",
+    "viewport": "360px",
+    "filename": "shop_360px.png",
+    "currentSize": 2450290,
+    "baselineSize": 2449865,
+    "sizeDiffPct": "0.02%",
+    "baselineExists": true,
+    "domInfo": {
+      "shelfPills": 245,
+      "productCards": 255,
+      "resultsText": "Showing 230 of 230 products"
+    }
+  },
+  {
+    "page": "Category",
+    "route": "http://localhost:5173/product-category/chutneys-and-spreads",
+    "viewport": "1440px",
+    "filename": "category_chutneys_1440px.png",
+    "currentSize": 801956,
+    "baselineSize": 801956,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {
+      "categoryHeading": "Chutneys & Spreads",
+      "itemsCountText": "Showing all 4 items on this shelf"
+    }
+  },
+  {
+    "page": "Category",
+    "route": "http://localhost:5173/product-category/chutneys-and-spreads",
+    "viewport": "768px",
+    "filename": "category_chutneys_768px.png",
+    "currentSize": 481898,
+    "baselineSize": 481898,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {
+      "categoryHeading": "Chutneys & Spreads",
+      "itemsCountText": "Showing all 4 items on this shelf"
+    }
+  },
+  {
+    "page": "Category",
+    "route": "http://localhost:5173/product-category/chutneys-and-spreads",
+    "viewport": "360px",
+    "filename": "category_chutneys_360px.png",
+    "currentSize": 358166,
+    "baselineSize": 358166,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {
+      "categoryHeading": "Chutneys & Spreads",
+      "itemsCountText": "Showing all 4 items on this shelf"
+    }
+  },
+  {
+    "page": "Product Detail",
+    "route": "http://localhost:5173/product/pineapple-jam-250-grams",
+    "viewport": "1440px",
+    "filename": "product_pineapple_jam_1440px.png",
+    "currentSize": 773557,
+    "baselineSize": 773557,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {
+      "productTitle": "Pineapple Jam 250 grams",
+      "priceText": "₹190"
+    }
+  },
+  {
+    "page": "Product Detail",
+    "route": "http://localhost:5173/product/pineapple-jam-250-grams",
+    "viewport": "768px",
+    "filename": "product_pineapple_jam_768px.png",
+    "currentSize": 641273,
+    "baselineSize": 641273,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {
+      "productTitle": "Pineapple Jam 250 grams",
+      "priceText": "₹190"
+    }
+  },
+  {
+    "page": "Product Detail",
+    "route": "http://localhost:5173/product/pineapple-jam-250-grams",
+    "viewport": "360px",
+    "filename": "product_pineapple_jam_360px.png",
+    "currentSize": 473367,
+    "baselineSize": 473367,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {
+      "productTitle": "Pineapple Jam 250 grams",
+      "priceText": "₹190"
+    }
+  }
+]
