@@ -133,9 +133,6 @@ export default function AdminEnquiries() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-sans text-2xl sm:text-3xl text-content font-bold">Enquiries & Leads</h1>
-          <p className="text-sm text-content-muted mt-1">
-            General questions, bulk corporate orders, and Goa-only bespoke heritage hampers.
-          </p>
         </div>
         <button
           onClick={fetchEnquiries}

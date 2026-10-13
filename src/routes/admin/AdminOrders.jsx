@@ -105,9 +105,6 @@ export default function AdminOrders() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-sans text-2xl sm:text-3xl text-content font-bold">Orders Management</h1>
-          <p className="text-sm text-content-muted mt-1">
-            Track customer orders, confirm packaging, assign tracking, and update dispatch status.
-          </p>
         </div>
         <button
           onClick={fetchOrders}

@@ -53,6 +53,40 @@ function slugify(text) {
     .replace(/-+$/, '');
 }
 
+const CATEGORY_PREFIXES = {
+  'hand-crafted': 'CRFT',
+  'sweet': 'SWET',
+  'farsaan': 'FARS',
+  'spices': 'SPIC',
+  'masala': 'MASL',
+  'grains': 'GRAN',
+  'oils-and-vinegars': 'OILS',
+  'oils-vinegars': 'OILS',
+  'papads-and-pickles': 'PCKL',
+  'papads-pickles': 'PCKL',
+  'seafood': 'SEAF',
+  'chutneys-and-spreads': 'CHUT',
+  'kunbi': 'KNBI',
+  'wellness': 'WELL',
+  'sustainable-products': 'SUST',
+};
+
+function generateSkuFromName(name, shelfSlug) {
+  const prefix = CATEGORY_PREFIXES[shelfSlug] || 'PROD';
+  if (!name || !name.trim()) return `${prefix}-NEW-ITEM`;
+  const clean = name
+    .toLowerCase()
+    .replace(/[–—]/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const tokens = clean
+    .split('-')
+    .filter((w) => !['grams', 'gram', 'and', 'the', 'themed', 'goan', 'of', 'in', '8211'].includes(w));
+  const filtered = prefix === 'KNBI' ? tokens.filter((w) => w !== 'kunbi') : tokens;
+  const code = filtered.slice(0, 3).join('-').toUpperCase();
+  return code ? `${prefix}-${code}` : `${prefix}-NEW-ITEM`;
+}
+
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -263,20 +297,10 @@ export default function AdminProducts() {
     setFormErrors({});
     setFormProduct(null);
 
-    let suggestedSku = 'GTL-6472';
-    try {
-      const skuRes = await apiFetch('/api/v1/admin/products/next-sku');
-      if (skuRes && skuRes.suggested_sku) {
-        suggestedSku = skuRes.suggested_sku;
-      }
-    } catch {
-      // Keep default suggested SKU if fetch fails
-    }
-
     setFormData({
       name: '',
       slug: '',
-      sku: suggestedSku,
+      sku: '',
       shelf_slug: 'spices',
       price_rupees: '',
       unit_label: '250 g',
@@ -338,10 +362,13 @@ export default function AdminProducts() {
     const val = e.target.value;
     const oldSlug = slugify(formData.name);
     const shouldSyncSlug = !formData.slug || formData.slug === oldSlug;
+    const autoSku = generateSkuFromName(val, formData.shelf_slug);
+
     setFormData((prev) => ({
       ...prev,
       name: val,
       slug: shouldSyncSlug ? slugify(val) : prev.slug,
+      sku: formProduct ? prev.sku : autoSku,
     }));
     if (formErrors.name) {
       setFormErrors((prev) => ({ ...prev, name: '' }));
@@ -452,9 +479,6 @@ export default function AdminProducts() {
     } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(formData.slug.trim())) {
       errors.slug = 'Slug must only contain lowercase alphanumeric characters and hyphens.';
     }
-    if (!formData.sku.trim()) {
-      errors.sku = 'SKU is required.';
-    }
     if (!formData.shelf_slug) {
       errors.shelf_slug = 'Shelf selection is required.';
     }
@@ -475,13 +499,6 @@ export default function AdminProducts() {
       errors.low_stock_threshold = 'Low-stock threshold cannot be negative.';
     }
 
-    if (formData.images.length > 0) {
-      const missingAltIndex = formData.images.findIndex((img) => !img.alt_text || !img.alt_text.trim());
-      if (missingAltIndex !== -1) {
-        errors.images = `Alt text is required for image #${missingAltIndex + 1}.`;
-      }
-    }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -493,10 +510,14 @@ export default function AdminProducts() {
 
     setIsFormSubmitting(true);
     try {
+      const finalSku =
+        (formData.sku && formData.sku.trim()) ||
+        generateSkuFromName(formData.name.trim(), formData.shelf_slug);
+
       const payload = {
         name: formData.name.trim(),
         slug: formData.slug.trim(),
-        sku: formData.sku.trim(),
+        sku: finalSku,
         shelf: formData.shelf_slug,
         shelf_slug: formData.shelf_slug,
         category_slug: formData.shelf_slug,
@@ -515,8 +536,8 @@ export default function AdminProducts() {
         images: formData.images.map((img, idx) => ({
           url: img.image_url || img.url,
           image_url: img.image_url || img.url,
-          alt_text: img.alt_text.trim(),
-          is_primary: Boolean(img.is_primary),
+          alt_text: (img.alt_text && img.alt_text.trim()) || `${formData.name.trim() || 'Product'} photo`,
+          is_primary: idx === 0,
           sort_order: idx,
         })),
       };
@@ -573,9 +594,6 @@ export default function AdminProducts() {
         <div>
           <span className="font-sans text-xs font-bold uppercase tracking-wider text-accent">Catalogue Management</span>
           <h1 className="mt-1 font-sans text-2xl sm:text-3xl font-bold text-content">Products & Pricing</h1>
-          <p className="mt-1 text-xs sm:text-sm text-content-muted">
-            Inline price changes with audit trails, stock verification, and shelf visibility controls.
-          </p>
         </div>
         <div className="flex items-center gap-2.5">
           <button
@@ -914,7 +932,7 @@ export default function AdminProducts() {
                   {formErrors.name && <p className="text-xs font-semibold text-accent mt-1">{formErrors.name}</p>}
                 </div>
 
-                {/* Slug and SKU Grid */}
+                {/* Slug and Shelf Selection Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Slug */}
                   <div>
@@ -933,49 +951,34 @@ export default function AdminProducts() {
                     {formErrors.slug && <p className="text-xs font-semibold text-accent mt-1">{formErrors.slug}</p>}
                   </div>
 
-                  {/* SKU */}
+                  {/* Shelf Selection */}
                   <div>
-                    <label htmlFor="field-sku" className="block text-xs font-semibold text-content mb-1">
-                      SKU * <span className="text-[10px] text-content-subtle font-normal">(Unique identifier)</span>
+                    <label htmlFor="field-shelf" className="block text-xs font-semibold text-content mb-1">
+                      Shelf (Category) * <span className="text-[10px] text-content-subtle font-normal">(One of 13 shelves)</span>
                     </label>
-                    <input
-                      id="field-sku"
-                      type="text"
+                    <select
+                      id="field-shelf"
                       required
-                      value={formData.sku}
+                      value={formData.shelf_slug}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, sku: e.target.value.toUpperCase() }));
-                        if (formErrors.sku) setFormErrors((prev) => ({ ...prev, sku: '' }));
+                        const newShelf = e.target.value;
+                        setFormData((prev) => ({
+                          ...prev,
+                          shelf_slug: newShelf,
+                          sku: formProduct ? prev.sku : generateSkuFromName(formData.name, newShelf),
+                        }));
+                        if (formErrors.shelf_slug) setFormErrors((prev) => ({ ...prev, shelf_slug: '' }));
                       }}
-                      placeholder="e.g. GTL-6472"
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs font-mono"
-                    />
-                    {formErrors.sku && <p className="text-xs font-semibold text-accent mt-1">{formErrors.sku}</p>}
+                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-2xs"
+                    >
+                      {PRODUCT_SHELVES.map((s) => (
+                        <option key={s.slug} value={s.slug}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                    {formErrors.shelf_slug && <p className="text-xs font-semibold text-accent mt-1">{formErrors.shelf_slug}</p>}
                   </div>
-                </div>
-
-                {/* Shelf Selection */}
-                <div>
-                  <label htmlFor="field-shelf" className="block text-xs font-semibold text-content mb-1">
-                    Shelf (Category) * <span className="text-[10px] text-content-subtle font-normal">(One of 13 shelves)</span>
-                  </label>
-                  <select
-                    id="field-shelf"
-                    required
-                    value={formData.shelf_slug}
-                    onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, shelf_slug: e.target.value }));
-                      if (formErrors.shelf_slug) setFormErrors((prev) => ({ ...prev, shelf_slug: '' }));
-                    }}
-                    className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-2xs"
-                  >
-                    {PRODUCT_SHELVES.map((s) => (
-                      <option key={s.slug} value={s.slug}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
-                  {formErrors.shelf_slug && <p className="text-xs font-semibold text-accent mt-1">{formErrors.shelf_slug}</p>}
                 </div>
               </div>
 
@@ -1261,35 +1264,9 @@ export default function AdminProducts() {
                           )}
                         </div>
 
-                        {/* Alt Text and Primary Selector */}
-                        <div className="flex-1 min-w-0 w-full space-y-1.5">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[11px] font-bold text-content">Image #{idx + 1}</span>
-                            {img.is_primary ? (
-                              <span className="text-[10px] font-bold text-palm uppercase tracking-wider bg-palm/15 px-2 py-0.5 rounded-pill border border-palm/30">
-                                Main Store Image
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => handleSetPrimaryImage(idx)}
-                                className="text-[10px] font-semibold text-content-muted hover:text-palm cursor-pointer underline transition-colors"
-                              >
-                                Set as Main
-                              </button>
-                            )}
-                          </div>
-
-                          <div>
-                            <input
-                              type="text"
-                              required
-                              value={img.alt_text}
-                              onChange={(e) => handleImageAltChange(idx, e.target.value)}
-                              placeholder="Required alt text describing this image for accessibility..."
-                              className="w-full rounded-pill border border-border bg-surface px-3 py-1.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
-                            />
-                          </div>
+                        {/* Label */}
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-bold text-content">Image #{idx + 1}</span>
                         </div>
 
                         {/* Reorder and Delete Buttons */}

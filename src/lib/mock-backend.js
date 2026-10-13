@@ -2,52 +2,123 @@ import { products as seedProducts, categories as seedCategories } from './data';
 
 // LocalStorage Keys
 const STORAGE_USER = 'gtl_mock_auth_user_v1';
-const STORAGE_PRODUCTS = 'gtl_mock_products_v1';
-const STORAGE_ORDERS = 'gtl_mock_orders_v1';
+const STORAGE_PRODUCTS = 'gtl_mock_products_v2';
+const STORAGE_ORDERS = 'gtl_mock_orders_v2';
 const STORAGE_CUSTOMERS = 'gtl_mock_customers_v1';
 const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
+
+export const CATEGORY_PREFIXES = {
+  'hand-crafted': 'CRFT',
+  'sweet': 'SWET',
+  'farsaan': 'FARS',
+  'spices': 'SPIC',
+  'masala': 'MASL',
+  'grains': 'GRAN',
+  'oils-and-vinegars': 'OILS',
+  'papads-and-pickles': 'PCKL',
+  'seafood': 'SEAF',
+  'chutneys-and-spreads': 'CHUT',
+  'kunbi': 'KNBI',
+  'wellness': 'WELL',
+  'sustainable-products': 'SUST',
+};
+
+export const SHELF_NAMES = {
+  'chutneys-and-spreads': 'Chutneys & Spreads',
+  'farsaan': 'Farsaan',
+  'grains': 'Grains',
+  'hand-crafted': 'Hand-Crafted',
+  'kunbi': 'Kunbi',
+  'masala': 'Masala',
+  'oils-and-vinegars': 'Oils & Vinegars',
+  'papads-and-pickles': 'Papads & Pickles',
+  'seafood': 'Seafood',
+  'spices': 'Spices',
+  'sustainable-products': 'Sustainable Products',
+  'sweet': 'Sweet',
+  'wellness': 'Wellness',
+};
+
+export function generateIdentifiableSku(p, usedSkus) {
+  const catSlug = p.categorySlug || p.shelfSlug || p.category_slug || '';
+  const prefix = CATEGORY_PREFIXES[catSlug] || 'PROD';
+  let raw = (p.slug || p.name || 'item')
+    .toLowerCase()
+    .replace(/[–—]/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  let parts = raw.split('-').filter(
+    (w) => !['grams', 'gram', 'and', 'the', 'themed', 'goan', 'of', 'in', '8211'].includes(w)
+  );
+  if (prefix === 'KNBI') {
+    parts = parts.filter((w) => w !== 'kunbi');
+  }
+  let code = parts.slice(0, 3).join('-').toUpperCase() || 'ITEM';
+  let baseSku = `${prefix}-${code}`;
+  let finalSku = baseSku;
+  let counter = 2;
+  if (usedSkus) {
+    while (usedSkus.has(finalSku)) {
+      finalSku = `${baseSku}-${counter}`;
+      counter++;
+    }
+    usedSkus.add(finalSku);
+  }
+  return finalSku;
+}
 
 // Initial Mock Seed Data
 function initMockProducts() {
   const existing = localStorage.getItem(STORAGE_PRODUCTS);
   if (existing) {
     try {
-      return JSON.parse(existing);
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     } catch {
       // fallback
     }
   }
 
-  const initial = seedProducts.map((p, idx) => ({
-    id: `prod-${p.id || idx + 1}`,
-    sku: p.sku || `GTL-${6000 + idx}`,
-    slug: p.slug,
-    name: p.title || p.name,
-    price_paise: p.pricePaise || 35000,
-    price_formatted: `₹${((p.pricePaise || 35000) / 100).toLocaleString('en-IN')}`,
-    stock_qty: 50,
-    reserved_qty: 0,
-    is_active: true,
-    status: 'published',
-    category_name: p.shelf || 'Spices',
-    category_slug: p.shelfSlug || 'spices',
-    unit_label: p.weight || '250 g',
-    net_weight_grams: p.weightGrams || 250,
-    description: p.description || '',
-    origin_text: p.origin || 'Made in Goa',
-    is_featured: Boolean(p.isFeatured),
-    image_url: p.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
-    images: [
-      {
-        id: `img-${p.id || idx + 1}`,
-        url: p.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
-        alt_text: p.title || p.name,
-        is_primary: true,
-        sort_order: 0,
-      },
-    ],
-  }));
+  const usedSkus = new Set();
+  const initial = seedProducts.map((p, idx) => {
+    const sku = p.sku && !p.sku.startsWith('GTL-') ? p.sku : generateIdentifiableSku(p, usedSkus);
+    const catSlug = p.categorySlug || p.shelfSlug || 'spices';
+    const catName = SHELF_NAMES[catSlug] || p.shelf || 'Spices';
+    const pricePaise = p.pricePaise || p.price || 35000;
+
+    return {
+      id: `prod-${p.id || idx + 1}`,
+      sku,
+      slug: p.slug,
+      name: p.title || p.name,
+      price_paise: pricePaise,
+      price_formatted: `₹${(pricePaise / 100).toLocaleString('en-IN')}`,
+      stock_qty: 50,
+      reserved_qty: 0,
+      is_active: true,
+      status: 'published',
+      category_name: catName,
+      category_slug: catSlug,
+      unit_label: p.weight || '250 g',
+      net_weight_grams: p.weightGrams || 250,
+      description: p.description || p.shortDescription || '',
+      origin_text: p.origin || 'Made in Goa',
+      is_featured: Boolean(p.isFeatured),
+      image_url: p.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
+      images: [
+        {
+          id: `img-${p.id || idx + 1}`,
+          url: p.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
+          alt_text: p.title || p.name,
+          is_primary: true,
+          sort_order: 0,
+        },
+      ],
+    };
+  });
 
   localStorage.setItem(STORAGE_PRODUCTS, JSON.stringify(initial));
   return initial;
@@ -57,17 +128,24 @@ function initMockOrders() {
   const existing = localStorage.getItem(STORAGE_ORDERS);
   if (existing) {
     try {
-      return JSON.parse(existing);
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     } catch {}
   }
 
   const initial = [
     {
-      id: 'ord-001',
-      order_number: 'ORD-2026-1042',
+      id: '1042',
+      order_number: '#1042',
       customer_name: 'Sancho Fernandes',
       customer_email: 'sancho.fernandes@example.com',
       customer_phone: '+91 98221 45012',
+      recipient_name: 'Sancho Fernandes',
+      city: 'Panaji',
+      state: 'Goa',
+      pincode: '403001',
       status: 'paid',
       total_paise: 685000,
       subtotal_paise: 673000,
@@ -82,23 +160,28 @@ function initMockOrders() {
         pincode: '403001',
       },
       placed_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+      item_count: 3,
       items_count: 3,
       items: [
         {
           id: 'item-1',
           name: 'Goan Kokum Butter Soap',
-          sku: 'GTL-6101',
+          sku: 'WELL-KOKUM-SOAP',
+          unit_label: '100 g',
           quantity: 2,
           unit_price_paise: 24000,
+          line_total_paise: 48000,
           total_price_paise: 48000,
-          image_url: '/images/catalog/goan-themed-blue-mug.jpg',
+          image_url: '/images/catalog/old-goa-virgin-coconut-body-oil--lanvendar-200ml.jpg',
         },
         {
           id: 'item-2',
           name: 'Traditional Chouriço Masala',
-          sku: 'GTL-6205',
+          sku: 'MASL-CHOURICO-MASL',
+          unit_label: '200 g',
           quantity: 1,
           unit_price_paise: 193000,
+          line_total_paise: 193000,
           total_price_paise: 193000,
           image_url: '/images/catalog/white-chawli-200-grams.jpg',
         },
@@ -106,11 +189,15 @@ function initMockOrders() {
       notes: [{ id: 'n1', text: 'Verified Goan pincode 403001', created_at: new Date().toISOString() }],
     },
     {
-      id: 'ord-002',
-      order_number: 'ORD-2026-1041',
+      id: '1041',
+      order_number: '#1041',
       customer_name: 'Pooja Naik',
       customer_email: 'pooja.naik@example.com',
       customer_phone: '+91 98765 43210',
+      recipient_name: 'Pooja Naik',
+      city: 'Margao',
+      state: 'Goa',
+      pincode: '403601',
       status: 'packed',
       total_paise: 420000,
       subtotal_paise: 412000,
@@ -125,14 +212,17 @@ function initMockOrders() {
         pincode: '403601',
       },
       placed_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-      items_count: 2,
+      item_count: 1,
+      items_count: 1,
       items: [
         {
           id: 'item-3',
           name: 'Pure Goan Wild Honey',
-          sku: 'GTL-6310',
+          sku: 'CHUT-WILD-HONEY',
+          unit_label: '500 g',
           quantity: 1,
           unit_price_paise: 412000,
+          line_total_paise: 412000,
           total_price_paise: 412000,
           image_url: '/images/catalog/pineapple-jam-250-grams.jpg',
         },
@@ -140,11 +230,15 @@ function initMockOrders() {
       notes: [],
     },
     {
-      id: 'ord-003',
-      order_number: 'ORD-2026-1039',
+      id: '1039',
+      order_number: '#1039',
       customer_name: 'Rahul Shenoy',
       customer_email: 'rahul.s@example.com',
       customer_phone: '+91 91234 56789',
+      recipient_name: 'Rahul Shenoy',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      pincode: '560001',
       status: 'shipped',
       total_paise: 890000,
       subtotal_paise: 878000,
@@ -159,16 +253,33 @@ function initMockOrders() {
         pincode: '560001',
       },
       placed_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+      item_count: 4,
       items_count: 4,
-      items: [],
+      items: [
+        {
+          id: 'item-4',
+          name: 'Unpeeled Cashew Nuts 500g',
+          sku: 'FARS-CASHEW-NUTS',
+          unit_label: '500 g',
+          quantity: 2,
+          unit_price_paise: 439000,
+          line_total_paise: 878000,
+          total_price_paise: 878000,
+          image_url: '/images/catalog/unpeeled-cashew-nuts-500-grams.jpg',
+        },
+      ],
       notes: [],
     },
     {
-      id: 'ord-004',
-      order_number: 'ORD-2026-1035',
+      id: '1035',
+      order_number: '#1035',
       customer_name: 'Sunita Kamat',
       customer_email: 'sunita.kamat@example.com',
       customer_phone: '+91 94220 11223',
+      recipient_name: 'Sunita Kamat',
+      city: 'Panaji',
+      state: 'Goa',
+      pincode: '403001',
       status: 'delivered',
       total_paise: 550000,
       subtotal_paise: 542000,
@@ -183,8 +294,21 @@ function initMockOrders() {
         pincode: '403001',
       },
       placed_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+      item_count: 2,
       items_count: 2,
-      items: [],
+      items: [
+        {
+          id: 'item-5',
+          name: 'Goan-themed Blue Mug',
+          sku: 'CRFT-BLUE-MUG',
+          unit_label: 'One piece',
+          quantity: 1,
+          unit_price_paise: 50000,
+          line_total_paise: 50000,
+          total_price_paise: 50000,
+          image_url: '/images/catalog/goan-themed-blue-mug.jpg',
+        },
+      ],
       notes: [],
     },
   ];
@@ -435,17 +559,9 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   // 3. ADMIN PRODUCTS & CATALOGUE
   // -------------------------------------------------------------
   if (pathname === '/api/v1/admin/products/next-sku' && method === 'GET') {
-    const products = initMockProducts();
-    let maxNum = 6471;
-    for (const p of products) {
-      if (p.sku && p.sku.startsWith('GTL-')) {
-        const num = parseInt(p.sku.replace('GTL-', ''), 10);
-        if (!isNaN(num) && num > maxNum) {
-          maxNum = num;
-        }
-      }
-    }
-    return { suggested_sku: `GTL-${maxNum + 1}` };
+    const shelf = searchParams.get('shelf') || searchParams.get('category') || 'spices';
+    const prefix = CATEGORY_PREFIXES[shelf] || 'SPIC';
+    return { suggested_sku: `${prefix}-NEW-ITEM` };
   }
 
   if (pathname === '/api/v1/admin/products/images' && method === 'POST') {
@@ -501,9 +617,16 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     const pricePaise = body.price_paise || Math.round((parseFloat(body.price_rupees) || 350) * 100);
     const primaryImg = (body.images && body.images.find((img) => img.is_primary)) || body.images?.[0];
 
+    const catSlug = body.shelf_slug || body.shelf || body.category_slug || 'spices';
+    const autoSku = generateIdentifiableSku({
+      name: body.name,
+      slug: body.slug,
+      categorySlug: catSlug,
+    });
+
     const newProd = {
       id: newId,
-      sku: body.sku || `GTL-${Date.now().toString().slice(-4)}`,
+      sku: body.sku || autoSku,
       slug: body.slug || `product-${Date.now()}`,
       name: body.name || 'New Product',
       price_paise: pricePaise,
@@ -512,8 +635,8 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
       reserved_qty: 0,
       is_active: body.status === 'Published',
       status: (body.status || 'Published').toLowerCase(),
-      category_name: body.shelf || body.category_slug || 'Spices',
-      category_slug: body.shelf_slug || body.shelf || body.category_slug || 'spices',
+      category_name: SHELF_NAMES[catSlug] || body.shelf || 'Spices',
+      category_slug: catSlug,
       unit_label: body.unit_label || '250 g',
       net_weight_grams: parseInt(body.weight_grams || body.net_weight_grams, 10) || 250,
       description: body.description || '',
@@ -680,8 +803,15 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
 
   if (pathname.startsWith('/api/v1/admin/orders/') && method === 'GET') {
     const id = pathname.replace('/api/v1/admin/orders/', '');
+    const cleanId = id.replace(/^#/, '');
     const orders = initMockOrders();
-    const ord = orders.find((o) => o.id === id || o.order_number === id);
+    const ord = orders.find(
+      (o) =>
+        o.id === id ||
+        o.id === cleanId ||
+        o.order_number === id ||
+        o.order_number.replace(/^#/, '') === cleanId
+    );
     if (ord) return ord;
   }
 
@@ -691,8 +821,15 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
       try { body = JSON.parse(body); } catch {}
     }
     const orderId = pathname.replace('/api/v1/admin/orders/', '').replace('/transition', '');
+    const cleanId = orderId.replace(/^#/, '');
     const orders = initMockOrders();
-    const ord = orders.find((o) => o.id === orderId || o.order_number === orderId);
+    const ord = orders.find(
+      (o) =>
+        o.id === orderId ||
+        o.id === cleanId ||
+        o.order_number === orderId ||
+        o.order_number.replace(/^#/, '') === cleanId
+    );
     if (ord && body?.target_status) {
       ord.status = body.target_status;
       localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));

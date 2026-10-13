@@ -68,9 +68,6 @@ export default function AdminDashboard() {
         <div>
           <span className="font-sans text-xs font-bold uppercase tracking-wider text-accent">Operations Overview</span>
           <h1 className="mt-1 font-sans text-2xl sm:text-3xl font-bold text-content">Admin Dashboard</h1>
-          <p className="mt-1 text-xs sm:text-sm text-content-muted">
-            Live database counts for orders, catalogue pricing, and enquiries dispatched from Fontainhas.
-          </p>
         </div>
         <button
           onClick={loadDashboard}
@@ -248,7 +245,6 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between border-b border-border/30 pb-4">
           <div>
             <h2 className="font-sans text-lg font-bold text-content">Recent Orders Feed</h2>
-            <p className="text-xs text-content-muted">Real-time orders placed across Pan-India and Goa Express</p>
           </div>
           <Link
             to="/admin/orders"

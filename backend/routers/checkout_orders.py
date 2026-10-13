@@ -240,8 +240,7 @@ def calculate_checkout_quote(
 
 def generate_next_order_number(db: Session) -> str:
     seq_val = db.execute(text("SELECT nextval('order_number_seq')")).scalar()
-    year_str = datetime.now(timezone.utc).strftime("%Y")
-    return f"GTL-{year_str}-{int(seq_val):04d}"
+    return f"ORD-{int(seq_val):04d}"
 
 
 STATUS_LABELS: dict[OrderStatus, str] = {
