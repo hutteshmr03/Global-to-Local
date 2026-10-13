@@ -39,9 +39,10 @@ export default function AdminProducts() {
   const [shelf, setShelf] = useState('all');
   const [error, setError] = useState('');
 
-  // Inline Price Edit Modal State
+  // Inline Price & Stock Edit Modal State
   const [editingProduct, setEditingProduct] = useState(null);
   const [newRupees, setNewRupees] = useState('');
+  const [newStock, setNewStock] = useState('');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editError, setEditError] = useState('');
@@ -82,12 +83,13 @@ export default function AdminProducts() {
   const handleOpenEdit = (prod) => {
     setEditingProduct(prod);
     setNewRupees((prod.price_paise / 100).toString());
+    setNewStock((prod.stock_qty ?? 50).toString());
     setReason('');
     setEditError('');
     setEditSuccess('');
   };
 
-  const handleSavePrice = async (e) => {
+  const handleSavePriceAndStock = async (e) => {
     e.preventDefault();
     setEditError('');
     setEditSuccess('');
@@ -97,32 +99,82 @@ export default function AdminProducts() {
       setEditError('Price must be greater than zero.');
       return;
     }
+
+    const stockVal = parseInt(newStock, 10);
+    if (isNaN(stockVal) || stockVal < 0) {
+      setEditError('Stock must be zero or a positive number.');
+      return;
+    }
+
     if (!reason.trim()) {
       setEditError('A non-empty reason is required for the audit trail.');
       return;
     }
 
     const newPaise = Math.round(val * 100);
+    const oldPaise = editingProduct.price_paise;
+    const oldStock = editingProduct.stock_qty ?? 50;
+
+    const priceChanged = newPaise !== oldPaise;
+    const stockChanged = stockVal !== oldStock;
+
+    if (!priceChanged && !stockChanged) {
+      setEditError('No changes detected in price or stock.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const res = await apiFetch(`/api/v1/admin/products/${editingProduct.id}/price`, {
-        method: 'PATCH',
-        body: {
-          new_price_paise: newPaise,
-          reason: reason.trim(),
-        },
-      });
+      const updates = [];
+      if (priceChanged) {
+        updates.push(
+          apiFetch(`/api/v1/admin/products/${editingProduct.id}/price`, {
+            method: 'PATCH',
+            body: {
+              new_price_paise: newPaise,
+              reason: reason.trim(),
+            },
+          })
+        );
+      }
+      if (stockChanged) {
+        updates.push(
+          apiFetch(`/api/v1/admin/products/${editingProduct.id}/stock`, {
+            method: 'PATCH',
+            body: {
+              stock_qty: stockVal,
+              reason: reason.trim(),
+            },
+          })
+        );
+      }
 
-      setEditSuccess(`Price updated to ₹${val.toFixed(2).replace(/\.00$/, '')} successfully.`);
+      await Promise.all(updates);
+
+      const msgs = [];
+      if (priceChanged) msgs.push(`Price: ₹${val.toFixed(2).replace(/\.00$/, '')}`);
+      if (stockChanged) msgs.push(`Stock: ${stockVal} on hand`);
+      setEditSuccess(`${msgs.join(' & ')} updated successfully.`);
+
       // Update local state
       setProducts((prev) =>
-        prev.map((p) => (p.id === editingProduct.id ? { ...p, price_paise: newPaise, price_formatted: `₹${val}` } : p))
+        prev.map((p) =>
+          p.id === editingProduct.id
+            ? {
+                ...p,
+                price_paise: newPaise,
+                price_formatted: `₹${val}`,
+                stock_qty: stockVal,
+              }
+            : p
+        )
       );
+
       setTimeout(() => {
         setEditingProduct(null);
       }, 900);
     } catch (err) {
-      setEditError(err.detail || err.message || 'Failed to update price');
+      setEditError(err.detail || err.message || 'Failed to update product');
     } finally {
       setIsSubmitting(false);
     }
@@ -298,10 +350,10 @@ export default function AdminProducts() {
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(p)}
-                          className="inline-flex cursor-pointer items-center gap-1 rounded-pill border border-palm bg-surface px-3 py-1 text-[11px] font-semibold text-palm hover:bg-palm hover:text-white transition-all shadow-xs"
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border border-palm bg-surface px-3 py-1 text-[11px] font-semibold text-palm hover:bg-palm hover:text-white transition-all shadow-xs whitespace-nowrap"
                         >
                           <Edit2 className="w-3 h-3" />
-                          <span>Edit Price</span>
+                          <span>Edit Price & Stock</span>
                         </button>
 
                         <button
@@ -323,69 +375,97 @@ export default function AdminProducts() {
         )}
       </div>
 
-      {/* INLINE PRICE EDIT MODAL */}
+      {/* INLINE PRICE & STOCK EDIT MODAL */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-deep/60 backdrop-blur-xs">
           <div className="w-full max-w-md rounded-3xl border border-border bg-surface p-6 sm:p-7 shadow-2xl space-y-4">
             <div className="flex items-start justify-between">
               <div>
                 <span className="font-mono text-xs font-bold uppercase tracking-wider text-accent">Audit-Logged Edit</span>
-                <h2 className="font-display text-lg font-bold text-content mt-0.5">Change Product Price</h2>
+                <h2 className="font-display text-lg font-bold text-content mt-0.5">Edit Price & Stock</h2>
                 <p className="text-xs text-content-muted truncate max-w-xs">{editingProduct.name}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingProduct(null)}
-                className="p-1 text-content-subtle hover:text-content"
-                aria-label="Close price edit modal"
+                className="p-1 text-content-subtle hover:text-content cursor-pointer"
+                aria-label="Close edit modal"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSavePrice} className="space-y-4 pt-1">
-              {/* Old vs New comparison */}
-              <div className="rounded-2xl border border-border/60 bg-ground/80 p-4 space-y-3">
-                <div className="flex justify-between text-xs">
-                  <span className="font-semibold text-content-muted">Current Price:</span>
-                  <span className="font-mono font-bold text-content">
-                    ₹{(editingProduct.price_paise / 100).toFixed(2).replace(/\.00$/, '')}
-                  </span>
+            <form onSubmit={handleSavePriceAndStock} className="space-y-4 pt-1">
+              <div className="rounded-2xl border border-border/60 bg-ground/80 p-4 space-y-4">
+                {/* 1. Price Editing */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-content-muted">Current Price:</span>
+                    <span className="font-mono font-bold text-content">
+                      ₹{(editingProduct.price_paise / 100).toFixed(2).replace(/\.00$/, '')}
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-content mb-1">
+                      New Price (in ₹) *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-2.5 text-xs font-bold text-content-muted">₹</span>
+                      <input
+                        type="number"
+                        step="1"
+                        min="1"
+                        required
+                        value={newRupees}
+                        onChange={(e) => setNewRupees(e.target.value)}
+                        placeholder="e.g. 550"
+                        className="w-full rounded-pill border border-border bg-surface py-2 pl-8 pr-4 font-mono text-sm font-bold text-content outline-none focus:border-palm shadow-2xs"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  {/* Warning if change > 25% */}
+                  {showWarning && (
+                    <div className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-900 font-semibold">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>Warning: Price change is {pctChange.toFixed(1)}% (exceeds 25%).</span>
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-content mb-1">
-                    New Price (in ₹) *
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-2.5 text-xs font-bold text-content-muted">₹</span>
+                {/* 2. In-Hand Stock Editing */}
+                <div className="border-t border-border/40 pt-3 space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-content-muted">Current Stock:</span>
+                    <span className="font-mono font-bold text-content">
+                      {editingProduct.stock_qty ?? 50} units on hand
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-content mb-1">
+                      New In-Hand Stock (units) *
+                    </label>
                     <input
                       type="number"
                       step="1"
-                      min="1"
+                      min="0"
                       required
-                      value={newRupees}
-                      onChange={(e) => setNewRupees(e.target.value)}
-                      placeholder="e.g. 550"
-                      className="w-full rounded-pill border border-border bg-surface py-2 pl-8 pr-4 font-mono text-sm font-bold text-content outline-none focus:border-palm"
-                      autoFocus
+                      value={newStock}
+                      onChange={(e) => setNewStock(e.target.value)}
+                      placeholder="e.g. 50"
+                      className="w-full rounded-pill border border-border bg-surface py-2 px-4 font-mono text-sm font-bold text-content outline-none focus:border-palm shadow-2xs"
                     />
                   </div>
                 </div>
-
-                {/* Warning if change > 25% */}
-                {showWarning && (
-                  <div className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-900 font-semibold">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>Warning: Price change is {pctChange.toFixed(1)}% (exceeds 25%).</span>
-                  </div>
-                )}
               </div>
 
               {/* Mandatory Reason */}
               <div>
                 <label className="block text-xs font-semibold text-content mb-1">
-                  Reason for Price Change * <span className="text-[10px] text-content-subtle font-normal">(Recorded in audit log)</span>
+                  Reason for Changes * <span className="text-[10px] text-content-subtle font-normal">(Recorded in audit log)</span>
                 </label>
                 <input
                   type="text"
@@ -393,8 +473,8 @@ export default function AdminProducts() {
                   minLength={3}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="e.g. Raw material cost update / Monsoon seasonal batch"
-                  className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm"
+                  placeholder="e.g. Restocked 25 units from Fontainhas / Raw material adjustment"
+                  className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
                 />
               </div>
 
@@ -413,14 +493,14 @@ export default function AdminProducts() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 rounded-pill bg-palm py-2.5 text-xs font-bold text-white hover:bg-palm-shade shadow-xs transition-all disabled:opacity-50"
+                  className="flex-1 rounded-pill bg-palm py-2.5 text-xs font-bold text-white hover:bg-palm-shade shadow-xs transition-all disabled:opacity-50 cursor-pointer"
                 >
-                  {isSubmitting ? 'Saving...' : 'Confirm & Audit Log Price'}
+                  {isSubmitting ? 'Saving...' : 'Confirm & Audit Log Changes'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditingProduct(null)}
-                  className="rounded-pill border border-border bg-surface px-5 py-2.5 text-xs font-semibold text-content hover:bg-surface-muted"
+                  className="rounded-pill border border-border bg-surface px-5 py-2.5 text-xs font-semibold text-content hover:bg-surface-muted transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
