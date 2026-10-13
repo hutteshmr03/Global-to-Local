@@ -112,7 +112,7 @@ export default function AdminOrders() {
         <button
           onClick={fetchOrders}
           disabled={loading}
-          className="inline-flex items-center gap-2 self-start sm:self-auto px-3.5 py-2 rounded-lg border border-edge bg-canvas hover:bg-stone-50 text-content text-sm transition-colors shadow-2xs"
+          className="inline-flex items-center gap-2 self-start sm:self-auto px-3.5 py-2 rounded-xl border border-border bg-surface hover:bg-ground text-content text-sm transition-colors shadow-xs cursor-pointer"
           title="Refresh orders list"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -121,24 +121,24 @@ export default function AdminOrders() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-canvas border border-edge rounded-xl p-4 shadow-2xs space-y-4">
+      <div className="bg-surface border border-border rounded-2xl p-4 shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-content-subtle" />
             <input
               type="text"
               placeholder="Search by order number (GTL-...), customer email or phone..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-ground border border-edge rounded-lg text-sm text-content placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-colors"
+              className="w-full pl-10 pr-4 py-2 bg-ground border border-border rounded-xl text-sm text-content placeholder-content-subtle focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors"
             />
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-stone-400 shrink-0" />
+            <Filter className="h-4 w-4 text-content-subtle shrink-0" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full md:w-56 px-3 py-2 bg-ground border border-edge rounded-lg text-sm text-content focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta transition-colors"
+              className="w-full md:w-56 px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors"
             >
               {STATUS_FILTERS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -150,15 +150,15 @@ export default function AdminOrders() {
         </div>
 
         {/* Quick status pill tabs */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-edge-subtle">
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-border-subtle">
           {STATUS_FILTERS.map((filter) => (
             <button
               key={filter.value}
               onClick={() => setStatusFilter(filter.value)}
-              className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+              className={`text-xs px-3.5 py-1 rounded-full border transition-all cursor-pointer ${
                 statusFilter === filter.value
-                  ? 'bg-terracotta text-white border-terracotta font-medium'
-                  : 'bg-ground text-content-muted border-edge hover:bg-stone-100 hover:text-content'
+                  ? 'bg-[#C45C4A] text-white border-[#C45C4A] font-bold shadow-xs'
+                  : 'bg-ground text-content-muted border-border hover:bg-surface hover:text-content'
               }`}
             >
               {filter.label}
@@ -179,8 +179,8 @@ export default function AdminOrders() {
       )}
 
       {/* Orders Table */}
-      <div className="bg-canvas border border-edge rounded-xl shadow-2xs overflow-hidden">
-        <div className="px-5 py-4 border-b border-edge flex items-center justify-between">
+      <div className="bg-surface border border-border rounded-2xl shadow-xs overflow-hidden">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div className="text-sm font-medium text-content">
             Showing <span className="font-bold">{orders.length}</span> of {total} orders
           </div>
@@ -188,7 +188,7 @@ export default function AdminOrders() {
 
         {loading ? (
           <div className="p-12 text-center text-content-muted">
-            <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-3 text-terracotta" />
+            <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-3 text-accent" />
             <p className="text-sm">Loading orders registry...</p>
           </div>
         ) : orders.length === 0 ? (
@@ -204,7 +204,7 @@ export default function AdminOrders() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-ground/75 border-b border-edge text-xs font-semibold text-content-muted uppercase tracking-wider">
+              <thead className="bg-ground/75 border-b border-border text-xs font-semibold text-content-muted uppercase tracking-wider">
                 <tr>
                   <th className="px-5 py-3.5">Order #</th>
                   <th className="px-5 py-3.5">Date Placed</th>
@@ -215,7 +215,7 @@ export default function AdminOrders() {
                   <th className="px-5 py-3.5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-edge">
+              <tbody className="divide-y divide-border/60">
                 {orders.map((o) => {
                   const badge = getStatusBadge(o.status);
                   const dateStr = o.placed_at
@@ -229,8 +229,8 @@ export default function AdminOrders() {
                     : '—';
 
                   return (
-                    <tr key={o.id} className="hover:bg-stone-50/70 transition-colors">
-                      <td className="px-5 py-4 font-mono font-medium text-terracotta">
+                    <tr key={o.id} className="hover:bg-ground/40 transition-colors">
+                      <td className="px-5 py-4 font-mono font-medium text-accent">
                         <Link
                           to={`/admin/orders/${o.id}`}
                           className="hover:underline flex items-center gap-1 group"
@@ -248,7 +248,7 @@ export default function AdminOrders() {
                         </div>
                       </td>
                       <td className="px-5 py-4 text-content-muted">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded bg-ground text-content text-xs font-medium">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded bg-ground border border-border/40 text-content text-xs font-medium">
                           {o.item_count} {o.item_count === 1 ? 'item' : 'items'}
                         </span>
                       </td>
@@ -266,10 +266,10 @@ export default function AdminOrders() {
                       <td className="px-5 py-4 text-right whitespace-nowrap">
                         <Link
                           to={`/admin/orders/${o.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-edge bg-ground hover:bg-stone-100 text-content text-xs font-medium transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-border bg-surface hover:bg-ground text-content text-xs font-semibold shadow-xs transition-all"
                         >
                           View & Process
-                          <ChevronRight className="h-3 w-3" />
+                          <ChevronRight className="h-3 w-3 text-content-subtle" />
                         </Link>
                       </td>
                     </tr>

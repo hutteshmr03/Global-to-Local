@@ -168,7 +168,7 @@ export default function AdminOrderDetail() {
   if (loading) {
     return (
       <div className="py-20 text-center text-content-muted">
-        <Package className="h-8 w-8 animate-spin mx-auto mb-3 text-terracotta" />
+        <Package className="h-8 w-8 animate-spin mx-auto mb-3 text-accent" />
         <p className="text-sm">Retrieving order details...</p>
       </div>
     );
@@ -179,7 +179,7 @@ export default function AdminOrderDetail() {
       <div className="space-y-4">
         <Link
           to="/admin/orders"
-          className="inline-flex items-center gap-1.5 text-sm text-terracotta hover:underline"
+          className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to all orders
@@ -210,16 +210,16 @@ export default function AdminOrderDetail() {
         {nextTransition && (
           <button
             onClick={() => handleOpenTransitionModal(nextTransition.next)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-terracotta hover:bg-terracotta/90 text-white font-medium text-sm transition-colors shadow-2xs"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white font-bold text-sm transition-all shadow-md cursor-pointer"
           >
             <nextTransition.icon className="h-4 w-4" />
-            {nextTransition.label}
+            <span>{nextTransition.label}</span>
           </button>
         )}
       </div>
 
       {/* Order Header Card */}
-      <div className="bg-canvas border border-edge rounded-xl p-6 shadow-2xs">
+      <div className="bg-surface border border-border rounded-2xl p-6 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
@@ -262,35 +262,62 @@ export default function AdminOrderDetail() {
 
         {/* Forward-only progression ribbon */}
         <div className="mt-6 pt-5 border-t border-edge-subtle">
-          <div className="text-xs font-semibold uppercase tracking-wider text-content-muted mb-3">
-            Fulfillment Progression (Strict Forward Only)
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div className="text-xs font-semibold uppercase tracking-wider text-content-muted">
+              Fulfillment Progression (Strict Forward Only)
+            </div>
+            {nextTransition && (
+              <span className="text-xs font-bold text-[#C45C4A]">
+                Next Action Required: {nextTransition.label}
+              </span>
+            )}
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {[
-              { key: 'paid', label: '1. Paid', desc: 'Verified' },
-              { key: 'packed', label: '2. Packed', desc: 'In Box' },
-              { key: 'shipped', label: '3. Shipped', desc: 'In Transit' },
-              { key: 'delivered', label: '4. Delivered', desc: 'Handed over' },
-            ].map((step, idx) => {
+              { key: 'paid', label: '1. Paid', desc: 'Verified & Confirmed' },
+              { key: 'packed', label: '2. Packed', desc: 'Gathered in Box' },
+              { key: 'shipped', label: '3. Shipped', desc: 'Handed to Courier' },
+              { key: 'delivered', label: '4. Delivered', desc: 'Customer Received' },
+            ].map((step) => {
               const orderSteps = ['paid', 'packed', 'shipped', 'delivered'];
               const currentIdx = orderSteps.indexOf(order.status);
               const stepIdx = orderSteps.indexOf(step.key);
               const isPast = stepIdx <= currentIdx && currentIdx !== -1;
               const isCurrent = order.status === step.key;
+              const isNext = nextTransition && nextTransition.next === step.key;
 
               return (
                 <div
                   key={step.key}
-                  className={`p-3 rounded-lg border text-left text-xs transition-colors ${
+                  className={`p-3.5 rounded-xl border text-left text-xs transition-all relative ${
                     isCurrent
-                      ? 'border-terracotta bg-terracotta/5 font-semibold text-terracotta'
+                      ? 'border-[#C45C4A] bg-[#C45C4A]/10 font-bold text-[#C45C4A] ring-1 ring-[#C45C4A]/30'
                       : isPast
-                      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                      : 'border-edge bg-ground/50 text-content-muted'
+                      ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
+                      : isNext
+                      ? 'border-[#C45C4A] bg-white text-content shadow-xs ring-1 ring-[#C45C4A]/20'
+                      : 'border-border/60 bg-ground/50 text-content-muted opacity-70'
                   }`}
                 >
-                  <div className="font-medium">{step.label}</div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{step.label}</span>
+                    {isCurrent && (
+                      <span className="inline-block w-2 h-2 rounded-full bg-[#C45C4A] animate-pulse" />
+                    )}
+                    {isPast && (
+                      <CheckCircle className="h-3.5 w-3.5 text-emerald-600 inline" />
+                    )}
+                  </div>
                   <div className="text-[11px] opacity-75 mt-0.5">{step.desc}</div>
+                  {isNext && (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenTransitionModal(step.key)}
+                      className="mt-2.5 w-full py-1.5 px-2 rounded-lg bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-[11px] font-bold text-center transition-colors shadow-xs cursor-pointer block"
+                    >
+                      {nextTransition.label} &rarr;
+                    </button>
+                  )}
                 </div>
               );
             })}
@@ -302,17 +329,17 @@ export default function AdminOrderDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (2 Cols): Items snapshot */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-canvas border border-edge rounded-xl shadow-2xs overflow-hidden">
-            <div className="px-5 py-4 border-b border-edge">
+          <div className="bg-surface border border-border rounded-2xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-border">
               <h2 className="font-semibold text-base text-content">Items in Order ({order.items.length})</h2>
             </div>
-            <div className="divide-y divide-edge">
+            <div className="divide-y divide-border/60">
               {order.items.map((item) => (
                 <div key={item.id} className="p-4 sm:p-5 flex items-center gap-4">
                   <img
                     src={item.image_url || '/images/catalog/goan-themed-blue-mug.jpg'}
                     alt={item.name}
-                    className="w-16 h-16 rounded-lg object-cover bg-ground border border-edge shrink-0"
+                    className="w-16 h-16 rounded-lg object-cover bg-ground border border-border shrink-0"
                     onError={(e) => {
                       e.target.src = '/images/catalog/goan-themed-blue-mug.jpg';
                     }}
@@ -336,7 +363,7 @@ export default function AdminOrderDetail() {
             </div>
 
             {/* Price breakdown */}
-            <div className="p-5 bg-ground/50 border-t border-edge text-sm space-y-2">
+            <div className="p-5 bg-ground/40 border-t border-border text-sm space-y-2">
               <div className="flex justify-between text-content-muted">
                 <span>Subtotal</span>
                 <span>₹{(order.subtotal_paise / 100).toFixed(2)}</span>
@@ -353,7 +380,7 @@ export default function AdminOrderDetail() {
                   <span>-₹{(order.discount_paise / 100).toFixed(2)}</span>
                 </div>
               )}
-              <div className="pt-2 border-t border-edge flex justify-between font-bold text-base text-content">
+              <div className="pt-2 border-t border-border flex justify-between font-bold text-base text-content">
                 <span>Grand Total</span>
                 <span>₹{(order.total_paise / 100).toFixed(2)}</span>
               </div>
@@ -364,17 +391,17 @@ export default function AdminOrderDetail() {
           </div>
 
           {/* Internal Notes Card */}
-          <div className="bg-canvas border border-edge rounded-xl shadow-2xs overflow-hidden">
-            <div className="px-5 py-4 border-b border-edge flex items-center justify-between">
+          <div className="bg-surface border border-border rounded-2xl shadow-xs overflow-hidden">
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-terracotta" />
+                <MessageSquare className="h-4 w-4 text-accent" />
                 <h2 className="font-semibold text-base text-content">Internal Admin Notes</h2>
               </div>
               <span className="text-xs text-content-muted">Only visible to admin</span>
             </div>
 
             {/* Note form */}
-            <form onSubmit={handleAddNote} className="p-4 sm:p-5 border-b border-edge bg-ground/30">
+            <form onSubmit={handleAddNote} className="p-4 sm:p-5 border-b border-border bg-ground/40">
               <label htmlFor="admin-order-note" className="block text-xs font-medium text-content mb-1.5">
                 Add Note for this Order
               </label>
@@ -384,14 +411,14 @@ export default function AdminOrderDetail() {
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
                 placeholder="e.g. Special packing with Fontainhas motif paper requested; verified address with customer."
-                className="w-full p-2.5 bg-canvas border border-edge rounded-lg text-sm text-content placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                className="w-full p-2.5 bg-surface border border-border rounded-xl text-sm text-content placeholder-content-subtle focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
               />
               {noteError && <p className="text-xs text-rose-600 mt-1">{noteError}</p>}
               <div className="mt-2 text-right">
                 <button
                   type="submit"
                   disabled={submittingNote || !newNote.trim()}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-900 disabled:opacity-50 text-white text-xs font-medium transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-palm hover:bg-palm-shade disabled:opacity-50 text-white text-xs font-medium transition-colors cursor-pointer"
                 >
                   <Send className="h-3 w-3" />
                   {submittingNote ? 'Adding...' : 'Post Internal Note'}
@@ -400,7 +427,7 @@ export default function AdminOrderDetail() {
             </form>
 
             {/* Existing notes list */}
-            <div className="divide-y divide-edge">
+            <div className="divide-y divide-border/60">
               {!order.notes || order.notes.length === 0 ? (
                 <div className="p-6 text-center text-xs text-content-muted">
                   No internal notes recorded yet.
@@ -409,7 +436,7 @@ export default function AdminOrderDetail() {
                 order.notes.map((n) => (
                   <div key={n.id} className="p-4 text-xs space-y-1">
                     <p className="text-content whitespace-pre-wrap">{n.note}</p>
-                    <p className="text-stone-400 text-[10px]">
+                    <p className="text-content-subtle text-[10px]">
                       {n.created_at ? new Date(n.created_at).toLocaleString('en-IN') : ''}
                     </p>
                   </div>
@@ -422,9 +449,9 @@ export default function AdminOrderDetail() {
         {/* Right Column: Customer Info & Shipping Address */}
         <div className="space-y-6">
           {/* Shipping Address Card */}
-          <div className="bg-canvas border border-edge rounded-xl p-5 shadow-2xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-edge">
-              <MapPin className="h-4 w-4 text-terracotta" />
+          <div className="bg-surface border border-border rounded-2xl p-5 shadow-xs space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-border">
+              <MapPin className="h-4 w-4 text-accent" />
               <h2 className="font-semibold text-sm text-content">Delivery Address</h2>
             </div>
 
@@ -447,7 +474,7 @@ export default function AdminOrderDetail() {
                 </p>
                 {order.shipping_address.phone && (
                   <p className="text-xs text-content-muted pt-2 flex items-center gap-1.5">
-                    <Phone className="h-3 w-3 text-stone-400" />
+                    <Phone className="h-3 w-3 text-content-subtle" />
                     {order.shipping_address.phone}
                   </p>
                 )}
@@ -456,7 +483,7 @@ export default function AdminOrderDetail() {
               <p className="text-xs text-content-muted">No address snapshot recorded.</p>
             )}
 
-            <div className="pt-3 border-t border-edge-subtle">
+            <div className="pt-3 border-t border-border-subtle">
               <div className="text-xs text-content-muted">Shipping Tier:</div>
               <div className="text-xs font-semibold text-content mt-0.5">
                 {order.shipping_method === 'goa_express'
@@ -467,9 +494,9 @@ export default function AdminOrderDetail() {
           </div>
 
           {/* Tracking / Shipments Info Card */}
-          <div className="bg-canvas border border-edge rounded-xl p-5 shadow-2xs space-y-3">
-            <div className="flex items-center gap-2 pb-3 border-b border-edge">
-              <Truck className="h-4 w-4 text-terracotta" />
+          <div className="bg-surface border border-border rounded-2xl p-5 shadow-xs space-y-3">
+            <div className="flex items-center gap-2 pb-3 border-b border-border">
+              <Truck className="h-4 w-4 text-accent" />
               <h2 className="font-semibold text-sm text-content">Shipment & Courier</h2>
             </div>
 
@@ -480,7 +507,7 @@ export default function AdminOrderDetail() {
             ) : (
               <div className="space-y-3">
                 {order.shipments.map((s) => (
-                  <div key={s.id} className="p-3 bg-ground rounded-lg border border-edge text-xs space-y-1">
+                  <div key={s.id} className="p-3 bg-ground/50 rounded-xl border border-border text-xs space-y-1">
                     <div className="font-semibold text-content">{s.carrier}</div>
                     <div className="text-content-muted">
                       AWB / Tracking:{' '}
@@ -493,7 +520,7 @@ export default function AdminOrderDetail() {
                         href={s.tracking_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-terracotta hover:underline pt-1"
+                        className="inline-flex items-center gap-1 text-accent hover:underline pt-1"
                       >
                         Track package <ExternalLink className="h-3 w-3" />
                       </a>
@@ -508,8 +535,8 @@ export default function AdminOrderDetail() {
 
       {/* Status Transition Confirmation Modal */}
       {isTransitionModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-canvas border border-edge rounded-2xl max-w-lg w-full p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-deep/60 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-3xl border border-border bg-surface p-6 sm:p-7 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <h3 className="font-serif text-xl font-bold text-content">
               Confirm Status Transition: {NEXT_STATUS_MAP[order.status]?.label}
             </h3>
@@ -518,7 +545,7 @@ export default function AdminOrderDetail() {
             </p>
 
             {statusError && (
-              <div className="mt-3 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+              <div className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
                 {statusError}
               </div>
             )}
@@ -533,7 +560,7 @@ export default function AdminOrderDetail() {
                       value={carrier}
                       onChange={(e) => setCarrier(e.target.value)}
                       placeholder="e.g. Delhivery Express / BlueDart / Speed Post"
-                      className="w-full px-3 py-2 bg-ground border border-edge rounded-lg text-sm text-content focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                      className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
                       required
                     />
                   </div>
@@ -546,7 +573,7 @@ export default function AdminOrderDetail() {
                       value={trackingNumber}
                       onChange={(e) => setTrackingNumber(e.target.value)}
                       placeholder="e.g. DEL-99218204"
-                      className="w-full px-3 py-2 bg-ground border border-edge rounded-lg text-sm text-content font-mono focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                      className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content font-mono focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
                       required
                     />
                   </div>
@@ -559,7 +586,7 @@ export default function AdminOrderDetail() {
                       value={trackingUrl}
                       onChange={(e) => setTrackingUrl(e.target.value)}
                       placeholder="https://track.delhivery.com/..."
-                      className="w-full px-3 py-2 bg-ground border border-edge rounded-lg text-sm text-content focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                      className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
                     />
                   </div>
                 </>
@@ -574,11 +601,11 @@ export default function AdminOrderDetail() {
                   value={statusNote}
                   onChange={(e) => setStatusNote(e.target.value)}
                   placeholder="e.g. Packed safely with eco-friendly cushioning; ready for courier pickup."
-                  className="w-full px-3 py-2 bg-ground border border-edge rounded-lg text-sm text-content focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta"
+                  className="w-full px-3 py-2 bg-ground border border-border rounded-xl text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
                 />
               </div>
 
-              <div className="p-3 rounded-lg bg-stone-50 border border-edge text-xs text-stone-600 flex items-start gap-2">
+              <div className="p-3.5 rounded-xl bg-ground/80 border border-border text-xs text-content-muted flex items-start gap-2.5">
                 <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>
                   Audit row will be recorded with timestamp, old status ({order.status}), new status ({targetStatus}), and your admin IP.
@@ -589,14 +616,14 @@ export default function AdminOrderDetail() {
                 <button
                   type="button"
                   onClick={() => setIsTransitionModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-edge bg-ground hover:bg-stone-100 text-content text-sm font-medium transition-colors"
+                  className="px-4 py-2 rounded-xl border border-border bg-surface hover:bg-ground text-content text-sm font-medium transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingStatus}
-                  className="px-4 py-2 rounded-lg bg-terracotta hover:bg-terracotta/90 text-white text-sm font-medium transition-colors disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-sm font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {submittingStatus ? 'Updating...' : `Confirm: Mark as ${targetStatus}`}
                 </button>
