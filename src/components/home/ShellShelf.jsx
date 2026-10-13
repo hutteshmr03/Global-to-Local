@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ShellCockleIcon } from '../common/Icons';
 import ShellDrift from '../common/ShellDrift';
+import { useCollection } from '../../lib/catalogue-hooks';
 
-const shellItems = [
+const fallbackShellItems = [
   {
     id: 6163,
     title: 'Shell Lamp- Round',
@@ -89,6 +90,19 @@ const shellItems = [
 ];
 
 export default function ShellShelf() {
+  const { data: rawCollectionItems } = useCollection('shell-shelf', fallbackShellItems);
+  const shellItems = React.useMemo(() => {
+    if (!rawCollectionItems || rawCollectionItems.length === 0) return fallbackShellItems;
+    return rawCollectionItems.map((item) => ({
+      id: item.legacy_id ?? item.id,
+      title: item.title || item.name,
+      subtitle: item.subtitle || 'Shell craft, Goan shore',
+      price: item.price_paise !== undefined ? Math.round(item.price_paise / 100) : item.price,
+      slug: item.slug,
+      image: item.image || item.imageSrc,
+    }));
+  }, [rawCollectionItems]);
+
   const scrollRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);

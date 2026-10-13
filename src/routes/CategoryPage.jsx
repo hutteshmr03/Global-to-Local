@@ -1,14 +1,15 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { getCategoryBySlug, getProductsByCategory } from '../lib/data';
+import { useCategories, useCategoryProducts } from '../lib/catalogue-hooks';
 import ProductCard from '../components/product/ProductCard';
 import NotFoundPage from './NotFoundPage';
 
 export default function CategoryPage() {
   const { slug } = useParams();
-  const category = getCategoryBySlug(slug);
-  const products = getProductsByCategory(slug);
+  const { data: categories = [] } = useCategories();
+  const { data: products = [] } = useCategoryProducts(slug);
+  const category = categories.find((c) => c.slug === slug);
 
   if (!category) {
     return <NotFoundPage />;

@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { categories } from '../../lib/data';
+import { useCategories } from '../../lib/catalogue-hooks';
 import { ShellCockleIcon } from '../common/Icons';
 
 export default function ShelfGrid() {
+  const { data: categories = [] } = useCategories();
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeCategory = categories[activeIndex] || categories[0];
+  const activeCategory = categories[activeIndex] || categories[0] || {};
 
   return (
     <section className="py-16 sm:py-24 lg:py-28 bg-ground text-content">

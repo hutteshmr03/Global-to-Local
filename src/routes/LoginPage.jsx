@@ -11,11 +11,16 @@ import ShellDrift from '../components/common/ShellDrift';
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const findUserByPhone = useAuthStore((state) => state.findUserByPhone);
-  const findUserByEmail = useAuthStore((state) => state.findUserByEmail);
+  const requestOtp = useAuthStore((state) => state.requestOtp);
+  const verifyOtp = useAuthStore((state) => state.verifyOtp);
   const registerUser = useAuthStore((state) => state.registerUser);
-  const loginWithPhone = useAuthStore((state) => state.loginWithPhone);
   const loginWithEmail = useAuthStore((state) => state.loginWithEmail);
+  const forgotPassword = useAuthStore((state) => state.forgotPassword);
+  const resetPassword = useAuthStore((state) => state.resetPassword);
+
+  const searchParams = new URLSearchParams(location.search);
+  const resetTokenFromUrl = searchParams.get('reset_token') || '';
+  const [newPasswordInput, setNewPasswordInput] = useState('');
 
   // 'phone' or 'email'
   const [authMethod, setAuthMethod] = useState('phone');
@@ -29,136 +34,162 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // OTP State
+  // OTP State (6-digit code)
   const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState(['', '', '', '']);
+  const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   // Destination after login
-  const redirectTarget = new URLSearchParams(location.search).get('redirect') || '/account';
+  const redirectTarget = searchParams.get('redirect') || '/account';
 
-  // Request OTP with strict account check
-  const handleRequestOtp = (e) => {
+  // Request 6-digit OTP via API
+  const handleRequestOtp = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    setSuccessMessage('');
     const cleanDigits = (phoneNumber || '').replace(/\D/g, '');
     if (!cleanDigits || cleanDigits.length < 10) {
       setErrorMessage('Please enter a valid 10-digit mobile number');
       return;
     }
 
-    if (mode === 'signin') {
-      const existingUser = findUserByPhone(cleanDigits);
-      if (!existingUser) {
-        setErrorMessage('No account found with this mobile number.');
-        return;
-      }
-    } else {
-      // signup mode
-      if (!fullName.trim()) {
-        setErrorMessage('Please enter your full name to create an account.');
-        return;
-      }
-      const existingUser = findUserByPhone(cleanDigits);
-      if (existingUser) {
-        setErrorMessage('An account already exists with this mobile number.');
-        return;
-      }
-    }
-
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setOtpSent(true);
-      setOtpCode(['1', '2', '3', '4']); // Pre-fill demo OTP
-    }, 500);
-  };
-
-  // Verify OTP & Complete Auth
-  const handleVerifyOtp = (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-    const entered = otpCode.join('');
-    if (entered.length < 4) {
-      setErrorMessage('Please enter the 4-digit OTP');
+    if (mode === 'signup' && !fullName.trim()) {
+      setErrorMessage('Please enter your full name to create an account.');
       return;
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      if (mode === 'signup') {
-        const result = registerUser({
-          name: fullName.trim(),
-          phone: phoneNumber.replace(/\D/g, ''),
-          email: email.trim(),
-        });
-        if (result.error) {
-          setIsSubmitting(false);
-          setErrorMessage(result.error);
-          return;
-        }
-        setIsSubmitting(false);
-        setSuccessMessage(`Account created successfully! Welcome, ${result.user.name}.`);
-        setTimeout(() => navigate(redirectTarget), 700);
-      } else {
-        const result = loginWithPhone(phoneNumber.replace(/\D/g, ''));
-        if (result.error) {
-          setIsSubmitting(false);
-          setErrorMessage(result.error);
-          return;
-        }
-        setIsSubmitting(false);
-        setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
-        setTimeout(() => navigate(redirectTarget), 700);
-      }
-    }, 500);
+    const result = await requestOtp({
+      phone: cleanDigits,
+      mode,
+      name: fullName.trim() || undefined,
+      email: email.trim() || undefined,
+    });
+    setIsSubmitting(false);
+
+    if (result.error) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    setOtpSent(true);
+    setOtpCode(['', '', '', '', '', '']);
+  };
+
+  // Verify 6-digit OTP & Complete Auth
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    const entered = otpCode.join('');
+    if (entered.length < 6) {
+      setErrorMessage('Please enter the 6-digit verification code');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await verifyOtp({
+      phone: phoneNumber.replace(/\D/g, ''),
+      otp: entered,
+      mode,
+      name: fullName.trim() || undefined,
+      email: email.trim() || undefined,
+    });
+    setIsSubmitting(false);
+
+    if (result.error) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    setSuccessMessage(
+      mode === 'signup'
+        ? `Account created successfully! Welcome, ${result.user.name}.`
+        : `Welcome back, ${result.user.name}! Signed in successfully.`
+    );
+    setTimeout(() => navigate(redirectTarget), 500);
   };
 
   // Handle Email & Password Submit
-  const handleEmailAuth = (e) => {
+  const handleEmailAuth = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    setSuccessMessage('');
     if (!email.trim() || !password) {
       setErrorMessage('Please enter both email and password');
       return;
     }
 
+    if (mode === 'signup' && !fullName.trim()) {
+      setErrorMessage('Please enter your full name to create an account.');
+      return;
+    }
+
     setIsSubmitting(true);
-    setTimeout(() => {
-      if (mode === 'signup') {
-        if (!fullName.trim()) {
-          setIsSubmitting(false);
-          setErrorMessage('Please enter your full name to create an account.');
-          return;
-        }
-        const result = registerUser({
-          name: fullName.trim(),
-          email: email.trim(),
-          phone: phoneNumber ? phoneNumber.replace(/\D/g, '') : '',
-        });
-        if (result.error) {
-          setIsSubmitting(false);
-          setErrorMessage(result.error);
-          return;
-        }
-        setIsSubmitting(false);
-        setSuccessMessage(`Account created! Welcome, ${result.user.name}.`);
-        setTimeout(() => navigate(redirectTarget), 700);
-      } else {
-        const result = loginWithEmail(email.trim(), password);
-        if (result.error) {
-          setIsSubmitting(false);
-          setErrorMessage(result.error);
-          return;
-        }
-        setIsSubmitting(false);
-        setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
-        setTimeout(() => navigate(redirectTarget), 700);
+    if (mode === 'signup') {
+      const result = await registerUser({
+        name: fullName.trim(),
+        email: email.trim(),
+        password,
+        phone: phoneNumber ? phoneNumber.replace(/\D/g, '') : '',
+      });
+      setIsSubmitting(false);
+      if (result.error) {
+        setErrorMessage(result.error);
+        return;
       }
-    }, 500);
+      setSuccessMessage(`Account created! Welcome, ${result.user.name}.`);
+      setTimeout(() => navigate(redirectTarget), 500);
+    } else {
+      const result = await loginWithEmail(email.trim(), password);
+      setIsSubmitting(false);
+      if (result.error) {
+        setErrorMessage(result.error);
+        return;
+      }
+      setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
+      setTimeout(() => navigate(redirectTarget), 500);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setErrorMessage('');
+    setSuccessMessage('');
+    if (!email.trim()) {
+      setErrorMessage('Please enter your email address first to request a password reset link.');
+      return;
+    }
+    const res = await forgotPassword(email.trim());
+    if (res.error) {
+      setErrorMessage(res.error);
+    } else {
+      setSuccessMessage(res.message || 'If an account is registered with that email address, we have sent a password reset link.');
+    }
+  };
+
+  const handleResetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+    if (!newPasswordInput || newPasswordInput.length < 6) {
+      setErrorMessage('Please enter a new password of at least 6 characters.');
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await resetPassword(resetTokenFromUrl, newPasswordInput);
+    setIsSubmitting(false);
+    if (res.error) {
+      setErrorMessage(res.error);
+      return;
+    }
+    setSuccessMessage(res.message || 'Your password has been updated. Please sign in.');
+    setTimeout(() => {
+      setAuthMethod('email');
+      setMode('signin');
+      navigate('/login', { replace: true });
+    }, 800);
   };
 
   return (
@@ -289,8 +320,39 @@ export default function LoginPage() {
                 )}
               </AnimatePresence>
 
+              {/* PASSWORD RESET VIA EMAILED SINGLE-USE LINK */}
+              {resetTokenFromUrl && (
+                <form onSubmit={handleResetPasswordSubmit} className="mt-6 space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-content mb-1">New Password</label>
+                    <input
+                      type="password"
+                      required
+                      minLength={6}
+                      value={newPasswordInput}
+                      onChange={(e) => {
+                        if (errorMessage) setErrorMessage('');
+                        setNewPasswordInput(e.target.value);
+                      }}
+                      placeholder="Enter new password (min 6 chars)"
+                      className="w-full rounded-pill border border-border bg-ground px-4 py-3 text-sm text-content outline-none focus:border-accent transition-colors shadow-xs"
+                    />
+                    {errorMessage && (
+                      <p className="mt-1.5 px-3 text-xs font-medium text-accent">{errorMessage}</p>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center gap-2 rounded-pill bg-palm py-3.5 text-sm font-bold text-white hover:bg-palm-shade transition-all shadow-sm"
+                  >
+                    {isSubmitting ? 'Updating Password...' : 'Save New Password'}
+                  </button>
+                </form>
+              )}
+
               {/* 1. PHONE / OTP AUTH FLOW (Flipkart / Blinkit style) */}
-              {authMethod === 'phone' && (
+              {!resetTokenFromUrl && authMethod === 'phone' && (
                 <div className="mt-6">
                   {!otpSent ? (
                     <form onSubmit={handleRequestOtp} className="space-y-4">
@@ -404,12 +466,14 @@ export default function LoginPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-content mb-1">Enter 4-Digit OTP</label>
-                        <div className="flex gap-3 justify-center py-2">
+                        <label className="block text-xs font-semibold text-content mb-1">Enter 6-Digit OTP</label>
+                        <div className="flex gap-2.5 justify-center py-2">
                           {otpCode.map((digit, idx) => (
                             <input
                               key={idx}
+                              id={`otp-digit-${idx}`}
                               type="text"
+                              inputMode="numeric"
                               maxLength={1}
                               value={digit}
                               onChange={(e) => {
@@ -418,8 +482,12 @@ export default function LoginPage() {
                                 const copy = [...otpCode];
                                 copy[idx] = val;
                                 setOtpCode(copy);
+                                if (val && idx < 5) {
+                                  const nextEl = document.getElementById(`otp-digit-${idx + 1}`);
+                                  if (nextEl) nextEl.focus();
+                                }
                               }}
-                              className={`h-12 w-12 rounded-xl border bg-ground text-center text-lg font-bold text-content outline-none transition-all shadow-xs ${
+                              className={`h-12 w-11 rounded-xl border bg-ground text-center text-lg font-bold text-content outline-none transition-all shadow-xs ${
                                 errorMessage
                                   ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
                                   : 'border-border focus:border-accent'
@@ -436,9 +504,6 @@ export default function LoginPage() {
                             {errorMessage}
                           </motion.p>
                         )}
-                        <p className="text-center text-[11px] text-content-muted mt-1.5">
-                          Demo OTP: <strong>1234</strong>
-                        </p>
                       </div>
 
                       <button
@@ -452,10 +517,10 @@ export default function LoginPage() {
                       <div className="text-center">
                         <button
                           type="button"
-                          onClick={() => alert('New OTP sent: 1234')}
+                          onClick={handleRequestOtp}
                           className="text-xs font-semibold text-content-muted hover:text-accent"
                         >
-                          Resend OTP in 25s
+                          Resend OTP
                         </button>
                       </div>
                     </form>
@@ -464,7 +529,7 @@ export default function LoginPage() {
               )}
 
               {/* 2. EMAIL & PASSWORD AUTH FLOW */}
-              {authMethod === 'email' && (
+              {!resetTokenFromUrl && authMethod === 'email' && (
                 <form onSubmit={handleEmailAuth} className="mt-6 space-y-4">
                   {mode === 'signup' && (
                     <div>
@@ -511,7 +576,7 @@ export default function LoginPage() {
                       {mode === 'signin' && (
                         <button
                           type="button"
-                          onClick={() => alert('Password reset instructions sent to your email.')}
+                          onClick={handleForgotPassword}
                           className="text-[11px] font-semibold text-accent hover:underline"
                         >
                           Forgot Password?

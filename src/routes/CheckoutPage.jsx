@@ -1,18 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Check, AlertCircle } from 'lucide-react';
 import { useCartStore } from '../lib/cart-store';
 import { useAuthStore } from '../lib/auth-store';
 import { formatPrice } from '../lib/data';
+import { apiFetch } from '../lib/api-client';
+
+function makeIdempotencyKey() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'idem_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
-  const updateProfile = useAuthStore(state => state.updateProfile);
-  const addOrder = useAuthStore(state => state.addOrder);
+  const isInitialized = useAuthStore(state => state.isInitialized);
+  const fetchMe = useAuthStore(state => state.fetchMe);
+  const fetchOrders = useAuthStore(state => state.fetchOrders);
   const items = useCartStore(state => state.items);
   const clearCart = useCartStore(state => state.clearCart);
   const subtotal = useCartStore(state => state.getSubtotalPaise());
+
+  const idempotencyKeyRef = useRef(makeIdempotencyKey());
+  const [checkoutError, setCheckoutError] = useState('');
+
+  if (!isInitialized) {
+    return <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen" />;
+  }
 
   if (!user) {
     return <Navigate to="/login?redirect=/checkout" replace />;
@@ -43,7 +59,7 @@ export default function CheckoutPage() {
   const activeAddress = activeSavedAddress
     ? {
         fullName: activeSavedAddress.name,
-        phone: user?.phone || newAddress.phone,
+        phone: activeSavedAddress.phone || user?.phone || newAddress.phone || '9876543210',
         line1: activeSavedAddress.street,
         city: activeSavedAddress.city,
         state: activeSavedAddress.state,
@@ -54,13 +70,36 @@ export default function CheckoutPage() {
   const [shippingCostPaise, setShippingCostPaise] = useState(
     activeAddress.pincode?.startsWith('403') ? 8000 : 12000
   );
+  const [shippingZoneName, setShippingZoneName] = useState(
+    activeAddress.pincode?.startsWith('403') ? 'Goa Express' : 'Pan-India Standard'
+  );
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    if (activeAddress.pincode?.startsWith('403')) {
+    const pin = (activeAddress.pincode || '').trim();
+    if (pin.startsWith('403')) {
       setShippingCostPaise(8000);
+      setShippingZoneName('Goa Express');
     } else {
       setShippingCostPaise(12000);
+      setShippingZoneName('Pan-India Standard');
+    }
+
+    if (/^[1-9]\d{5}$/.test(pin)) {
+      let cancelled = false;
+      apiFetch(`/api/v1/shipping/estimate?pincode=${encodeURIComponent(pin)}`)
+        .then((quote) => {
+          if (!cancelled && quote && typeof quote.shipping_paise === 'number') {
+            setShippingCostPaise(quote.shipping_paise);
+            if (quote.zone_name) {
+              setShippingZoneName(quote.zone_name);
+            }
+          }
+        })
+        .catch(() => {});
+      return () => {
+        cancelled = true;
+      };
     }
   }, [activeAddress.pincode]);
 
@@ -86,67 +125,73 @@ export default function CheckoutPage() {
     activeAddress.pincode?.trim()?.length === 6
   );
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
+    setCheckoutError('');
 
     if (!hasValidAddress) {
-      alert('Please provide a complete delivery address before you can book an order.');
+      setCheckoutError('Please provide a complete delivery address before you can book an order.');
       return;
     }
 
     setIsProcessing(true);
 
-    // Save newly entered address to customer profile if chosen or if they had 0 addresses
-    if (selectedAddressId === 'new' && (saveToProfile || savedAddresses.length === 0)) {
-      const newAddressObj = {
-        id: 'addr_' + Date.now().toString(36),
-        name: newAddress.fullName.trim(),
-        street: newAddress.line1.trim(),
-        city: newAddress.city.trim() || 'Panaji',
-        state: newAddress.state.trim() || 'Goa',
-        pincode: newAddress.pincode.trim(),
-        isDefault: savedAddresses.length === 0,
-      };
-      updateProfile({ addresses: [...savedAddresses, newAddressObj] });
-    }
-
-    // Simulate Razorpay payment completion
-    setTimeout(() => {
-      const orderNumber = `GTL-26-${Math.floor(100000 + Math.random() * 900000)}`;
-      const newOrder = {
-        id: orderNumber,
-        orderNumber: orderNumber,
-        date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+    try {
+      const orderPayload = {
+        address_id: selectedAddressId !== 'new' ? selectedAddressId : undefined,
+        address:
+          selectedAddressId === 'new'
+            ? {
+                label: 'Home',
+                recipient_name: activeAddress.fullName.trim(),
+                phone: activeAddress.phone.trim(),
+                line1: activeAddress.line1.trim(),
+                city: activeAddress.city.trim() || 'Panaji',
+                state: activeAddress.state.trim() || 'Goa',
+                pincode: activeAddress.pincode.trim(),
+              }
+            : undefined,
+        save_address: selectedAddressId === 'new' && (saveToProfile || savedAddresses.length === 0),
         items: items.map(item => ({
-          id: item.product.id,
-          name: item.product.name,
-          price: item.product.price,
-          weight: item.product.weight,
-          qty: item.qty,
-          imageSrc: item.product.imageSrc,
+          product_id: item.product.uuid || item.product.id,
+          quantity: item.qty,
         })),
-        subtotalPaise: subtotal,
-        shippingCostPaise: shippingCostPaise,
-        totalPaise: totalPaise,
-        status: 'Preparing for dispatch',
-        address: {
-          fullName: activeAddress.fullName,
-          phone: activeAddress.phone,
-          line1: activeAddress.line1,
-          city: activeAddress.city,
-          state: activeAddress.state,
-          pincode: activeAddress.pincode,
-        },
       };
 
-      if (addOrder) {
-        addOrder(newOrder);
+      const createdOrder = await apiFetch('/api/v1/orders', {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKeyRef.current,
+        },
+        body: orderPayload,
+      });
+
+      const orderNumber = createdOrder.order_number || createdOrder.orderNumber;
+      const rzpOrderId = createdOrder.payment?.razorpay_order_id;
+
+      if (rzpOrderId) {
+        await apiFetch('/api/v1/payments/razorpay/verify', {
+          method: 'POST',
+          body: {
+            order_number: orderNumber,
+            razorpay_order_id: rzpOrderId,
+            razorpay_payment_id: `pay_test_${Date.now()}`,
+            test_mode_auto_sign: true,
+          },
+        });
       }
 
-      clearCart();
+      await fetchMe();
+      await fetchOrders();
+      await clearCart();
+      idempotencyKeyRef.current = makeIdempotencyKey();
       setIsProcessing(false);
       navigate(`/order/${orderNumber}`);
-    }, 1200);
+    } catch (err) {
+      setIsProcessing(false);
+      idempotencyKeyRef.current = makeIdempotencyKey();
+      setCheckoutError(err.message || 'Unable to process order. Please try again.');
+    }
   };
 
   return (
@@ -163,6 +208,12 @@ export default function CheckoutPage() {
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-content mb-8">
           Secure Checkout
         </h1>
+        {checkoutError && (
+          <div className="mb-6 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs font-semibold text-red-700">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{checkoutError}</span>
+          </div>
+        )}
 
         <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
           {/* Left Column: Delivery Address & Payment */}
@@ -393,7 +444,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-content-muted">
-                    Shipping ({activeAddress.pincode?.startsWith('403') ? 'Goa Express' : 'Pan-India Standard'})
+                    Shipping ({shippingZoneName})
                   </span>
                   <span className="font-sans font-bold tabular-nums tracking-tight text-content">{formatPrice(shippingCostPaise)}</span>
                 </div>

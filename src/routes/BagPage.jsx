@@ -11,6 +11,8 @@ export default function BagPage() {
   const updateQty = useCartStore(state => state.updateQty);
   const removeItem = useCartStore(state => state.removeItem);
   const subtotal = useCartStore(state => state.getSubtotalPaise());
+  const cartError = useCartStore(state => state.cartError);
+  const clearCartError = useCartStore(state => state.clearCartError);
 
   return (
     <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen">
@@ -26,6 +28,14 @@ export default function BagPage() {
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-content">
           Shopping Bag ({items.reduce((s, i) => s + i.qty, 0)})
         </h1>
+        {cartError && (
+          <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs font-medium text-red-700">
+            <span>{cartError}</span>
+            <button type="button" onClick={clearCartError} className="text-red-700 hover:underline cursor-pointer">
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div className="mt-16 rounded-2xl border border-border/40 bg-surface p-12 sm:p-16 text-center max-w-md mx-auto shadow-xs">

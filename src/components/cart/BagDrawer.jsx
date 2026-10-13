@@ -14,6 +14,8 @@ export default function BagDrawer() {
   const updateQty = useCartStore(state => state.updateQty);
   const removeItem = useCartStore(state => state.removeItem);
   const subtotal = useCartStore(state => state.getSubtotalPaise());
+  const cartError = useCartStore(state => state.cartError);
+  const clearCartError = useCartStore(state => state.clearCartError);
 
   return (
     <AnimatePresence>
@@ -54,6 +56,15 @@ export default function BagDrawer() {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {cartError && (
+              <div className="mx-6 mt-3 flex items-center justify-between gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-medium text-red-700">
+                <span>{cartError}</span>
+                <button type="button" onClick={clearCartError} className="text-red-700 hover:underline cursor-pointer">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
 
             {/* Drawer Body - Items List */}
             <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-border/20">

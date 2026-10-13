@@ -1,38 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle2, Package, Truck, ArrowRight, Printer } from 'lucide-react';
-import { siteConfig } from '../lib/data';
+import { siteConfig, formatPrice } from '../lib/data';
 import { useAuthStore } from '../lib/auth-store';
+import { apiFetch } from '../lib/api-client';
 
 export default function OrderConfirmationPage() {
   const { orderNumber } = useParams();
   const user = useAuthStore(state => state.user);
-  const addOrder = useAuthStore(state => state.addOrder);
+  const cancelOrder = useAuthStore(state => state.cancelOrder);
+  const existingOrder = (user?.orders || []).find(o => o.orderNumber === orderNumber);
+  const [order, setOrder] = useState(existingOrder || null);
+  const [cancelMsg, setCancelMsg] = useState('');
 
   useEffect(() => {
-    if (user && orderNumber && addOrder) {
-      const existing = (user.orders || []).some(o => o.orderNumber === orderNumber);
-      if (!existing) {
-        addOrder({
-          id: orderNumber,
-          orderNumber: orderNumber,
-          date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-          items: [
-            {
-              id: 'item_order',
-              name: 'Curated Fontainhas Order',
-              price: 360,
-              weight: 'Goan Specialty',
-              qty: 1,
-              imageSrc: '/images/products/cashew-feni-chutney.jpg',
-            }
-          ],
-          totalPaise: 36000,
-          status: 'Preparing for dispatch',
-        });
-      }
+    let cancelled = false;
+    if (orderNumber && user) {
+      apiFetch(`/api/v1/orders/${encodeURIComponent(orderNumber)}`)
+        .then(data => {
+          if (!cancelled && data) {
+            setOrder(data);
+          }
+        })
+        .catch(() => {});
     }
-  }, [user, orderNumber, addOrder]);
+    return () => {
+      cancelled = true;
+    };
+  }, [orderNumber, user?.id]);
+
+  const handleCancel = async () => {
+    if (!orderNumber) return;
+    const res = await cancelOrder(orderNumber);
+    if (res.ok && res.order) {
+      setOrder(res.order);
+      setCancelMsg('Order cancelled.');
+    } else {
+      setCancelMsg(res.error || 'Please contact the store to cancel.');
+    }
+  };
+
+  const statusLabel = order?.statusLabel || 'Preparing for dispatch';
+  const badgeLabel =
+    order?.status === 'pending_payment'
+      ? 'Pending Payment'
+      : order?.status === 'cancelled'
+      ? 'Order Cancelled'
+      : 'Payment Confirmed';
 
   return (
     <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen">
@@ -63,14 +77,14 @@ export default function OrderConfirmationPage() {
               <p className="font-mono text-lg font-bold text-content mt-0.5">{orderNumber}</p>
             </div>
             <span className="inline-flex items-center gap-1.5 rounded-pill bg-palm/10 border border-palm/20 px-3 py-1 text-xs font-bold text-palm">
-              Payment Confirmed
+              {badgeLabel}
             </span>
           </div>
 
           <div className="space-y-3.5 text-xs sm:text-sm">
             <div className="flex items-start gap-3 text-content">
               <Package className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-              <span>Packaging status: <strong className="text-content font-bold">Preparing for dispatch</strong></span>
+              <span>Packaging status: <strong className="text-content font-bold">{statusLabel}</strong></span>
             </div>
             <div className="flex items-start gap-3 text-content">
               <Truck className="w-4 h-4 text-accent shrink-0 mt-0.5" />
@@ -79,6 +93,46 @@ export default function OrderConfirmationPage() {
               </span>
             </div>
           </div>
+
+          {order && order.items && order.items.length > 0 && (
+            <div className="border-t border-border/30 pt-4 space-y-2">
+              {order.items.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between text-xs sm:text-sm">
+                  <span className="text-content font-medium">
+                    {item.name} × {item.qty || item.quantity || 1}
+                  </span>
+                  <span className="font-sans font-bold tabular-nums text-content">
+                    {formatPrice((item.price || item.unit_price_paise || 0) * (item.qty || item.quantity || 1))}
+                  </span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between border-t border-border/20 pt-2 text-xs sm:text-sm font-bold text-content">
+                <span>Total</span>
+                <span className="font-sans text-accent tabular-nums">
+                  {formatPrice(order.totalPaise || order.total_paise || 0)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {order?.canCancel && (
+            <div className="border-t border-border/30 pt-4 flex items-center justify-between gap-3">
+              <span className="text-xs text-content-muted">Payment is still pending. You can cancel this order before payment capture.</span>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="rounded-pill border border-red-500/40 bg-red-500/10 px-4 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-500/20 cursor-pointer"
+              >
+                Cancel Order
+              </button>
+            </div>
+          )}
+
+          {(cancelMsg || order?.cancelNotice) && (
+            <div className="text-xs font-medium text-content-muted">
+              {cancelMsg || order?.cancelNotice}
+            </div>
+          )}
 
           <div className="border-t border-border/30 pt-4 text-xs text-content-muted leading-relaxed">
             Need to update delivery instructions? Call our store team directly at{' '}

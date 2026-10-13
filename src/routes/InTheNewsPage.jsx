@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { Newspaper, Award, ArrowUpRight } from 'lucide-react';
 import StoreBanner from '../components/home/StoreBanner';
 import ShellDrift from '../components/common/ShellDrift';
+import { usePress } from '../lib/catalogue-hooks';
 
-const pressArticles = [
+const fallbackPressArticles = [
   {
     publication: 'The Navhind Times',
     date: 'October 2020',
@@ -37,7 +38,7 @@ const pressArticles = [
   }
 ];
 
-const awards = [
+const fallbackAwards = [
   {
     title: 'Award for supporting local livelihoods',
     desc: 'Recognised for providing structured retail access and financial independence to 100+ Goan women from self-help groups.'
@@ -49,6 +50,9 @@ const awards = [
 ];
 
 export default function InTheNewsPage() {
+  const { data: pressData } = usePress({ articles: fallbackPressArticles, awards: fallbackAwards });
+  const pressArticles = pressData?.articles?.length ? pressData.articles : fallbackPressArticles;
+  const awards = pressData?.awards?.length ? pressData.awards : fallbackAwards;
   return (
     <main id="main" className="min-w-0 bg-ground pt-24 sm:pt-28 lg:pt-32 pb-20">
       {/* 1. HERO BANNER SECTION */}

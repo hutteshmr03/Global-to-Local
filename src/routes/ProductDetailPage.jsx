@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Minus, Check, ShieldCheck, Truck, MapPin, ShoppingBag } from 'lucide-react';
-import { getProductBySlug, getCategoryBySlug, getProductsByCategory, formatPrice } from '../lib/data';
+import { formatPrice } from '../lib/data';
+import { useProductDetail, useCategories } from '../lib/catalogue-hooks';
 import { useCartStore } from '../lib/cart-store';
 import { useFlyToCart } from '../components/cart/FlyToCart';
 import ProductCard from '../components/product/ProductCard';
@@ -9,13 +10,14 @@ import NotFoundPage from './NotFoundPage';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
-  const product = getProductBySlug(slug);
+  const { data: product } = useProductDetail(slug);
+  const { data: categories = [] } = useCategories();
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [isAdded, setIsAdded] = useState(false);
   const addItem = useCartStore(state => state.addItem);
   const inCartQty = useCartStore(state => {
-    const item = state.items.find(i => i.product.id === product?.id);
+    const item = state.items.find(i => i.product.id === product?.id || i.product.slug === product?.slug);
     return item ? item.qty : 0;
   });
   const flyToCart = useFlyToCart();
@@ -24,11 +26,9 @@ export default function ProductDetailPage() {
     return <NotFoundPage />;
   }
 
-  const category = getCategoryBySlug(product.categorySlug);
+  const category = product.category || categories.find(c => c.slug === product.categorySlug);
   const images = product.gallery && product.gallery.length > 0 ? product.gallery : [product.imageSrc];
-  const relatedProducts = getProductsByCategory(product.categorySlug)
-    .filter(p => p.id !== product.id)
-    .slice(0, 4);
+  const relatedProducts = product.related_products || [];
 
   const handleAddToCart = (e) => {
     if (e) {

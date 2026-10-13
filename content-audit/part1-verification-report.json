@@ -1,0 +1,764 @@
+{
+  "baselineVisualChecks": [
+    {
+      "route": "/",
+      "name": "home",
+      "viewport": "360px",
+      "filename": "home_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.01,
+      "status": "MATCH"
+    },
+    {
+      "route": "/shop",
+      "name": "shop",
+      "viewport": "360px",
+      "filename": "shop_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 9.42,
+      "status": "REVIEW"
+    },
+    {
+      "route": "/product-category/chutneys-and-spreads",
+      "name": "category_chutneys",
+      "viewport": "360px",
+      "filename": "category_chutneys_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/product/pineapple-jam-250-grams",
+      "name": "product_pineapple_jam",
+      "viewport": "360px",
+      "filename": "product_pineapple_jam_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 6.4,
+      "status": "REVIEW"
+    },
+    {
+      "route": "/our-story",
+      "name": "our_story",
+      "viewport": "360px",
+      "filename": "our_story_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.12,
+      "status": "MATCH"
+    },
+    {
+      "route": "/our-social-corner",
+      "name": "our_social_corner",
+      "viewport": "360px",
+      "filename": "our_social_corner_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.1,
+      "status": "MATCH"
+    },
+    {
+      "route": "/in-the-news",
+      "name": "in_the_news",
+      "viewport": "360px",
+      "filename": "in_the_news_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/contact",
+      "name": "contact",
+      "viewport": "360px",
+      "filename": "contact_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/shipping-policy",
+      "name": "shipping_policy",
+      "viewport": "360px",
+      "filename": "shipping_policy_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/return-and-exchange-policy",
+      "name": "return_policy",
+      "viewport": "360px",
+      "filename": "return_policy_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/terms-and-conditions",
+      "name": "terms",
+      "viewport": "360px",
+      "filename": "terms_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/privacy-policy",
+      "name": "privacy",
+      "viewport": "360px",
+      "filename": "privacy_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/bag",
+      "name": "bag",
+      "viewport": "360px",
+      "filename": "bag_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/login",
+      "name": "login",
+      "viewport": "360px",
+      "filename": "login_360px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/",
+      "name": "home",
+      "viewport": "768px",
+      "filename": "home_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.15,
+      "status": "MATCH"
+    },
+    {
+      "route": "/shop",
+      "name": "shop",
+      "viewport": "768px",
+      "filename": "shop_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 6.74,
+      "status": "REVIEW"
+    },
+    {
+      "route": "/product-category/chutneys-and-spreads",
+      "name": "category_chutneys",
+      "viewport": "768px",
+      "filename": "category_chutneys_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/product/pineapple-jam-250-grams",
+      "name": "product_pineapple_jam",
+      "viewport": "768px",
+      "filename": "product_pineapple_jam_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/our-story",
+      "name": "our_story",
+      "viewport": "768px",
+      "filename": "our_story_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.03,
+      "status": "MATCH"
+    },
+    {
+      "route": "/our-social-corner",
+      "name": "our_social_corner",
+      "viewport": "768px",
+      "filename": "our_social_corner_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.12,
+      "status": "MATCH"
+    },
+    {
+      "route": "/in-the-news",
+      "name": "in_the_news",
+      "viewport": "768px",
+      "filename": "in_the_news_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.03,
+      "status": "MATCH"
+    },
+    {
+      "route": "/contact",
+      "name": "contact",
+      "viewport": "768px",
+      "filename": "contact_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.01,
+      "status": "MATCH"
+    },
+    {
+      "route": "/shipping-policy",
+      "name": "shipping_policy",
+      "viewport": "768px",
+      "filename": "shipping_policy_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/return-and-exchange-policy",
+      "name": "return_policy",
+      "viewport": "768px",
+      "filename": "return_policy_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/terms-and-conditions",
+      "name": "terms",
+      "viewport": "768px",
+      "filename": "terms_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/privacy-policy",
+      "name": "privacy",
+      "viewport": "768px",
+      "filename": "privacy_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/bag",
+      "name": "bag",
+      "viewport": "768px",
+      "filename": "bag_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/login",
+      "name": "login",
+      "viewport": "768px",
+      "filename": "login_768px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/",
+      "name": "home",
+      "viewport": "1440px",
+      "filename": "home_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.07,
+      "status": "MATCH"
+    },
+    {
+      "route": "/shop",
+      "name": "shop",
+      "viewport": "1440px",
+      "filename": "shop_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.03,
+      "status": "MATCH"
+    },
+    {
+      "route": "/product-category/chutneys-and-spreads",
+      "name": "category_chutneys",
+      "viewport": "1440px",
+      "filename": "category_chutneys_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/product/pineapple-jam-250-grams",
+      "name": "product_pineapple_jam",
+      "viewport": "1440px",
+      "filename": "product_pineapple_jam_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.03,
+      "status": "MATCH"
+    },
+    {
+      "route": "/our-story",
+      "name": "our_story",
+      "viewport": "1440px",
+      "filename": "our_story_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/our-social-corner",
+      "name": "our_social_corner",
+      "viewport": "1440px",
+      "filename": "our_social_corner_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 3.74,
+      "status": "MATCH"
+    },
+    {
+      "route": "/in-the-news",
+      "name": "in_the_news",
+      "viewport": "1440px",
+      "filename": "in_the_news_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.06,
+      "status": "MATCH"
+    },
+    {
+      "route": "/contact",
+      "name": "contact",
+      "viewport": "1440px",
+      "filename": "contact_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.09,
+      "status": "MATCH"
+    },
+    {
+      "route": "/shipping-policy",
+      "name": "shipping_policy",
+      "viewport": "1440px",
+      "filename": "shipping_policy_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/return-and-exchange-policy",
+      "name": "return_policy",
+      "viewport": "1440px",
+      "filename": "return_policy_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/terms-and-conditions",
+      "name": "terms",
+      "viewport": "1440px",
+      "filename": "terms_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.16,
+      "status": "MATCH"
+    },
+    {
+      "route": "/privacy-policy",
+      "name": "privacy",
+      "viewport": "1440px",
+      "filename": "privacy_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/bag",
+      "name": "bag",
+      "viewport": "1440px",
+      "filename": "bag_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0,
+      "status": "MATCH"
+    },
+    {
+      "route": "/login",
+      "name": "login",
+      "viewport": "1440px",
+      "filename": "login_1440px.png",
+      "baselineExists": true,
+      "sizeDeltaPct": 0.07,
+      "status": "MATCH"
+    }
+  ],
+  "authenticatedVisualChecks": [
+    {
+      "route": "/bag",
+      "name": "bag_with_items",
+      "viewport": "360px",
+      "filename": "bag_with_items_360px.png",
+      "bytes": 69523,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/bag",
+      "name": "bag_with_items",
+      "viewport": "768px",
+      "filename": "bag_with_items_768px.png",
+      "bytes": 78862,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/bag",
+      "name": "bag_with_items",
+      "viewport": "1440px",
+      "filename": "bag_with_items_1440px.png",
+      "bytes": 88212,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/checkout",
+      "name": "checkout",
+      "viewport": "360px",
+      "filename": "checkout_360px.png",
+      "bytes": 2405,
+      "status": "REVIEW"
+    },
+    {
+      "route": "/checkout",
+      "name": "checkout",
+      "viewport": "768px",
+      "filename": "checkout_768px.png",
+      "bytes": 4468,
+      "status": "REVIEW"
+    },
+    {
+      "route": "/checkout",
+      "name": "checkout",
+      "viewport": "1440px",
+      "filename": "checkout_1440px.png",
+      "bytes": 5855,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/order/GTL-2026-1004",
+      "name": "order_confirmation",
+      "viewport": "360px",
+      "filename": "order_confirmation_360px.png",
+      "bytes": 51405,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/order/GTL-2026-1004",
+      "name": "order_confirmation",
+      "viewport": "768px",
+      "filename": "order_confirmation_768px.png",
+      "bytes": 64862,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/order/GTL-2026-1004",
+      "name": "order_confirmation",
+      "viewport": "1440px",
+      "filename": "order_confirmation_1440px.png",
+      "bytes": 73508,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/account",
+      "name": "account",
+      "viewport": "360px",
+      "filename": "account_360px.png",
+      "bytes": 52695,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/account",
+      "name": "account",
+      "viewport": "768px",
+      "filename": "account_768px.png",
+      "bytes": 64855,
+      "status": "CAPTURED_OK"
+    },
+    {
+      "route": "/account",
+      "name": "account",
+      "viewport": "1440px",
+      "filename": "account_1440px.png",
+      "bytes": 74533,
+      "status": "CAPTURED_OK"
+    }
+  ],
+  "phoneAuthFlow": {
+    "phone": "9875703513",
+    "signedUpWith6DigitOtp": true,
+    "addEmailPromptShownForPhoneOnlyUser": true,
+    "signedInWith6DigitOtp": true
+  },
+  "emailAndCheckoutFlow": {
+    "email": "goa.proof.1791875718486@example.com",
+    "createdOrderNumber": "GTL-2026-1004",
+    "panIndiaShown": true,
+    "goaExpressShown": true,
+    "orderConfirmedOnPage1": true,
+    "paidOrderShowsContactMessage": true,
+    "addedSecondAddress": true
+  },
+  "twoBrowserProof": {
+    "email": "goa.proof.1791875718486@example.com",
+    "createdOrderNumber": "GTL-2026-1004",
+    "goaExpressShown": true,
+    "orderConfirmedOnPage1": true,
+    "browser2SeesOrder": true,
+    "browser2SeesAddress": true,
+    "passed": true
+  },
+  "formsFlow": {
+    "faqsCount": 19,
+    "faqsClosedByDefault": true,
+    "generalEnquirySubmitted": true,
+    "bulkEnquirySubmitted": true,
+    "nonGoaHamperRejected": true,
+    "goaHamperAccepted": true
+  },
+  "localStorageAudit": {
+    "keys": [],
+    "hasCustomerRegistry": false,
+    "hasCustomerAuth": false
+  },
+  "axeAudit": [
+    {
+      "route": "home",
+      "url": "http://localhost:4173/",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 52
+        }
+      ]
+    },
+    {
+      "route": "shop",
+      "url": "http://localhost:4173/shop",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 253
+        }
+      ]
+    },
+    {
+      "route": "category_chutneys",
+      "url": "http://localhost:4173/product-category/chutneys-and-spreads",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 5
+        }
+      ]
+    },
+    {
+      "route": "product_pineapple_jam",
+      "url": "http://localhost:4173/product/pineapple-jam-250-grams",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 5
+        }
+      ]
+    },
+    {
+      "route": "our_story",
+      "url": "http://localhost:4173/our-story",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "route": "our_social_corner",
+      "url": "http://localhost:4173/our-social-corner",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 2
+        }
+      ]
+    },
+    {
+      "route": "in_the_news",
+      "url": "http://localhost:4173/in-the-news",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 9
+        }
+      ]
+    },
+    {
+      "route": "contact",
+      "url": "http://localhost:4173/contact",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 19
+        }
+      ]
+    },
+    {
+      "route": "shipping_policy",
+      "url": "http://localhost:4173/shipping-policy",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "route": "return_policy",
+      "url": "http://localhost:4173/return-and-exchange-policy",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "route": "terms",
+      "url": "http://localhost:4173/terms-and-conditions",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "route": "privacy",
+      "url": "http://localhost:4173/privacy-policy",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 1
+        }
+      ]
+    },
+    {
+      "route": "bag",
+      "url": "http://localhost:4173/bag",
+      "violationsCount": 0,
+      "criticalCount": 0,
+      "violations": []
+    },
+    {
+      "route": "login",
+      "url": "http://localhost:4173/login",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 6
+        }
+      ]
+    },
+    {
+      "route": "bag_with_items",
+      "url": "http://localhost:4173/bag",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 2
+        }
+      ]
+    },
+    {
+      "route": "checkout",
+      "url": "http://localhost:4173/checkout",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 4
+        }
+      ]
+    },
+    {
+      "route": "order_confirmation",
+      "url": "http://localhost:4173/order/GTL-2026-1004",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 3
+        }
+      ]
+    },
+    {
+      "route": "account",
+      "url": "http://localhost:4173/account",
+      "violationsCount": 1,
+      "criticalCount": 0,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 2
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Check, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { categories, products } from '../lib/data';
+import { useCategories, useAllProducts } from '../lib/catalogue-hooks';
 import ProductCard from '../components/product/ProductCard';
 import ShellShelf from '../components/home/ShellShelf';
 import StoreBanner from '../components/home/StoreBanner';
@@ -10,6 +10,8 @@ import ShellDrift from '../components/common/ShellDrift';
 import { ShellCockleIcon } from '../components/common/Icons';
 
 export default function ShopPage() {
+  const { data: categories = [] } = useCategories();
+  const { data: products = [] } = useAllProducts();
   const [searchParams, setSearchParams] = useSearchParams();
   const shelfRailRef = useRef(null);
   const [railProgress, setRailProgress] = useState(0);
@@ -134,7 +136,7 @@ export default function ShopPage() {
         if (currentSort === 'name_asc') return a.name.localeCompare(b.name);
         return 0; // featured
       });
-  }, [currentCategory, currentSearch, currentSort, inStockOnly]);
+  }, [products, currentCategory, currentSearch, currentSort, inStockOnly]);
 
   return (
     <main id="main" className="min-w-0 bg-ground pt-24 sm:pt-28 lg:pt-32 pb-20">
@@ -376,6 +378,7 @@ export default function ShopPage() {
 
               {/* Sort Dropdown */}
               <select
+                aria-label="Sort products"
                 value={currentSort}
                 onChange={(e) => updateFilters('sort', e.target.value)}
                 className="rounded-pill border border-border/80 bg-surface py-2 px-4 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-xs"

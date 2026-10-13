@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, ArrowUpRight, Plus } from 'lucide-react';
 import { siteConfig } from '../lib/data';
+import { useFaqs } from '../lib/catalogue-hooks';
+import { apiFetch } from '../lib/api-client';
 import StoreBanner from '../components/home/StoreBanner';
 import ShellDrift from '../components/common/ShellDrift';
 
-const liveFaqs = [
+const fallbackFaqs = [
   {
     q: 'Are there any charges for registration?',
     a: 'No, registration on globaltolocal.in is free.'
@@ -85,21 +87,56 @@ const liveFaqs = [
 ];
 
 export default function ContactPage() {
+  const { data: liveFaqsData } = useFaqs(fallbackFaqs);
+  const liveFaqs = liveFaqsData?.length ? liveFaqsData : fallbackFaqs;
   const [openFaq, setOpenFaq] = useState(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [enquiryType, setEnquiryType] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('type');
+      if (p === 'custom_hamper' || p === 'hamper') return 'custom_hamper';
+      if (p === 'bulk_corporate' || p === 'bulk') return 'bulk_corporate';
+    }
+    return 'general';
+  });
   const [message, setMessage] = useState('');
+  const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleFaq = (idx) => {
     setOpenFaq(openFaq === idx ? null : idx);
   };
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    const mailtoUrl = `mailto:customerservice@globaltolocal.in?subject=${encodeURIComponent(
-      `Message from ${name || 'Customer'}`
-    )}&body=${encodeURIComponent(`From: ${name} (${email})\n\n${message}`)}`;
-    window.location.href = mailtoUrl;
+    setSubmitError('');
+    setSubmitStatus(null);
+    setIsSubmitting(true);
+    try {
+      const res = await apiFetch('/api/v1/enquiries', {
+        method: 'POST',
+        body: {
+          type: enquiryType,
+          name: name.trim(),
+          email: email.trim(),
+          pincode: pincode.trim() || undefined,
+          message: message.trim(),
+          captcha_token: '1x00000000000000000000AA',
+        },
+      });
+      setSubmitStatus(res.message || 'Thank you! Your enquiry has been received.');
+      setName('');
+      setEmail('');
+      setPincode('');
+      setMessage('');
+    } catch (err) {
+      setSubmitError(err.detail || err.message || 'Unable to submit enquiry.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -255,6 +292,27 @@ export default function ContactPage() {
                     />
                   </div>
 
+                  {enquiryType === 'custom_hamper' && (
+                    <div>
+                      <label htmlFor="pincode" className="mb-2 block text-xs sm:text-sm font-semibold text-content">
+                        Goa Delivery Pincode <span className="text-accent">*</span>
+                      </label>
+                      <input
+                        id="pincode"
+                        type="text"
+                        maxLength={6}
+                        required
+                        value={pincode}
+                        onChange={(e) => {
+                          if (submitError) setSubmitError('');
+                          setPincode(e.target.value.replace(/\D/g, ''));
+                        }}
+                        placeholder="403001"
+                        className="h-12 w-full rounded-pill border border-border bg-ground px-4 text-sm text-content transition-colors hover:border-content-subtle focus:border-palm outline-none shadow-xs"
+                      />
+                    </div>
+                  )}
+
                   <div>
                     <label htmlFor="message" className="mb-2 block text-xs sm:text-sm font-semibold text-content">
                       Comment or Message <span className="text-accent">*</span>
@@ -265,13 +323,29 @@ export default function ContactPage() {
                       rows={5}
                       required
                       value={message}
-                      onChange={(e) => setMessage(e.target.value)}
+                      onChange={(e) => {
+                        if (submitError) setSubmitError('');
+                        setMessage(e.target.value);
+                      }}
                       className="w-full rounded-2xl border border-border bg-ground px-4 py-3 text-sm text-content transition-colors hover:border-content-subtle focus:border-palm outline-none shadow-xs"
                     />
                   </div>
 
+                  {submitError && (
+                    <p role="alert" className="text-xs font-medium text-accent">
+                      {submitError}
+                    </p>
+                  )}
+
+                  {submitStatus && (
+                    <p role="status" className="text-xs font-semibold text-palm">
+                      {submitStatus}
+                    </p>
+                  )}
+
                   <button
                     type="submit"
+                    disabled={isSubmitting}
                     className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-palm bg-palm px-8 py-3.5 text-sm font-semibold text-content-ondark hover:bg-ink-deep hover:border-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
                   >
                     <span>Open in your email app</span>

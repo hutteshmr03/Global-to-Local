@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { User, Package, MapPin, LogOut, ArrowRight, ShieldCheck, Plus, Check, Trash2, X, Edit2 } from 'lucide-react';
 import { useAuthStore } from '../lib/auth-store';
@@ -7,10 +7,25 @@ import { formatPrice } from '../lib/data';
 export default function AccountPage() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
   const logout = useAuthStore((state) => state.logout);
-  const [activeTab, setActiveTab] = useState('orders');
-
   const updateProfile = useAuthStore((state) => state.updateProfile);
+  const addAddress = useAuthStore((state) => state.addAddress);
+  const setDefaultAddress = useAuthStore((state) => state.setDefaultAddress);
+  const deleteAddress = useAuthStore((state) => state.deleteAddress);
+  const fetchOrders = useAuthStore((state) => state.fetchOrders);
+  const cancelOrder = useAuthStore((state) => state.cancelOrder);
+
+  const [activeTab, setActiveTab] = useState('orders');
+  const [addressError, setAddressError] = useState('');
+  const [orderNotice, setOrderNotice] = useState({});
+
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    }
+  }, [user?.id, fetchOrders]);
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAddr, setNewAddr] = useState({
     name: user?.name || '',
@@ -21,51 +36,37 @@ export default function AccountPage() {
     isDefault: true,
   });
 
-  const handleSetDefaultAddress = (addressId) => {
-    const currentAddresses = user?.addresses || [];
-    const updated = currentAddresses.map((addr) => ({
-      ...addr,
-      isDefault: addr.id === addressId,
-    }));
-    updateProfile({ addresses: updated });
+  const handleSetDefaultAddress = async (addressId) => {
+    await setDefaultAddress(addressId);
   };
 
-  const handleDeleteAddress = (addressId) => {
-    const currentAddresses = user?.addresses || [];
-    const filtered = currentAddresses.filter((addr) => addr.id !== addressId);
-    if (filtered.length > 0 && !filtered.some((a) => a.isDefault)) {
-      filtered[0].isDefault = true;
-    }
-    updateProfile({ addresses: filtered });
+  const handleDeleteAddress = async (addressId) => {
+    await deleteAddress(addressId);
   };
 
-  const handleSaveNewAddress = (e) => {
+  const handleSaveNewAddress = async (e) => {
     e.preventDefault();
+    setAddressError('');
     if (!newAddr.name.trim() || !newAddr.street.trim() || !newAddr.pincode.trim()) {
-      alert('Please fill in recipient name, street address, and pincode');
+      setAddressError('Please fill in recipient name, street address, and pincode');
       return;
     }
 
-    const currentAddresses = user?.addresses || [];
-    const newAddressObj = {
-      id: 'addr_' + Date.now().toString(36),
+    const res = await addAddress({
       name: newAddr.name.trim(),
+      phone: user?.phone || '9876543210',
       street: newAddr.street.trim(),
       city: newAddr.city.trim() || 'Panaji',
       state: newAddr.state.trim() || 'Goa',
       pincode: newAddr.pincode.trim(),
-      isDefault: newAddr.isDefault || currentAddresses.length === 0,
-    };
+      isDefault: newAddr.isDefault || (user?.addresses || []).length === 0,
+    });
 
-    let updatedList;
-    if (newAddressObj.isDefault) {
-      updatedList = currentAddresses.map((a) => ({ ...a, isDefault: false }));
-      updatedList.push(newAddressObj);
-    } else {
-      updatedList = [...currentAddresses, newAddressObj];
+    if (!res.ok) {
+      setAddressError(res.error || 'Could not save address');
+      return;
     }
 
-    updateProfile({ addresses: updatedList });
     setShowAddForm(false);
     setNewAddr({
       name: user?.name || '',
@@ -77,6 +78,15 @@ export default function AccountPage() {
     });
   };
 
+  const handleCancelOrder = async (orderNumber) => {
+    const res = await cancelOrder(orderNumber);
+    if (!res.ok) {
+      setOrderNotice((prev) => ({ ...prev, [orderNumber]: res.error || 'Please contact the store to cancel.' }));
+    } else {
+      setOrderNotice((prev) => ({ ...prev, [orderNumber]: 'Order cancelled.' }));
+    }
+  };
+
   // Profile Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -85,6 +95,7 @@ export default function AccountPage() {
     email: user?.email || '',
   });
   const [profileSuccessMsg, setProfileSuccessMsg] = useState('');
+  const [profileErrorMsg, setProfileErrorMsg] = useState('');
 
   const handleStartEditingProfile = () => {
     setProfileForm({
@@ -93,26 +104,34 @@ export default function AccountPage() {
       email: user?.email || '',
     });
     setProfileSuccessMsg('');
+    setProfileErrorMsg('');
     setIsEditingProfile(true);
   };
 
   const handleCancelEditingProfile = () => {
     setIsEditingProfile(false);
     setProfileSuccessMsg('');
+    setProfileErrorMsg('');
   };
 
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
+    setProfileErrorMsg('');
     if (!profileForm.name.trim()) {
-      alert('Full Name cannot be empty');
+      setProfileErrorMsg('Full Name cannot be empty');
       return;
     }
 
-    updateProfile({
+    const res = await updateProfile({
       name: profileForm.name.trim(),
       phone: profileForm.phone.trim(),
       email: profileForm.email.trim(),
     });
+
+    if (res && res.ok === false) {
+      setProfileErrorMsg(res.error || 'Failed to update profile');
+      return;
+    }
 
     setIsEditingProfile(false);
     setProfileSuccessMsg('Profile updated successfully!');
@@ -121,10 +140,14 @@ export default function AccountPage() {
     }, 4000);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
+
+  if (!isInitialized) {
+    return <main id="main-content" className="pt-20 sm:pt-24 lg:pt-28 pb-16 bg-ground min-h-screen" />;
+  }
 
   // If not logged in, redirect directly to login
   if (!user) {
@@ -156,6 +179,31 @@ export default function AccountPage() {
             <span>Sign Out</span>
           </button>
         </div>
+
+        {/* Phone-only Account Prompt: Add your email */}
+        {!user.email && (
+          <div className="mb-5 sm:mb-6 rounded-2xl border border-accent/25 bg-accent/5 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+            <div>
+              <p className="font-display text-sm sm:text-base font-bold text-content">
+                Add your email
+              </p>
+              <p className="text-xs text-content-muted mt-0.5">
+                Add your email address to receive order receipts, invoices, and courier tracking updates.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('profile');
+                handleStartEditingProfile();
+              }}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill bg-palm px-4 py-2 text-xs font-semibold text-white hover:bg-palm-shade transition-all shadow-xs"
+            >
+              <span>Add your email</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 lg:gap-8">
           {/* Sidebar Nav */}
@@ -238,7 +286,7 @@ export default function AccountPage() {
                           </div>
                           <div className="inline-flex items-center gap-1.5 rounded-pill bg-palm/15 border border-palm/25 text-palm px-3 py-1 text-xs font-bold">
                             <Package className="w-3.5 h-3.5" />
-                            <span>{order.status || 'Preparing for dispatch'}</span>
+                            <span>{order.statusLabel || order.status || 'Preparing for dispatch'}</span>
                           </div>
                         </div>
 
@@ -270,18 +318,34 @@ export default function AccountPage() {
 
                         {/* Order Footer & Total */}
                         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/30 pt-3">
-                          {order.address && (
-                            <p className="text-xs text-content-muted truncate max-w-sm">
-                              Shipping to: <span className="font-medium text-content">{order.address.fullName || order.address.name}, {order.address.city || ''}</span>
-                            </p>
-                          )}
-                          <div className="flex items-center gap-4 ml-auto">
+                          <div className="space-y-1">
+                            {order.address && (
+                              <p className="text-xs text-content-muted truncate max-w-sm">
+                                Shipping to: <span className="font-medium text-content">{order.address.fullName || order.address.name}, {order.address.city || ''}</span>
+                              </p>
+                            )}
+                            {(orderNotice[order.orderNumber] || order.cancelNotice) && (
+                              <p className="text-[11px] font-medium text-content-muted">
+                                {orderNotice[order.orderNumber] || order.cancelNotice}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 ml-auto">
                             <div className="text-right">
                               <span className="text-[10px] uppercase font-bold text-content-muted">Total Paid</span>
                               <p className="font-sans text-sm font-bold text-accent tabular-nums">
                                 {formatPrice(order.totalPaise)}
                               </p>
                             </div>
+                            {order.canCancel && (
+                              <button
+                                type="button"
+                                onClick={() => handleCancelOrder(order.orderNumber)}
+                                className="rounded-pill border border-red-500/40 bg-red-500/10 px-3.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-500/20 transition-all cursor-pointer"
+                              >
+                                Cancel Order
+                              </button>
+                            )}
                             <Link
                               to={`/order/${order.orderNumber}`}
                               className="rounded-pill border border-border bg-surface px-4 py-1.5 text-xs font-semibold text-content hover:bg-surface-muted transition-all cursor-pointer"
@@ -329,6 +393,9 @@ export default function AccountPage() {
                         <X className="w-4 h-4" />
                       </button>
                     </div>
+                    {addressError && (
+                      <p className="text-xs font-medium text-red-600">{addressError}</p>
+                    )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -517,6 +584,9 @@ export default function AccountPage() {
                     <Check className="w-4 h-4 shrink-0" />
                     <span>{profileSuccessMsg}</span>
                   </div>
+                )}
+                {profileErrorMsg && (
+                  <p className="text-xs font-medium text-red-600">{profileErrorMsg}</p>
                 )}
 
                 {isEditingProfile ? (

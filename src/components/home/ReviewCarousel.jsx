@@ -2,8 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { ShellCockleIcon } from '../common/Icons';
+import { useReviews } from '../../lib/catalogue-hooks';
 
-const reviews = [
+const fallbackReviews = [
   {
     author: 'Gifty Abraham',
     role: null,
@@ -28,6 +29,7 @@ const reviews = [
 ];
 
 export default function ReviewCarousel() {
+  const { data: reviews = fallbackReviews } = useReviews("Visitors' Book", fallbackReviews);
   return (
     <section className="py-20 sm:py-24 lg:py-28 mx-[clamp(12px,2.5vw,32px)] my-3 overflow-clip rounded-2xl bg-surface-muted text-content">
       <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">

@@ -5,6 +5,7 @@ import { Star, ArrowUpRight, ArrowRight } from 'lucide-react';
 import { ShellCockleIcon } from '../components/common/Icons';
 import ShellDrift from '../components/common/ShellDrift';
 import StoreBanner from '../components/home/StoreBanner';
+import { useReviews } from '../lib/catalogue-hooks';
 
 function InstagramIcon(props) {
   return (
@@ -26,7 +27,7 @@ function InstagramIcon(props) {
   );
 }
 
-const visitorsReviews = [
+const fallbackVisitorsReviews = [
   {
     stars: 5,
     quote:
@@ -51,6 +52,7 @@ const visitorsReviews = [
 ];
 
 export default function OurSocialCornerPage() {
+  const { data: visitorsReviews = fallbackVisitorsReviews } = useReviews("Visitors' Book", fallbackVisitorsReviews);
   return (
     <main id="main" className="min-w-0 bg-ground pt-24 sm:pt-28 lg:pt-32 pb-20">
       {/* 1. HERO BANNER SECTION */}
