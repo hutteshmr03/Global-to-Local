@@ -210,7 +210,7 @@ export default function AdminOrders() {
                   <th className="px-5 py-3.5">Date Placed</th>
                   <th className="px-5 py-3.5">Recipient & Destination</th>
                   <th className="px-5 py-3.5">Items</th>
-                  <th className="px-5 py-3.5">Total (Paise / ₹)</th>
+                  <th className="px-5 py-3.5">Total (₹)</th>
                   <th className="px-5 py-3.5">Status</th>
                   <th className="px-5 py-3.5 text-right">Action</th>
                 </tr>
@@ -253,8 +253,7 @@ export default function AdminOrders() {
                         </span>
                       </td>
                       <td className="px-5 py-4 font-medium text-content whitespace-nowrap">
-                        <div>{o.total_formatted}</div>
-                        <div className="text-[10px] text-content-muted font-mono">{o.total_paise} paise</div>
+                        <div className="font-semibold text-content" title={`${o.total_paise} paise`}>{o.total_formatted}</div>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
                         <span

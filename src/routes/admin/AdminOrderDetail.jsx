@@ -254,8 +254,8 @@ export default function AdminOrderDetail() {
             <div className="font-serif text-2xl text-content font-bold">
               ₹{(order.total_paise / 100).toFixed(2)}
             </div>
-            <div className="text-[11px] font-mono text-content-muted">
-              {order.total_paise} paise (tax incl.)
+            <div className="text-[11px] text-content-muted">
+              Tax inclusive
             </div>
           </div>
         </div>
@@ -329,9 +329,6 @@ export default function AdminOrderDetail() {
                   <div className="text-right whitespace-nowrap">
                     <div className="text-sm font-bold text-content">
                       ₹{(item.line_total_paise / 100).toFixed(2)}
-                    </div>
-                    <div className="text-[10px] font-mono text-content-muted">
-                      {item.line_total_paise} paise
                     </div>
                   </div>
                 </div>
