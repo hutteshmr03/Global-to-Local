@@ -37,8 +37,10 @@ export default function ProductDetailPage() {
     return <NotFoundPage />;
   }
 
-  const category = product.category || categories.find(c => c.slug === product.categorySlug);
-  const images = product.gallery && product.gallery.length > 0 ? product.gallery : [product.imageSrc];
+  const prodCatSlug = product.categorySlug || product.category_slug || (product.category && product.category.slug);
+  const category = product.category || categories.find(c => c.slug === prodCatSlug);
+  const primaryImg = product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg';
+  const images = product.gallery && product.gallery.length > 0 ? product.gallery : [primaryImg];
   const relatedProducts = (product.related_products || []).filter(
     (p) => p && p.is_active !== false && p.status !== 'Hidden' && p.status !== 'Draft'
   );
@@ -159,7 +161,7 @@ export default function ProductDetailPage() {
             {/* Price & Unit */}
             <div className="mt-3.5 flex items-baseline gap-3">
               <span className="font-sans text-3xl sm:text-4xl font-bold tabular-nums tracking-tight text-content">
-                {formatPrice(product.price)}
+                {formatPrice(product.price ?? product.price_paise ?? 0)}
               </span>
               {(product.weight || product.unit_label) && (
                 <span className="text-sm font-medium text-content-muted">
@@ -237,7 +239,7 @@ export default function ProductDetailPage() {
                 ) : (
                   <>
                     <Plus className="w-4 h-4" />
-                    <span className="font-sans font-bold tabular-nums">Add {qty > 1 ? `${qty} items` : ''} to Bag · {formatPrice(product.price * qty)}</span>
+                    <span className="font-sans font-bold tabular-nums">Add {qty > 1 ? `${qty} items` : ''} to Bag · {formatPrice((product.price ?? product.price_paise ?? 0) * qty)}</span>
                   </>
                 )}
               </button>

@@ -118,25 +118,28 @@ export default function ShopPage() {
         if (!p || p.is_active === false || p.status === 'Hidden' || p.status === 'Draft') {
           return false;
         }
-        if (currentCategory !== 'all' && p.categorySlug !== currentCategory) {
+        const pCat = p.categorySlug || p.category_slug || (p.category && p.category.slug);
+        if (currentCategory !== 'all' && pCat !== currentCategory) {
           return false;
         }
         if (currentSearch) {
           const q = currentSearch.toLowerCase();
           const matchesName = (p.name || '').toLowerCase().includes(q);
-          const matchesDesc = (p.description || '').toLowerCase().includes(q);
-          const matchesCat = (p.categorySlug || '').toLowerCase().includes(q);
+          const matchesDesc = (p.description || p.shortDescription || p.short_description || '').toLowerCase().includes(q);
+          const matchesCat = (pCat || '').toLowerCase().includes(q);
           if (!matchesName && !matchesDesc && !matchesCat) return false;
         }
-        if (inStockOnly && p.inStock === false) {
+        if (inStockOnly && (p.inStock === false || p.availability === 'out_of_stock')) {
           return false;
         }
         return true;
       })
       .sort((a, b) => {
-        if (currentSort === 'price_asc') return a.price - b.price;
-        if (currentSort === 'price_desc') return b.price - a.price;
-        if (currentSort === 'name_asc') return a.name.localeCompare(b.name);
+        const priceA = a.price ?? a.price_paise ?? 0;
+        const priceB = b.price ?? b.price_paise ?? 0;
+        if (currentSort === 'price_asc') return priceA - priceB;
+        if (currentSort === 'price_desc') return priceB - priceA;
+        if (currentSort === 'name_asc') return (a.name || '').localeCompare(b.name || '');
         return 0; // featured
       });
   }, [products, currentCategory, currentSearch, currentSort, inStockOnly]);
@@ -208,7 +211,10 @@ export default function ShopPage() {
               className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 sm:gap-6 hide-scrollbar rail-gutter scroll-smooth"
             >
               {categories.map((cat) => {
-                const count = products.filter((p) => p.categorySlug === cat.slug).length;
+                const count = products.filter((p) => {
+                  const pCat = p.categorySlug || p.category_slug || (p.category && p.category.slug);
+                  return pCat === cat.slug;
+                }).length;
                 const isCurrent = currentCategory === cat.slug;
 
                 return (
@@ -317,7 +323,10 @@ export default function ShopPage() {
                 All
               </button>
               {categories.map((cat) => {
-                const count = products.filter((p) => p.categorySlug === cat.slug).length;
+                const count = products.filter((p) => {
+                  const pCat = p.categorySlug || p.category_slug || (p.category && p.category.slug);
+                  return pCat === cat.slug;
+                }).length;
                 const isSelected = currentCategory === cat.slug;
                 return (
                   <button

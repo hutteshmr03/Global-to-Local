@@ -2,7 +2,7 @@ import { products as seedProducts, categories as seedCategories } from './data';
 
 // LocalStorage Keys
 const STORAGE_USER = 'gtl_mock_auth_user_v1';
-const STORAGE_PRODUCTS = 'gtl_mock_products_v2';
+const STORAGE_PRODUCTS = 'gtl_mock_products_v3';
 const STORAGE_CUSTOMERS = 'gtl_mock_customers_v2';
 const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
@@ -86,12 +86,16 @@ function initMockProducts() {
   const usedSkus = new Set();
   const initial = seedProducts.map((p, idx) => {
     const sku = p.sku && !p.sku.startsWith('GTL-') ? p.sku : generateIdentifiableSku(p, usedSkus);
-    const catSlug = p.categorySlug || p.shelfSlug || 'spices';
+    const catSlug = p.categorySlug || p.shelfSlug || p.category_slug || 'spices';
     const catName = SHELF_NAMES[catSlug] || p.shelf || 'Spices';
     const pricePaise = p.pricePaise || p.price || 35000;
+    const imgSrc = p.imageSrc || p.image_url || '/images/catalog/goan-themed-blue-mug.jpg';
+    const imgAlt = p.imageAlt || p.title || p.name || 'Goan product';
 
     return {
+      // Backend canonical fields
       id: `prod-${p.id || idx + 1}`,
+      legacy_id: p.id,
       sku,
       slug: p.slug,
       name: p.title || p.name,
@@ -103,21 +107,41 @@ function initMockProducts() {
       status: 'published',
       category_name: catName,
       category_slug: catSlug,
+      category: { id: catSlug, slug: catSlug, name: catName },
       unit_label: p.weight || '250 g',
       net_weight_grams: p.weightGrams || 250,
       description: p.description || p.shortDescription || '',
+      short_description: p.shortDescription || p.description || '',
       origin_text: p.origin || 'Made in Goa',
       is_featured: Boolean(p.isFeatured),
-      image_url: p.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
+      image_url: imgSrc,
       images: [
         {
           id: `img-${p.id || idx + 1}`,
-          url: p.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
-          alt_text: p.title || p.name,
+          url: imgSrc,
+          alt_text: imgAlt,
           is_primary: true,
           sort_order: 0,
         },
       ],
+      primary_image: {
+        id: `img-${p.id || idx + 1}`,
+        url: imgSrc,
+        alt_text: imgAlt,
+        is_primary: true,
+      },
+      // Frontend compatibility fields so existing storefront UI components render identically
+      price: pricePaise,
+      categorySlug: catSlug,
+      categoryName: catName,
+      shortDescription: p.shortDescription || p.description || '',
+      weight: p.weight || '250 g',
+      weightGrams: p.weightGrams || 250,
+      imageAlt: imgAlt,
+      imageSrc: imgSrc,
+      gallery: p.gallery || [imgSrc],
+      inStock: true,
+      origin: p.origin || 'Made in Goa',
     };
   });
 
@@ -290,7 +314,10 @@ export function resolveMockProduct(ref) {
     });
     if (seed) {
       const catSlug = seed.categorySlug || seed.shelfSlug || 'sweet';
+      const catName = SHELF_NAMES[catSlug] || 'Sweet';
       const pricePaise = seed.pricePaise || seed.price || 28000;
+      const imgSrc = seed.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg';
+      const imgAlt = seed.imageAlt || seed.title || seed.name || 'Goan product';
       found = {
         id: `prod-${seed.id}`,
         legacy_id: seed.id,
@@ -303,11 +330,41 @@ export function resolveMockProduct(ref) {
         reserved_qty: 0,
         is_active: true,
         status: 'published',
-        category_name: SHELF_NAMES[catSlug] || 'Sweet',
+        category_name: catName,
         category_slug: catSlug,
+        category: { id: catSlug, slug: catSlug, name: catName },
         unit_label: seed.weight || '250 g',
         net_weight_grams: seed.weightGrams || 250,
-        image_url: seed.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
+        description: seed.description || seed.shortDescription || '',
+        short_description: seed.shortDescription || seed.description || '',
+        image_url: imgSrc,
+        images: [
+          {
+            id: `img-${seed.id}`,
+            url: imgSrc,
+            alt_text: imgAlt,
+            is_primary: true,
+            sort_order: 0,
+          },
+        ],
+        primary_image: {
+          id: `img-${seed.id}`,
+          url: imgSrc,
+          alt_text: imgAlt,
+          is_primary: true,
+        },
+        // Frontend compatibility fields
+        price: pricePaise,
+        categorySlug: catSlug,
+        categoryName: catName,
+        shortDescription: seed.shortDescription || seed.description || '',
+        weight: seed.weight || '250 g',
+        weightGrams: seed.weightGrams || 250,
+        imageAlt: imgAlt,
+        imageSrc: imgSrc,
+        gallery: seed.gallery || [imgSrc],
+        inStock: true,
+        origin: seed.origin || 'Made in Goa',
       };
     }
   }

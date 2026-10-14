@@ -429,18 +429,22 @@ export default function CheckoutPage() {
 
               {/* Items Mini List */}
               <div className="max-h-60 overflow-y-auto divide-y divide-border/20 pr-1">
-                {items.map(({ product, qty }) => (
-                  <div key={product.id} className="py-3 flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-3">
-                      <img src={product.imageSrc} alt="" className="h-10 w-10 rounded object-cover" />
-                      <div>
-                        <p className="font-semibold text-content line-clamp-1 max-w-[180px]">{product.name}</p>
-                        <p className="text-xs text-content-muted">Qty: {qty} × <span className="font-sans font-medium tabular-nums">{formatPrice(product.price)}</span></p>
+                {items.map(({ product, qty }) => {
+                  const itemPrice = product.price ?? product.price_paise ?? 0;
+                  const itemImg = product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg';
+                  return (
+                    <div key={product.id} className="py-3 flex justify-between items-center text-sm">
+                      <div className="flex items-center gap-3">
+                        <img src={itemImg} alt="" className="h-10 w-10 rounded object-cover" />
+                        <div>
+                          <p className="font-semibold text-content line-clamp-1 max-w-[180px]">{product.name}</p>
+                          <p className="text-xs text-content-muted">Qty: {qty} × <span className="font-sans font-medium tabular-nums">{formatPrice(itemPrice)}</span></p>
+                        </div>
                       </div>
+                      <span className="font-sans font-bold tabular-nums tracking-tight text-content">{formatPrice(itemPrice * qty)}</span>
                     </div>
-                    <span className="font-sans font-bold tabular-nums tracking-tight text-content">{formatPrice(product.price * qty)}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Cost Breakdown */}

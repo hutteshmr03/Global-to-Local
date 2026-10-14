@@ -70,68 +70,73 @@ export default function BagPage() {
           <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
             {/* Items List */}
             <div className="lg:col-span-8 rounded-2xl border border-border/40 bg-surface p-6 sm:p-8 divide-y divide-border/20">
-              {items.map(({ product, qty }) => (
-                <div key={product.id} className="py-6 first:pt-0 last:pb-0 flex flex-col sm:flex-row gap-6">
-                  <img
-                    src={product.imageSrc}
-                    alt={product.name}
-                    className="h-28 w-28 rounded-xl object-cover bg-surface-muted shrink-0 border border-border/20"
-                  />
-                  <div className="flex flex-1 flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start">
-                        <Link
-                          to={`/product/${product.slug}`}
-                          className="font-display text-lg font-bold text-content hover:text-accent transition-colors"
-                        >
-                          {product.name}
-                        </Link>
+              {items.map(({ product, qty }) => {
+                const itemPrice = product.price ?? product.price_paise ?? 0;
+                const itemImg = product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg';
+                const itemWeight = product.weight || product.unit_label || '';
+                return (
+                  <div key={product.id} className="py-6 first:pt-0 last:pb-0 flex flex-col sm:flex-row gap-6">
+                    <img
+                      src={itemImg}
+                      alt={product.name}
+                      className="h-28 w-28 rounded-xl object-cover bg-surface-muted shrink-0 border border-border/20"
+                    />
+                    <div className="flex flex-1 flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start">
+                          <Link
+                            to={`/product/${product.slug}`}
+                            className="font-display text-lg font-bold text-content hover:text-accent transition-colors"
+                          >
+                            {product.name}
+                          </Link>
+                        </div>
+                        <p className="text-xs text-content-muted mt-1">
+                          {itemWeight ? `${itemWeight} · ` : ''}
+                          <span className="font-semibold text-content">{formatPrice(itemPrice)}</span>
+                        </p>
                       </div>
-                      <p className="text-xs text-content-muted mt-1">
-                        {product.weight ? `${product.weight} · ` : ''}
-                        <span className="font-semibold text-content">{formatPrice(product.price)}</span>
-                      </p>
-                    </div>
 
-                    <div className="flex items-center justify-between mt-4">
-                      {/* Stepper + Dustbin Button */}
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex items-center rounded-pill border border-border bg-ground px-3 py-1">
+                      <div className="flex items-center justify-between mt-4">
+                        {/* Stepper + Dustbin Button */}
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex items-center rounded-pill border border-border bg-ground px-3 py-1">
+                            <button
+                              onClick={() => updateQty(product.id, qty - 1)}
+                              className="p-1 text-content hover:text-accent cursor-pointer"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span className="px-3 text-sm font-bold text-content">{qty}</span>
+                            <button
+                              onClick={() => updateQty(product.id, qty + 1)}
+                              disabled={qty >= 20}
+                              className="p-1 text-content hover:text-accent disabled:opacity-30 cursor-pointer"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+
                           <button
-                            onClick={() => updateQty(product.id, qty - 1)}
-                            className="p-1 text-content hover:text-accent cursor-pointer"
-                            aria-label="Decrease quantity"
+                            onClick={() => removeItem(product.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-full text-content-muted hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
+                            title="Remove item"
+                            aria-label={`Remove ${product.name} from bag`}
                           >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="px-3 text-sm font-bold text-content">{qty}</span>
-                          <button
-                            onClick={() => updateQty(product.id, qty + 1)}
-                            disabled={qty >= 20}
-                            className="p-1 text-content hover:text-accent disabled:opacity-30 cursor-pointer"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
 
-                        <button
-                          onClick={() => removeItem(product.id)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full text-content-muted hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
-                          title="Remove item"
-                          aria-label={`Remove ${product.name} from bag`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <span className="font-sans text-base sm:text-lg font-bold tabular-nums tracking-tight text-content">
+                          {formatPrice(itemPrice * qty)}
+                        </span>
                       </div>
-
-                      <span className="font-sans text-base sm:text-lg font-bold tabular-nums tracking-tight text-content">
-                        {formatPrice(product.price * qty)}
-                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Order Summary */}

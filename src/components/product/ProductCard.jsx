@@ -30,7 +30,7 @@ export default function ProductCard({ product }) {
     const rect = e.currentTarget.getBoundingClientRect();
     flyToCart({
       startRect: rect,
-      imageSrc: product.imageSrc,
+      imageSrc: product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg',
     });
 
     // Add item to cart store
@@ -49,7 +49,7 @@ export default function ProductCard({ product }) {
     const rect = e.currentTarget.getBoundingClientRect();
     flyToCart({
       startRect: rect,
-      imageSrc: product.imageSrc,
+      imageSrc: product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg',
     });
     updateQty(product.id, inCartQty + 1);
   };
@@ -64,13 +64,18 @@ export default function ProductCard({ product }) {
     }
   };
 
+  const displayPricePaise = product.price ?? product.price_paise ?? 0;
+  const displayImage = product.imageSrc || product.image_url || (product.images && product.images[0]?.url) || '/images/catalog/goan-themed-blue-mug.jpg';
+  const displayWeight = product.weight || product.unit_label || 'piece';
+  const displayDesc = product.shortDescription || product.short_description || product.description || 'Authentic Goan specialty made with local ingredients.';
+
   return (
     <div className="group relative flex flex-col justify-between rounded-xl bg-surface border border-border/40 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <Link to={`/product/${product.slug}`} className="flex flex-col flex-1">
         {/* Product Image */}
         <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-surface-muted">
           <img
-            src={product.imageSrc}
+            src={displayImage}
             alt={product.imageAlt || product.name}
             loading="lazy"
             className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
@@ -95,17 +100,17 @@ export default function ProductCard({ product }) {
               {product.name}
             </h3>
             <p className="mt-1 text-xs text-content-muted line-clamp-2">
-              {product.shortDescription || 'Authentic Goan specialty made with local ingredients.'}
+              {displayDesc}
             </p>
           </div>
           
           <div className="mt-4 flex items-baseline justify-between border-t border-border/20 pt-3">
             <div className="flex items-baseline gap-1">
               <span className="font-sans text-base font-bold tabular-nums tracking-tight text-content">
-                {formatPrice(product.price)}
+                {formatPrice(displayPricePaise)}
               </span>
               <span className="text-xs text-content-subtle">
-                / {product.weight}
+                / {displayWeight}
               </span>
             </div>
           </div>
