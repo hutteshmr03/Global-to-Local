@@ -87,8 +87,10 @@ export async function apiFetch(path, options = {}) {
   }
 
   // Standalone fallback: Only when backend server is completely unreachable (networkFailed)
-  // Ensures catalogue fallback never overrides live API data.
-  if (networkFailed) {
+  // or proxy gateway failed (502, 503, 504 on hosted preview environments like Vercel).
+  // Ensures catalogue & preview fallback never overrides live API data on localhost.
+  const isGatewayUnreachable = res && [502, 503, 504].includes(res.status);
+  if (networkFailed || isGatewayUnreachable) {
     try {
       const mockResult = await handleMockBackend(path, options, method);
       if (mockResult !== undefined) {

@@ -8,7 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
 
-const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:5173';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 const API_URL = process.env.API_URL || 'http://127.0.0.1:8000';
 
 const results = [];
@@ -153,7 +153,8 @@ async function run() {
       const regData = await regRes.json();
       if (regRes.status() === 201 && regData.access_token) {
         await context.addCookies([
-          { name: 'access_token', value: regData.access_token, domain: '127.0.0.1', path: '/' },
+          { name: 'gtl_access_token', value: regData.access_token, domain: 'localhost', path: '/' },
+          { name: 'gtl_csrf_token', value: regData.csrf_token || 'smoke_csrf', domain: 'localhost', path: '/' },
           { name: 'access_token', value: regData.access_token, domain: 'localhost', path: '/' },
         ]);
       }
@@ -179,6 +180,11 @@ async function run() {
 
       const goaRateOk = goaData.rate_paise === 8000;
       const panIndiaRateOk = panIndiaData.rate_paise === 12000;
+
+      // Add an item to cart first so bag is not empty
+      await page.goto(`${BASE_URL}/product/wine-biscuits-200-grams`, { waitUntil: 'networkidle' });
+      await page.locator('button:has-text("Add to Bag")').first().click();
+      await page.waitForTimeout(600);
 
       // Navigate to /checkout
       await page.goto(`${BASE_URL}/checkout`, { waitUntil: 'networkidle' });

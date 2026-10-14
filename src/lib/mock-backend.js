@@ -7,6 +7,7 @@ const STORAGE_CUSTOMERS = 'gtl_mock_customers_v1';
 const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
 const STORAGE_ADDRESSES = 'gtl_mock_addresses_v1';
+const STORAGE_ORDERS = 'gtl_mock_orders_v1';
 
 export const CATEGORY_PREFIXES = {
   'hand-crafted': 'CRFT',
@@ -311,6 +312,98 @@ function initMockAddresses() {
   return initial;
 }
 
+function initMockOrders() {
+  const existing = localStorage.getItem(STORAGE_ORDERS);
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {}
+  }
+
+  const initial = [
+    {
+      id: 'ord-001',
+      order_number: 'GTL-2026-1042',
+      customer_name: 'Sancho Fernandes',
+      customer_email: 'sancho.fernandes@example.com',
+      customer_phone: '+91 98221 45012',
+      status: 'paid',
+      total_paise: 685000,
+      subtotal_paise: 673000,
+      shipping_paise: 12000,
+      shipping_method: 'Pan-India Standard ₹120',
+      shipping_address: {
+        name: 'Sancho Fernandes',
+        phone: '+91 98221 45012',
+        line1: 'House No. 42, Near Church',
+        city: 'Panaji',
+        state: 'Goa',
+        pincode: '403001',
+      },
+      placed_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+      items_count: 2,
+      items: [
+        {
+          id: 'item-1',
+          name: 'Goan Kokum Butter Soap',
+          sku: 'CRFT-KOKU-BUTT',
+          quantity: 2,
+          unit_price_paise: 24000,
+          total_price_paise: 48000,
+          image_url: '/images/catalog/goan-themed-blue-mug.jpg',
+        },
+        {
+          id: 'item-2',
+          name: 'Traditional Chouriço Masala',
+          sku: 'MASL-CHOU-MASA',
+          quantity: 1,
+          unit_price_paise: 625000,
+          total_price_paise: 625000,
+          image_url: '/images/catalog/white-chawli-200-grams.jpg',
+        },
+      ],
+      notes: [{ id: 'n1', text: 'Verified Goan pincode 403001', created_at: new Date().toISOString() }],
+    },
+    {
+      id: 'ord-002',
+      order_number: 'GTL-2026-1041',
+      customer_name: 'Pooja Naik',
+      customer_email: 'pooja.naik@example.com',
+      customer_phone: '+91 98765 43210',
+      status: 'packed',
+      total_paise: 420000,
+      subtotal_paise: 412000,
+      shipping_paise: 8000,
+      shipping_method: 'Goa Express ₹80',
+      shipping_address: {
+        name: 'Pooja Naik',
+        phone: '+91 98765 43210',
+        line1: 'Flat 302, Palm View',
+        city: 'Margao',
+        state: 'Goa',
+        pincode: '403601',
+      },
+      placed_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+      items_count: 1,
+      items: [
+        {
+          id: 'item-3',
+          name: 'Goan Cashew Feni Dark Chocolate',
+          sku: 'SWET-GOAN-CASH',
+          quantity: 2,
+          unit_price_paise: 206000,
+          total_price_paise: 412000,
+          image_url: '/images/catalog/perad-guava-cheese-200g.jpg',
+        },
+      ],
+      notes: [],
+    },
+  ];
+  localStorage.setItem(STORAGE_ORDERS, JSON.stringify(initial));
+  return initial;
+}
+
 /**
  * Handle API requests in client-side Standalone Mode
  */
@@ -352,7 +445,11 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   }
 
   if (pathname === '/api/v1/auth/otp/request' && method === 'POST') {
-    return { status: 'success', message: 'OTP sent to mobile number (Use any code e.g. 123456).' };
+    return {
+      status: 'otp_sent',
+      message: 'A 6-digit verification code has been sent to your mobile number.',
+      dev_otp: '123456',
+    };
   }
 
   if (pathname === '/api/v1/auth/otp/verify' && method === 'POST') {
@@ -652,6 +749,108 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     const historyRaw = localStorage.getItem(STORAGE_PRICE_HISTORY);
     const history = historyRaw ? JSON.parse(historyRaw) : [];
     return history.filter((h) => h.product_id === prodId);
+  }
+
+  // -------------------------------------------------------------
+  // 4. ADMIN DASHBOARD & ORDERS (Standalone Preview)
+  // -------------------------------------------------------------
+  if (pathname === '/api/v1/admin/dashboard' && method === 'GET') {
+    const products = initMockProducts();
+    const orders = initMockOrders();
+    const enquiries = initMockEnquiries();
+
+    const revenue = orders
+      .filter((o) => ['paid', 'packed', 'shipped', 'delivered'].includes(o.status))
+      .reduce((sum, o) => sum + (o.total_paise || 0), 0);
+
+    return {
+      revenue_paise: revenue,
+      revenue_formatted: `₹${(revenue / 100).toLocaleString('en-IN')}`,
+      orders_count: orders.length,
+      products_count: products.length,
+      low_stock_count: products.filter((p) => p.stock_qty <= 5).length,
+      pending_enquiries_count: enquiries.filter((e) => e.status === 'new').length,
+      recent_orders: orders.slice(0, 5),
+    };
+  }
+
+  if (pathname === '/api/v1/admin/orders' && method === 'GET') {
+    const status = searchParams.get('status') || 'all';
+    const q = (searchParams.get('q') || '').trim().toLowerCase();
+
+    let orders = initMockOrders();
+    if (status && status !== 'all') {
+      orders = orders.filter((o) => o.status === status);
+    }
+    if (q) {
+      orders = orders.filter(
+        (o) =>
+          o.order_number.toLowerCase().includes(q) ||
+          o.customer_name.toLowerCase().includes(q) ||
+          o.customer_phone.toLowerCase().includes(q)
+      );
+    }
+    return { items: orders, total: orders.length };
+  }
+
+  if (pathname.startsWith('/api/v1/admin/orders/') && method === 'GET') {
+    const id = pathname.replace('/api/v1/admin/orders/', '');
+    const cleanId = id.replace(/^#/, '');
+    const orders = initMockOrders();
+    const ord = orders.find(
+      (o) =>
+        o.id === id ||
+        o.id === cleanId ||
+        o.order_number === id ||
+        o.order_number.replace(/^#/, '') === cleanId
+    );
+    if (ord) return ord;
+  }
+
+  if (pathname.startsWith('/api/v1/admin/orders/') && pathname.endsWith('/status') && method === 'PATCH') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const orderId = pathname.replace('/api/v1/admin/orders/', '').replace('/status', '');
+    const cleanId = orderId.replace(/^#/, '');
+    const orders = initMockOrders();
+    const ord = orders.find(
+      (o) =>
+        o.id === orderId ||
+        o.id === cleanId ||
+        o.order_number === orderId ||
+        o.order_number.replace(/^#/, '') === cleanId
+    );
+    if (ord && body?.status) {
+      ord.status = body.status;
+      localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
+      return { status: 'success', current_status: ord.status, order: ord };
+    }
+  }
+
+  if (pathname.startsWith('/api/v1/admin/orders/') && pathname.endsWith('/notes') && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const orderId = pathname.replace('/api/v1/admin/orders/', '').replace('/notes', '');
+    const cleanId = orderId.replace(/^#/, '');
+    const orders = initMockOrders();
+    const ord = orders.find(
+      (o) =>
+        o.id === orderId ||
+        o.id === cleanId ||
+        o.order_number === orderId ||
+        o.order_number.replace(/^#/, '') === cleanId
+    );
+    if (ord && body?.text) {
+      if (!ord.notes) ord.notes = [];
+      const newNote = { id: `n-${Date.now()}`, text: body.text, created_at: new Date().toISOString() };
+      ord.notes.push(newNote);
+      localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
+      return newNote;
+    }
   }
 
   // -------------------------------------------------------------
