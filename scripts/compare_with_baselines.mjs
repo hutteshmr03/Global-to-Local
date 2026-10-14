@@ -11,6 +11,16 @@ const TARGET_PAGES = [
   { url: 'http://localhost:5173/shop', name: 'shop', title: 'Shop' },
   { url: 'http://localhost:5173/product-category/chutneys-and-spreads', name: 'category_chutneys', title: 'Category' },
   { url: 'http://localhost:5173/product/pineapple-jam-250-grams', name: 'product_pineapple_jam', title: 'Product Detail' },
+  { url: 'http://localhost:5173/bag', name: 'bag', title: 'Bag' },
+  { url: 'http://localhost:5173/contact', name: 'contact', title: 'Contact' },
+  { url: 'http://localhost:5173/in-the-news', name: 'in_the_news', title: 'In the News' },
+  { url: 'http://localhost:5173/login', name: 'login', title: 'Login' },
+  { url: 'http://localhost:5173/our-social-corner', name: 'our_social_corner', title: 'Our Social Corner' },
+  { url: 'http://localhost:5173/our-story', name: 'our_story', title: 'Our Story' },
+  { url: 'http://localhost:5173/privacy-policy', name: 'privacy', title: 'Privacy Policy' },
+  { url: 'http://localhost:5173/return-and-exchange-policy', name: 'return_policy', title: 'Return Policy' },
+  { url: 'http://localhost:5173/shipping-policy', name: 'shipping_policy', title: 'Shipping Policy' },
+  { url: 'http://localhost:5173/terms-and-conditions', name: 'terms', title: 'Terms' },
 ];
 
 const VIEWPORTS = [

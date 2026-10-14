@@ -1,9 +1,13 @@
+import logging
 import uuid
 from typing import Any, Optional
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+logger = logging.getLogger("backend.errors")
 
 
 class ProblemException(Exception):
@@ -108,3 +112,34 @@ def register_exception_handlers(app: FastAPI) -> None:
             problem_type=f"https://globaltolocal.in/problems/http-{exc.status_code}",
             headers=getattr(exc, "headers", None),
         )
+
+    @app.exception_handler(SQLAlchemyError)
+    async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
+        trace_id = getattr(request.state, "trace_id", f"req_{uuid.uuid4().hex[:12]}")
+        logger.error(
+            f"Database error [trace_id={trace_id}] on {request.method} {request.url.path}: {exc}",
+            exc_info=True,
+        )
+        return build_problem_response(
+            request=request,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            title="Database Error",
+            detail="A database error occurred. Please try again.",
+            problem_type="https://globaltolocal.in/problems/database-error",
+        )
+
+    @app.exception_handler(Exception)
+    async def global_unhandled_exception_handler(request: Request, exc: Exception):
+        trace_id = getattr(request.state, "trace_id", f"req_{uuid.uuid4().hex[:12]}")
+        logger.error(
+            f"Unhandled server error [trace_id={trace_id}] on {request.method} {request.url.path}: {exc}",
+            exc_info=True,
+        )
+        return build_problem_response(
+            request=request,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            title="Internal Server Error",
+            detail="Something went wrong. Please try again.",
+            problem_type="https://globaltolocal.in/problems/internal-server-error",
+        )
+

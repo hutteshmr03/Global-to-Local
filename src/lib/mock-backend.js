@@ -3,10 +3,10 @@ import { products as seedProducts, categories as seedCategories } from './data';
 // LocalStorage Keys
 const STORAGE_USER = 'gtl_mock_auth_user_v1';
 const STORAGE_PRODUCTS = 'gtl_mock_products_v2';
-const STORAGE_ORDERS = 'gtl_mock_orders_v2';
 const STORAGE_CUSTOMERS = 'gtl_mock_customers_v1';
 const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
+const STORAGE_ADDRESSES = 'gtl_mock_addresses_v1';
 
 export const CATEGORY_PREFIXES = {
   'hand-crafted': 'CRFT',
@@ -124,199 +124,6 @@ function initMockProducts() {
   return initial;
 }
 
-function initMockOrders() {
-  const existing = localStorage.getItem(STORAGE_ORDERS);
-  if (existing) {
-    try {
-      const parsed = JSON.parse(existing);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    } catch {}
-  }
-
-  const initial = [
-    {
-      id: '1042',
-      order_number: '#1042',
-      customer_name: 'Sancho Fernandes',
-      customer_email: 'sancho.fernandes@example.com',
-      customer_phone: '+91 98221 45012',
-      recipient_name: 'Sancho Fernandes',
-      city: 'Panaji',
-      state: 'Goa',
-      pincode: '403001',
-      status: 'paid',
-      total_paise: 685000,
-      subtotal_paise: 673000,
-      shipping_paise: 12000,
-      shipping_method: 'Pan-India Standard ₹120',
-      shipping_address: {
-        name: 'Sancho Fernandes',
-        phone: '+91 98221 45012',
-        line1: 'House No. 42, Near Church',
-        city: 'Panaji',
-        state: 'Goa',
-        pincode: '403001',
-      },
-      placed_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-      item_count: 3,
-      items_count: 3,
-      items: [
-        {
-          id: 'item-1',
-          name: 'Goan Kokum Butter Soap',
-          sku: 'WELL-KOKUM-SOAP',
-          unit_label: '100 g',
-          quantity: 2,
-          unit_price_paise: 24000,
-          line_total_paise: 48000,
-          total_price_paise: 48000,
-          image_url: '/images/catalog/old-goa-virgin-coconut-body-oil--lanvendar-200ml.jpg',
-        },
-        {
-          id: 'item-2',
-          name: 'Traditional Chouriço Masala',
-          sku: 'MASL-CHOURICO-MASL',
-          unit_label: '200 g',
-          quantity: 1,
-          unit_price_paise: 193000,
-          line_total_paise: 193000,
-          total_price_paise: 193000,
-          image_url: '/images/catalog/white-chawli-200-grams.jpg',
-        },
-      ],
-      notes: [{ id: 'n1', text: 'Verified Goan pincode 403001', created_at: new Date().toISOString() }],
-    },
-    {
-      id: '1041',
-      order_number: '#1041',
-      customer_name: 'Pooja Naik',
-      customer_email: 'pooja.naik@example.com',
-      customer_phone: '+91 98765 43210',
-      recipient_name: 'Pooja Naik',
-      city: 'Margao',
-      state: 'Goa',
-      pincode: '403601',
-      status: 'packed',
-      total_paise: 420000,
-      subtotal_paise: 412000,
-      shipping_paise: 8000,
-      shipping_method: 'Goa Express ₹80',
-      shipping_address: {
-        name: 'Pooja Naik',
-        phone: '+91 98765 43210',
-        line1: 'Flat 302, Palm View',
-        city: 'Margao',
-        state: 'Goa',
-        pincode: '403601',
-      },
-      placed_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-      item_count: 1,
-      items_count: 1,
-      items: [
-        {
-          id: 'item-3',
-          name: 'Pure Goan Wild Honey',
-          sku: 'CHUT-WILD-HONEY',
-          unit_label: '500 g',
-          quantity: 1,
-          unit_price_paise: 412000,
-          line_total_paise: 412000,
-          total_price_paise: 412000,
-          image_url: '/images/catalog/pineapple-jam-250-grams.jpg',
-        },
-      ],
-      notes: [],
-    },
-    {
-      id: '1039',
-      order_number: '#1039',
-      customer_name: 'Rahul Shenoy',
-      customer_email: 'rahul.s@example.com',
-      customer_phone: '+91 91234 56789',
-      recipient_name: 'Rahul Shenoy',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      pincode: '560001',
-      status: 'shipped',
-      total_paise: 890000,
-      subtotal_paise: 878000,
-      shipping_paise: 12000,
-      shipping_method: 'Pan-India Standard ₹120',
-      shipping_address: {
-        name: 'Rahul Shenoy',
-        phone: '+91 91234 56789',
-        line1: 'B-14, Green Acre Estate',
-        city: 'Bengaluru',
-        state: 'Karnataka',
-        pincode: '560001',
-      },
-      placed_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-      item_count: 4,
-      items_count: 4,
-      items: [
-        {
-          id: 'item-4',
-          name: 'Unpeeled Cashew Nuts 500g',
-          sku: 'FARS-CASHEW-NUTS',
-          unit_label: '500 g',
-          quantity: 2,
-          unit_price_paise: 439000,
-          line_total_paise: 878000,
-          total_price_paise: 878000,
-          image_url: '/images/catalog/unpeeled-cashew-nuts-500-grams.jpg',
-        },
-      ],
-      notes: [],
-    },
-    {
-      id: '1035',
-      order_number: '#1035',
-      customer_name: 'Sunita Kamat',
-      customer_email: 'sunita.kamat@example.com',
-      customer_phone: '+91 94220 11223',
-      recipient_name: 'Sunita Kamat',
-      city: 'Panaji',
-      state: 'Goa',
-      pincode: '403001',
-      status: 'delivered',
-      total_paise: 550000,
-      subtotal_paise: 542000,
-      shipping_paise: 8000,
-      shipping_method: 'Goa Express ₹80',
-      shipping_address: {
-        name: 'Sunita Kamat',
-        phone: '+91 94220 11223',
-        line1: 'Fontainhas Heritage Lane',
-        city: 'Panaji',
-        state: 'Goa',
-        pincode: '403001',
-      },
-      placed_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
-      item_count: 2,
-      items_count: 2,
-      items: [
-        {
-          id: 'item-5',
-          name: 'Goan-themed Blue Mug',
-          sku: 'CRFT-BLUE-MUG',
-          unit_label: 'One piece',
-          quantity: 1,
-          unit_price_paise: 50000,
-          line_total_paise: 50000,
-          total_price_paise: 50000,
-          image_url: '/images/catalog/goan-themed-blue-mug.jpg',
-        },
-      ],
-      notes: [],
-    },
-  ];
-
-  localStorage.setItem(STORAGE_ORDERS, JSON.stringify(initial));
-  return initial;
-}
-
 function initMockCustomers() {
   const existing = localStorage.getItem(STORAGE_CUSTOMERS);
   if (existing) {
@@ -421,6 +228,89 @@ function fileToDataUrl(file) {
   });
 }
 
+export class MockProblemError extends Error {
+  constructor(status, detail) {
+    super(typeof detail === 'string' ? detail : detail?.detail || 'Request failed');
+    this.name = 'ApiProblemError';
+    this.status = status;
+    this.detail = typeof detail === 'string' ? detail : detail?.detail || this.message;
+  }
+}
+
+export function resolveMockProduct(ref) {
+  if (ref === undefined || ref === null || ref === '') return null;
+  const prods = initMockProducts();
+  const refStr = String(ref).trim();
+  const refNum = parseInt(refStr, 10);
+
+  let found = prods.find((p) => {
+    if (String(p.id) === refStr) return true;
+    if (p.slug === refStr) return true;
+    if (p.sku && p.sku.toLowerCase() === refStr.toLowerCase()) return true;
+    if (!isNaN(refNum) && (p.legacy_id === refNum || p.id === `prod-${refNum}`)) return true;
+    return false;
+  });
+
+  if (!found) {
+    const seed = seedProducts.find((sp) => {
+      if (String(sp.id) === refStr) return true;
+      if (sp.slug === refStr) return true;
+      if (sp.sku && sp.sku.toLowerCase() === refStr.toLowerCase()) return true;
+      if (!isNaN(refNum) && sp.id === refNum) return true;
+      return false;
+    });
+    if (seed) {
+      const catSlug = seed.categorySlug || seed.shelfSlug || 'sweet';
+      const pricePaise = seed.pricePaise || seed.price || 28000;
+      found = {
+        id: `prod-${seed.id}`,
+        legacy_id: seed.id,
+        sku: seed.sku || generateIdentifiableSku(seed, new Set()),
+        slug: seed.slug,
+        name: seed.title || seed.name,
+        price_paise: pricePaise,
+        price_formatted: `₹${(pricePaise / 100).toLocaleString('en-IN')}`,
+        stock_qty: 50,
+        reserved_qty: 0,
+        is_active: true,
+        status: 'published',
+        category_name: SHELF_NAMES[catSlug] || 'Sweet',
+        category_slug: catSlug,
+        unit_label: seed.weight || '250 g',
+        net_weight_grams: seed.weightGrams || 250,
+        image_url: seed.imageSrc || '/images/catalog/goan-themed-blue-mug.jpg',
+      };
+    }
+  }
+
+  return found;
+}
+
+function initMockAddresses() {
+  const existing = localStorage.getItem(STORAGE_ADDRESSES);
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+  }
+  const initial = [
+    {
+      id: 'addr-1',
+      recipient_name: 'Goan Shopper',
+      phone: '+91 98765 43210',
+      line1: 'House 14, 31st January Road, Fontainhas',
+      city: 'Panaji',
+      state: 'Goa',
+      pincode: '403001',
+      is_default: true,
+      label: 'Home',
+    },
+  ];
+  localStorage.setItem(STORAGE_ADDRESSES, JSON.stringify(initial));
+  return initial;
+}
+
 /**
  * Handle API requests in client-side Standalone Mode
  */
@@ -458,14 +348,6 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
       user,
       access_token: 'mock-jwt-token-standalonemode',
       csrf_token: 'mock-csrf-token-standalonemode',
-      cart: {
-        id: 'cart-001',
-        user_id: user.id,
-        items: [],
-        item_count: 0,
-        subtotal_paise: 0,
-        total_weight_grams: 0,
-      },
     };
   }
 
@@ -535,23 +417,16 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   // -------------------------------------------------------------
   if (pathname === '/api/v1/admin/dashboard' && method === 'GET') {
     const products = initMockProducts();
-    const orders = initMockOrders();
     const enquiries = initMockEnquiries();
-
-    const revenue = orders
-      .filter((o) => ['paid', 'packed', 'shipped', 'delivered'].includes(o.status))
-      .reduce((sum, o) => sum + (o.total_paise || 0), 0);
-
-    const pending = orders.filter((o) => ['paid', 'packed'].includes(o.status)).length;
 
     return {
       status: 'success',
-      today_orders_count: orders.length,
-      pending_orders_count: pending,
-      revenue_paise: revenue,
+      today_orders_count: 0,
+      pending_orders_count: 0,
+      revenue_paise: 0,
       products_count: products.filter((p) => p.is_active).length,
       new_enquiries_count: enquiries.filter((e) => e.status === 'new').length,
-      recent_orders: orders.slice(0, 5),
+      recent_orders: [],
     };
   }
 
@@ -780,64 +655,6 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   }
 
   // -------------------------------------------------------------
-  // 4. ADMIN ORDERS
-  // -------------------------------------------------------------
-  if (pathname === '/api/v1/admin/orders' && method === 'GET') {
-    const status = searchParams.get('status') || 'all';
-    const q = (searchParams.get('q') || '').trim().toLowerCase();
-
-    let orders = initMockOrders();
-    if (status && status !== 'all') {
-      orders = orders.filter((o) => o.status === status);
-    }
-    if (q) {
-      orders = orders.filter(
-        (o) =>
-          o.order_number.toLowerCase().includes(q) ||
-          o.customer_name.toLowerCase().includes(q) ||
-          o.customer_phone.toLowerCase().includes(q)
-      );
-    }
-    return { items: orders, total: orders.length };
-  }
-
-  if (pathname.startsWith('/api/v1/admin/orders/') && method === 'GET') {
-    const id = pathname.replace('/api/v1/admin/orders/', '');
-    const cleanId = id.replace(/^#/, '');
-    const orders = initMockOrders();
-    const ord = orders.find(
-      (o) =>
-        o.id === id ||
-        o.id === cleanId ||
-        o.order_number === id ||
-        o.order_number.replace(/^#/, '') === cleanId
-    );
-    if (ord) return ord;
-  }
-
-  if (pathname.includes('/transition') && method === 'POST') {
-    let body = options.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch {}
-    }
-    const orderId = pathname.replace('/api/v1/admin/orders/', '').replace('/transition', '');
-    const cleanId = orderId.replace(/^#/, '');
-    const orders = initMockOrders();
-    const ord = orders.find(
-      (o) =>
-        o.id === orderId ||
-        o.id === cleanId ||
-        o.order_number === orderId ||
-        o.order_number.replace(/^#/, '') === cleanId
-    );
-    if (ord && body?.target_status) {
-      ord.status = body.target_status;
-      localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
-      return { status: 'success', current_status: ord.status, order: ord };
-    }
-  }
-
-  // -------------------------------------------------------------
   // 5. ADMIN CUSTOMERS
   // -------------------------------------------------------------
   if (pathname === '/api/v1/admin/customers' && method === 'GET') {
@@ -877,11 +694,141 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
 
   if (pathname === '/api/v1/products' && method === 'GET') {
     const products = initMockProducts();
-    const published = products.filter((p) => p.is_active);
+    const published = products.filter((p) => p.is_active !== false && String(p.status || '').toLowerCase() === 'published');
+    const category = searchParams.get('category') || searchParams.get('shelf');
+    let filtered = published;
+    if (category && category !== 'all') {
+      filtered = filtered.filter((p) => p.category_slug === category || p.categorySlug === category);
+    }
     return {
-      items: published,
-      meta: { total: published.length, page: 1, total_pages: 1 },
+      items: filtered,
+      meta: { total: filtered.length, page: 1, total_pages: 1 },
     };
+  }
+
+  if (pathname.startsWith('/api/v1/products/') && method === 'GET') {
+    const slugOrId = decodeURIComponent(pathname.replace('/api/v1/products/', ''));
+    const prod = resolveMockProduct(slugOrId);
+    if (!prod || prod.is_active === false || String(prod.status || '').toLowerCase() !== 'published') {
+      throw new MockProblemError(404, `Product '${slugOrId}' not found.`);
+    }
+    const prods = initMockProducts();
+    const related = prods
+      .filter((p) => p.category_slug === prod.category_slug && p.id !== prod.id && p.is_active !== false && String(p.status || '').toLowerCase() === 'published')
+      .slice(0, 4);
+    return {
+      ...prod,
+      gallery: prod.images ? prod.images.map((img) => img.url) : [prod.image_url],
+      related_products: related,
+    };
+  }
+
+  // -------------------------------------------------------------
+  // 8. CUSTOMER ADDRESSES (/api/v1/me/addresses)
+  // -------------------------------------------------------------
+  if (pathname === '/api/v1/me/addresses' && method === 'GET') {
+    return { items: initMockAddresses() };
+  }
+
+  if (pathname === '/api/v1/me/addresses' && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const addrs = initMockAddresses();
+    const newAddr = {
+      id: `addr-${Date.now()}`,
+      recipient_name: body?.name || body?.recipient_name || 'Customer',
+      phone: body?.phone || '+91 98765 43210',
+      line1: body?.line1 || '',
+      city: body?.city || 'Panaji',
+      state: body?.state || 'Goa',
+      pincode: body?.pincode || '403001',
+      is_default: addrs.length === 0,
+      label: body?.label || 'Delivery',
+    };
+    addrs.push(newAddr);
+    localStorage.setItem(STORAGE_ADDRESSES, JSON.stringify(addrs));
+    return newAddr;
+  }
+
+  if (pathname.startsWith('/api/v1/me/addresses/') && pathname.endsWith('/default') && method === 'POST') {
+    const addrId = pathname.replace('/api/v1/me/addresses/', '').replace('/default', '');
+    const addrs = initMockAddresses();
+    for (const a of addrs) {
+      a.is_default = a.id === addrId;
+    }
+    localStorage.setItem(STORAGE_ADDRESSES, JSON.stringify(addrs));
+    return { status: 'success' };
+  }
+
+  if (pathname.startsWith('/api/v1/me/addresses/') && method === 'PUT') {
+    const addrId = pathname.replace('/api/v1/me/addresses/', '');
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const addrs = initMockAddresses();
+    const target = addrs.find((a) => a.id === addrId);
+    if (target) {
+      Object.assign(target, body);
+      localStorage.setItem(STORAGE_ADDRESSES, JSON.stringify(addrs));
+    }
+    return target || { status: 'success' };
+  }
+
+  if (pathname.startsWith('/api/v1/me/addresses/') && method === 'DELETE') {
+    const addrId = pathname.replace('/api/v1/me/addresses/', '');
+    let addrs = initMockAddresses();
+    addrs = addrs.filter((a) => a.id !== addrId);
+    localStorage.setItem(STORAGE_ADDRESSES, JSON.stringify(addrs));
+    return { status: 'success' };
+  }
+
+  // -------------------------------------------------------------
+  // 12. CUSTOMER AUTH / PROFILE EXTRA ENDPOINTS
+  // -------------------------------------------------------------
+  if (pathname === '/api/v1/auth/register' && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const user = {
+      id: `user-${Date.now()}`,
+      email: (body?.email || 'shopper@globaltolocal.in').trim().toLowerCase(),
+      phone: body?.phone || '+91 98765 43210',
+      full_name: body?.name || 'Shopper',
+      name: body?.name || 'Shopper',
+      role: 'customer',
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+    localStorage.setItem(STORAGE_USER, JSON.stringify(user));
+    return {
+      user,
+      access_token: 'mock-jwt-token-standalonemode',
+      csrf_token: 'mock-csrf-token-standalonemode',
+    };
+  }
+
+  if (pathname === '/api/v1/auth/password/forgot' && method === 'POST') {
+    return { status: 'success', message: 'Password reset link sent.' };
+  }
+
+  if (pathname === '/api/v1/auth/password/reset' && method === 'POST') {
+    return { status: 'success', message: 'Password has been updated.' };
+  }
+
+  if (pathname === '/api/v1/me' && method === 'PATCH') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const raw = localStorage.getItem(STORAGE_USER);
+    let user = raw ? JSON.parse(raw) : {};
+    user = { ...user, ...body };
+    localStorage.setItem(STORAGE_USER, JSON.stringify(user));
+    return user;
   }
 
   return undefined;

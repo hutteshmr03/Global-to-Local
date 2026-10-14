@@ -15,6 +15,9 @@ export default function LoginPage() {
   const verifyOtp = useAuthStore((state) => state.verifyOtp);
   const registerUser = useAuthStore((state) => state.registerUser);
   const loginWithEmail = useAuthStore((state) => state.loginWithEmail);
+  const setupMfa = useAuthStore((state) => state.setupMfa);
+  const confirmMfa = useAuthStore((state) => state.confirmMfa);
+  const verifyMfa = useAuthStore((state) => state.verifyMfa);
   const forgotPassword = useAuthStore((state) => state.forgotPassword);
   const resetPassword = useAuthStore((state) => state.resetPassword);
 
@@ -42,6 +45,18 @@ export default function LoginPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // MFA State
+  const [mfaStep, setMfaStep] = useState('none'); // 'none' | 'setup' | 'verify'
+  const [mfaTempToken, setMfaTempToken] = useState('');
+  const [mfaSecret, setMfaSecret] = useState('');
+  const [mfaQrUri, setMfaQrUri] = useState('');
+  const [mfaRecoveryCodes, setMfaRecoveryCodes] = useState([]);
+  const [mfaInputCode, setMfaInputCode] = useState('');
+  const [isUsingRecoveryCode, setIsUsingRecoveryCode] = useState(false);
+
+  const [devOtp, setDevOtp] = useState('');
+  const [devTotp, setDevTotp] = useState('');
+
   // Destination after login
   const redirectTarget = searchParams.get('redirect') || '/account';
 
@@ -66,13 +81,23 @@ export default function LoginPage() {
       phone: cleanDigits,
       mode,
       name: fullName.trim() || undefined,
-      email: email.trim() || undefined,
     });
     setIsSubmitting(false);
 
     if (result.error) {
       setErrorMessage(result.error);
       return;
+    }
+
+    if (result.data?.not_registered) {
+      setErrorMessage("No account found with this mobile number. Please click below to register with your name.");
+      return;
+    }
+
+    if (result.data?.dev_otp) {
+      setDevOtp(result.data.dev_otp);
+    } else {
+      setDevOtp('');
     }
 
     setOtpSent(true);
@@ -95,7 +120,6 @@ export default function LoginPage() {
       otp: entered,
       mode,
       name: fullName.trim() || undefined,
-      email: email.trim() || undefined,
     });
     setIsSubmitting(false);
 
@@ -149,10 +173,62 @@ export default function LoginPage() {
         setErrorMessage(result.error);
         return;
       }
+      if (result.mfa_required) {
+        setMfaTempToken(result.temp_token);
+        if (result.current_totp) {
+          setDevTotp(result.current_totp);
+        }
+        if (result.mfa_setup_required) {
+          setIsSubmitting(true);
+          const setupRes = await setupMfa(result.temp_token);
+          setIsSubmitting(false);
+          if (setupRes.ok) {
+            setMfaSecret(setupRes.secret);
+            setMfaQrUri(setupRes.qr_uri);
+            setMfaRecoveryCodes(setupRes.recovery_codes || []);
+            if (setupRes.current_totp) {
+              setDevTotp(setupRes.current_totp);
+            }
+            setMfaStep('setup');
+          } else {
+            setErrorMessage(setupRes.error || 'Failed to start 2FA setup');
+          }
+        } else {
+          setMfaStep('verify');
+        }
+        return;
+      }
       setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
       const destination = result.user?.role === 'admin' ? '/admin' : redirectTarget;
       setTimeout(() => navigate(destination), 500);
     }
+  };
+
+  const handleMfaSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setSuccessMessage('');
+    if (!mfaInputCode.trim()) {
+      setErrorMessage(isUsingRecoveryCode ? 'Please enter a recovery code.' : 'Please enter the 6-digit authenticator code.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    let result;
+    if (mfaStep === 'setup') {
+      result = await confirmMfa(mfaTempToken, mfaInputCode.trim());
+    } else {
+      result = await verifyMfa(mfaTempToken, mfaInputCode.trim());
+    }
+    setIsSubmitting(false);
+
+    if (result.error) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    setSuccessMessage('Admin authentication successful! Redirecting to dashboard...');
+    setTimeout(() => navigate('/admin'), 500);
   };
 
   const handleForgotPassword = async () => {
@@ -255,12 +331,177 @@ export default function LoginPage() {
           <div className="lg:col-span-7 p-6 sm:p-10 xl:p-12 flex flex-col justify-center">
             <div className="mx-auto w-full max-w-md">
               
-              {/* Header Title & Switcher */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-sans text-xs font-bold uppercase tracking-widest text-accent">
-                    {mode === 'signin' ? 'Customer Sign In' : 'New Customer Registration'}
-                  </span>
+              {mfaStep !== 'none' ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShieldCheck className="w-5 h-5 text-palm shrink-0" />
+                    <span className="font-sans text-xs font-bold uppercase tracking-widest text-accent">
+                      {mfaStep === 'setup' ? 'Admin 2FA Setup' : 'Admin Two-Factor Authentication'}
+                    </span>
+                  </div>
+
+                  <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-content">
+                    {mfaStep === 'setup'
+                      ? 'Configure Authenticator'
+                      : isUsingRecoveryCode
+                      ? 'Enter Recovery Code'
+                      : 'Two-Factor Challenge'}
+                  </h1>
+
+                  <p className="mt-1 text-xs sm:text-sm text-content-muted leading-relaxed">
+                    {mfaStep === 'setup'
+                      ? 'Enter the secret key into your authenticator app (Google Authenticator, Microsoft Authenticator, 1Password) to generate verification codes.'
+                      : isUsingRecoveryCode
+                      ? 'Enter one of your 8-character recovery codes (e.g. ABCD-1234).'
+                      : 'Enter the 6-digit code from your authenticator app to access the admin portal.'}
+                  </p>
+
+                  <AnimatePresence>
+                    {successMessage && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="mt-4 flex items-center gap-2.5 rounded-xl border border-palm/40 bg-palm/10 p-3 text-sm font-semibold text-palm"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-palm shrink-0" />
+                        <span>{successMessage}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {mfaStep === 'setup' && (
+                    <div className="mt-4 space-y-3.5">
+                      <div className="rounded-2xl border border-border/80 bg-ground p-3.5">
+                        <span className="block text-[11px] font-semibold text-content-subtle mb-1">
+                          Secret Key (Manual Entry):
+                        </span>
+                        <code className="block font-mono text-xs sm:text-sm font-bold text-palm tracking-wider select-all break-all">
+                          {mfaSecret}
+                        </code>
+                      </div>
+
+                      {mfaRecoveryCodes && mfaRecoveryCodes.length > 0 && (
+                        <div className="rounded-2xl border border-accent/25 bg-accent/5 p-4">
+                          <span className="block text-xs font-bold text-accent mb-1">
+                            Save One-Time Recovery Codes:
+                          </span>
+                          <p className="text-[11px] text-content-muted mb-2">
+                            Save these 10 recovery codes safely. Each code can be used once if you lose access to your authenticator app.
+                          </p>
+                          <div className="grid grid-cols-2 gap-1.5 font-mono text-xs font-semibold text-content select-all">
+                            {mfaRecoveryCodes.map((c, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setMfaInputCode(c)}
+                                className="rounded-lg border border-border/40 bg-surface px-2 py-1 text-center hover:border-palm hover:text-palm transition-colors cursor-pointer"
+                                title="Click to use this recovery code"
+                              >
+                                {c}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {devTotp && !isUsingRecoveryCode && (
+                    <div className="mt-4 rounded-2xl border border-palm/40 bg-palm/10 p-3 flex items-center justify-between">
+                      <div>
+                        <span className="block text-[11px] font-semibold text-content-subtle">
+                          Active Authenticator Code:
+                        </span>
+                        <span className="font-mono text-base font-bold text-palm tracking-widest">
+                          {devTotp}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setMfaInputCode(devTotp)}
+                        className="rounded-pill bg-palm px-2.5 py-1 text-[11px] font-bold text-white hover:bg-palm-shade transition-colors cursor-pointer"
+                      >
+                        Auto-Fill
+                      </button>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleMfaSubmit} className="mt-6 space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-content mb-1">
+                        {mfaStep === 'setup'
+                          ? 'Verification Code (from App) *'
+                          : isUsingRecoveryCode
+                          ? 'Recovery Code *'
+                          : '6-Digit Authenticator Code *'}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        autoFocus
+                        value={mfaInputCode}
+                        onChange={(e) => {
+                          if (errorMessage) setErrorMessage('');
+                          setMfaInputCode(e.target.value);
+                        }}
+                        placeholder={isUsingRecoveryCode ? 'e.g. A1B2-C3D4' : '123456'}
+                        maxLength={isUsingRecoveryCode ? 20 : 8}
+                        className="w-full rounded-pill border border-border bg-ground px-4 py-3 text-sm font-mono tracking-widest text-content outline-none focus:border-palm transition-colors shadow-xs"
+                      />
+                      {errorMessage && (
+                        <p className="mt-1.5 px-3 text-xs font-medium text-accent">{errorMessage}</p>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full flex items-center justify-center gap-2 rounded-pill bg-palm py-3.5 text-sm font-bold text-white hover:bg-palm-shade transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                    >
+                      {isSubmitting
+                        ? 'Verifying...'
+                        : mfaStep === 'setup'
+                        ? 'Confirm & Enable 2FA'
+                        : 'Verify & Sign In'}
+                    </button>
+
+                    <div className="flex items-center justify-between text-xs pt-2">
+                      {mfaStep === 'verify' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsUsingRecoveryCode(!isUsingRecoveryCode);
+                            setMfaInputCode('');
+                            setErrorMessage('');
+                          }}
+                          className="font-semibold text-accent hover:underline cursor-pointer"
+                        >
+                          {isUsingRecoveryCode ? 'Use Authenticator Code' : 'Use a Recovery Code'}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMfaStep('none');
+                          setMfaInputCode('');
+                          setErrorMessage('');
+                        }}
+                        className="text-content-muted hover:text-content hover:underline cursor-pointer ml-auto"
+                      >
+                        ← Back to Sign In
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <>
+                  {/* Header Title & Switcher */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-sans text-xs font-bold uppercase tracking-widest text-accent">
+                        {mode === 'signin' ? 'Customer Sign In' : 'New Customer Registration'}
+                      </span>
                   <div className="flex gap-1 rounded-pill bg-ground p-1 border border-border/40 text-xs">
                     <button
                       type="button"
@@ -466,6 +707,38 @@ export default function LoginPage() {
                         </button>
                       </div>
 
+                      {devOtp ? (
+                        <div className="rounded-xl border border-palm/40 bg-palm/10 p-3 text-xs text-content flex items-center justify-between">
+                          <div>
+                            <span className="font-semibold text-content-subtle">Verification Code: </span>
+                            <span className="font-mono text-sm font-bold tracking-widest text-palm">{devOtp}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setOtpCode(devOtp.split(''))}
+                            className="rounded-pill bg-palm px-2.5 py-1 text-[11px] font-bold text-white hover:bg-palm-shade transition-colors cursor-pointer"
+                          >
+                            Auto-Fill
+                          </button>
+                        </div>
+                      ) : mode === 'signin' ? (
+                        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
+                          <span>If this number is not registered yet, click </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setErrorMessage('');
+                              setMode('signup');
+                              setOtpSent(false);
+                            }}
+                            className="font-bold underline hover:text-amber-950 dark:hover:text-amber-100 cursor-pointer ml-1"
+                          >
+                            Create an account
+                          </button>
+                          <span> to sign up.</span>
+                        </div>
+                      ) : null}
+
                       <div>
                         <label className="block text-xs font-semibold text-content mb-1">Enter 6-Digit OTP</label>
                         <div className="flex gap-2.5 justify-center py-2">
@@ -664,6 +937,8 @@ export default function LoginPage() {
                   </p>
                 )}
               </div>
+              </>
+            )}
 
               {/* Privacy & Terms Note */}
               <p className="mt-4 text-center text-[11px] text-content-subtle leading-relaxed">

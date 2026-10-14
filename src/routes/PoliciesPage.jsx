@@ -37,8 +37,8 @@ const policyData = {
         body: 'If your item arrives damaged in transit, leaking, defective, or expired, please email us at customerservice@globaltolocal.in or call +91 80103 67153 within 48 hours of delivery with photos of the damaged shipment.'
       },
       {
-        heading: 'Refund Process',
-        body: 'Approved refunds are processed back to the original payment method via Razorpay within 3–5 business days.'
+        heading: 'Order Cancellation',
+        body: 'Customers can cancel orders directly while pending payment. For paid orders, please contact the store to cancel.'
       }
     ]
   },
@@ -56,7 +56,7 @@ const policyData = {
       },
       {
         heading: 'Order Acceptance',
-        body: 'We reserve the right to refuse or cancel any order in the event of product unavailability or pricing inaccuracies, in which case any charged amount will be fully refunded.'
+        body: 'We reserve the right to refuse or cancel any order in the event of product unavailability or pricing inaccuracies. For paid orders, please contact the store to cancel.'
       }
     ]
   },

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, Request, status
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy.orm import Session
 from backend.core.errors import ProblemException
-from backend.core.providers import verify_captcha_token
+from backend.core.providers import send_enquiry_acknowledgement_email, verify_captcha_token
 from backend.core.redis import check_rate_limit
 from backend.database import get_db
 from backend.models import (
@@ -251,6 +251,18 @@ def submit_enquiry(
     db.add(enquiry)
     db.commit()
     db.refresh(enquiry)
+
+    # Send acknowledgement email via provider interface
+    try:
+        send_enquiry_acknowledgement_email(
+            to_email=enquiry.email,
+            name=enquiry.name,
+            enquiry_type=enquiry.type.value,
+            subject=enquiry.subject,
+        )
+    except Exception:
+        # Non-blocking email dispatch failure
+        pass
 
     return {
         "id": str(enquiry.id),

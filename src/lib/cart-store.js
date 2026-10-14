@@ -80,7 +80,7 @@ export const useCartStore = create((set, get) => ({
       const serverCart = await apiFetch('/api/v1/cart');
       get().setFromServerCart(serverCart, true);
     } catch {
-      // Keep current state if offline
+      set({ cartError: 'Something went wrong. Please try again.' });
     }
   },
 
@@ -93,6 +93,11 @@ export const useCartStore = create((set, get) => ({
   },
 
   addItem: async (product, qty = 1, options = { openDrawer: false }) => {
+    if (!product || product.is_active === false || product.status === 'Hidden' || product.status === 'Draft') {
+      set({ cartError: 'This product is currently unavailable.' });
+      return;
+    }
+
     const prevItems = get().items;
     const isLoggedIn = get().isLoggedIn;
     const existing = prevItems.find(
@@ -135,13 +140,19 @@ export const useCartStore = create((set, get) => ({
       });
       const synced = mapServerCartToStoreItems(serverCart);
       saveGuestItems(synced, isLoggedIn);
-      set({ items: synced });
+      set({ items: synced, cartError: null });
     } catch (err) {
-      // Roll back optimistic state on server refusal (e.g. out of stock or > 20)
+      // Roll back optimistic state on any failure
       saveGuestItems(prevItems, isLoggedIn);
+      const friendlyDetail =
+        err?.status === 404
+          ? 'This product is currently unavailable.'
+          : err?.status === 409 || err?.status === 422
+          ? (err.detail || err.message || 'Unable to add item to bag.')
+          : 'Something went wrong. Please try again.';
       set({
         items: prevItems,
-        cartError: err.detail || err.message || 'Unable to add item to bag.',
+        cartError: friendlyDetail,
       });
     }
   },
@@ -173,12 +184,19 @@ export const useCartStore = create((set, get) => ({
       });
       const synced = mapServerCartToStoreItems(serverCart);
       saveGuestItems(synced, isLoggedIn);
-      set({ items: synced });
+      set({ items: synced, cartError: null });
     } catch (err) {
+      // Roll back optimistic state on any failure
       saveGuestItems(prevItems, isLoggedIn);
+      const friendlyDetail =
+        err?.status === 404
+          ? 'This product is currently unavailable.'
+          : err?.status === 409 || err?.status === 422
+          ? (err.detail || err.message || 'Could not update item quantity.')
+          : 'Something went wrong. Please try again.';
       set({
         items: prevItems,
-        cartError: err.detail || err.message || 'Could not update item quantity.',
+        cartError: friendlyDetail,
       });
     }
   },
@@ -199,9 +217,14 @@ export const useCartStore = create((set, get) => ({
       });
       const synced = mapServerCartToStoreItems(serverCart);
       saveGuestItems(synced, isLoggedIn);
-      set({ items: synced });
-    } catch {
-      // Keep local removal if network fails
+      set({ items: synced, cartError: null });
+    } catch (err) {
+      // Roll back optimistic removal on any failure
+      saveGuestItems(prevItems, isLoggedIn);
+      set({
+        items: prevItems,
+        cartError: 'Something went wrong. Please try again.',
+      });
     }
   },
 

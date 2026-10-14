@@ -156,7 +156,8 @@ class AdminStockChangePayload(BaseModel):
 
 
 class AdminStatusChangePayload(BaseModel):
-    is_active: bool
+    is_active: Optional[bool] = None
+    status: Optional[str] = None
 
 
 class AdminProductImageIn(BaseModel):
@@ -177,7 +178,6 @@ class AdminCreateProductPayload(BaseModel):
     category_slug: Optional[str] = None
     price_rupees: Optional[float] = None
     price_paise: Optional[int] = None
-    compare_at_paise: Optional[int] = None
     unit_label: str = Field(default="1 unit", max_length=60)
     net_weight_grams: Optional[int] = None
     weight_grams: Optional[int] = None
@@ -185,6 +185,7 @@ class AdminCreateProductPayload(BaseModel):
     short_description: Optional[str] = None
     origin_text: Optional[str] = None
     origin: Optional[str] = None
+    made_by: Optional[str] = None
     stock_qty: int = Field(default=50, ge=0)
     low_stock_threshold: int = Field(default=5, ge=0)
     is_featured: bool = False
@@ -209,6 +210,7 @@ class AdminUpdateProductPayload(BaseModel):
     short_description: Optional[str] = None
     origin_text: Optional[str] = None
     origin: Optional[str] = None
+    made_by: Optional[str] = None
     stock_qty: Optional[int] = Field(None, ge=0)
     low_stock_threshold: Optional[int] = Field(None, ge=0)
     is_featured: Optional[bool] = None
@@ -263,6 +265,7 @@ def list_admin_products(
             "net_weight_grams": p.net_weight_grams,
             "description": p.description or "",
             "origin_text": p.origin_text or "Made in Goa",
+            "made_by": p.made_by or (p.maker.name if p.maker else ""),
             "is_featured": p.is_featured,
             "image_url": p.images[0].url if p.images else "/images/catalog/goan-themed-blue-mug.jpg",
             "images": [
@@ -484,14 +487,16 @@ def create_admin_product(
         sku=clean_sku,
         category_id=category.id,
         price_paise=final_price_paise,
-        compare_at_paise=payload.compare_at_paise,
+        compare_at_paise=None,
         unit_label=payload.unit_label.strip() or "1 unit",
         net_weight_grams=final_weight,
         description=payload.description.strip() if payload.description else None,
         short_description=payload.short_description.strip() if payload.short_description else (payload.description[:300].strip() if payload.description else None),
         origin_text=final_origin,
+        made_by=payload.made_by.strip() if payload.made_by else None,
         is_featured=payload.is_featured,
         is_active=is_active,
+        status=status_str,
         published_at=published_at,
         availability=avail,
     )
@@ -669,10 +674,15 @@ def update_admin_product_details(
         product.description = payload.description.strip()
     if payload.origin_text is not None or payload.origin is not None:
         product.origin_text = (payload.origin_text or payload.origin).strip()
+    if payload.made_by is not None:
+        product.made_by = payload.made_by.strip() if payload.made_by else None
     if payload.is_featured is not None:
         product.is_featured = payload.is_featured
     if payload.status:
         st = payload.status.strip().lower()
+        if st not in ["published", "draft", "hidden", "archived"]:
+            st = "published"
+        product.status = st
         if st == "published":
             product.is_active = True
             if not product.published_at:
@@ -680,8 +690,11 @@ def update_admin_product_details(
             product.availability = AvailabilityState.in_stock
         elif st == "hidden":
             product.is_active = False
-            product.availability = AvailabilityState.archived
-        else: # draft
+            product.availability = AvailabilityState.out_of_stock
+        elif st == "archived":
+            product.is_active = False
+            product.availability = AvailabilityState.discontinued
+        else:  # draft
             product.is_active = False
             product.availability = AvailabilityState.in_stock
 
@@ -858,22 +871,38 @@ def toggle_product_status(
     if not product:
         raise ProblemException(status_code=404, title="Product Not Found", detail="Product does not exist.")
 
-    old_status = product.is_active
-    new_status = payload.is_active
     client_ip = request.client.host if request.client else "127.0.0.1"
+
+    if payload.status is not None:
+        new_status_str = payload.status.strip().lower()
+        if new_status_str not in ["published", "draft", "hidden", "archived"]:
+            new_status_str = "published"
+        new_is_active = (new_status_str == "published")
+    elif payload.is_active is not None:
+        new_is_active = payload.is_active
+        new_status_str = "published" if new_is_active else "hidden"
+    else:
+        new_is_active = not product.is_active
+        new_status_str = "published" if new_is_active else "hidden"
+
+    old_active = product.is_active
+    old_status = getattr(product, "status", "published")
 
     audit_entry = AuditLog(
         actor_user_id=admin.id,
         action="toggle_status",
         entity_type="product_status",
         entity_id=str(product.id),
-        before_state={"is_active": old_status},
-        after_state={"is_active": new_status},
+        before_state={"is_active": old_active, "status": old_status},
+        after_state={"is_active": new_is_active, "status": new_status_str},
         ip_address=client_ip,
     )
     db.add(audit_entry)
 
-    product.is_active = new_status
+    product.is_active = new_is_active
+    product.status = new_status_str
+    if new_status_str == "published" and not product.published_at:
+        product.published_at = datetime.now(timezone.utc)
     product.updated_at = datetime.now(timezone.utc)
     db.commit()
 
@@ -881,6 +910,7 @@ def toggle_product_status(
         "status": "success",
         "product_id": str(product.id),
         "is_active": product.is_active,
+        "product_status": product.status,
     }
 
 

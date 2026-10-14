@@ -180,7 +180,7 @@ export const useAuthStore = create((set, get) => ({
         body: {
           name: userData.name?.trim(),
           email: userData.email?.trim(),
-          password: userData.password || 'GoaHeritage!2026',
+          password: userData.password,
           phone: userData.phone || undefined,
           guest_items: guestItems,
         },
@@ -210,6 +210,16 @@ export const useAuthStore = create((set, get) => ({
           guest_items: guestItems,
         },
       });
+      if (res.mfa_required) {
+        return {
+          ok: true,
+          mfa_required: true,
+          mfa_setup_required: Boolean(res.mfa_setup_required),
+          temp_token: res.temp_token,
+          user: res.user,
+          current_totp: res.current_totp,
+        };
+      }
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
@@ -221,6 +231,59 @@ export const useAuthStore = create((set, get) => ({
       return { ok: true, user: hydrated || mapServerUserToUiUser(res.user) };
     } catch (err) {
       return { ok: false, error: err.detail || err.message || 'Invalid email address or password.' };
+    }
+  },
+
+  setupMfa: async (tempToken) => {
+    try {
+      const res = await apiFetch('/api/v1/auth/mfa/setup', {
+        method: 'POST',
+        body: { temp_token: tempToken },
+      });
+      return { ok: true, secret: res.secret, qr_uri: res.qr_uri, recovery_codes: res.recovery_codes, current_totp: res.current_totp };
+    } catch (err) {
+      return { ok: false, error: err.detail || err.message || 'Failed to initiate 2FA setup.' };
+    }
+  },
+
+  confirmMfa: async (tempToken, code) => {
+    try {
+      const res = await apiFetch('/api/v1/auth/mfa/confirm', {
+        method: 'POST',
+        body: { temp_token: tempToken, code },
+      });
+      setClientAuthTokens({
+        csrfToken: res.csrf_token,
+        accessToken: res.access_token,
+      });
+      if (res.cart) {
+        useCartStore.getState().setFromServerCart(res.cart, true);
+      }
+      const hydrated = await get().hydrateSession();
+      return { ok: true, user: hydrated || mapServerUserToUiUser(res.user) };
+    } catch (err) {
+      return { ok: false, error: err.detail || err.message || 'Invalid 6-digit code. Please try again.' };
+    }
+  },
+
+  verifyMfa: async (tempToken, code) => {
+    try {
+      const guestItems = useCartStore.getState().getGuestItemsPayload();
+      const res = await apiFetch('/api/v1/auth/mfa/verify', {
+        method: 'POST',
+        body: { temp_token: tempToken, code, guest_items: guestItems },
+      });
+      setClientAuthTokens({
+        csrfToken: res.csrf_token,
+        accessToken: res.access_token,
+      });
+      if (res.cart) {
+        useCartStore.getState().setFromServerCart(res.cart, true);
+      }
+      const hydrated = await get().hydrateSession();
+      return { ok: true, user: hydrated || mapServerUserToUiUser(res.user) };
+    } catch (err) {
+      return { ok: false, error: err.detail || err.message || 'Invalid 2FA code or recovery code.' };
     }
   },
 

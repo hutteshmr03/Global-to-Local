@@ -1,10 +1,14 @@
+import base64
 import hashlib
 import hmac
+import json
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, InvalidHashError
+from cryptography.fernet import Fernet
+import pyotp
 from fastapi import Request, Response
 from jose import JWTError, jwt
 from backend.config import settings
@@ -191,4 +195,110 @@ def enforce_csrf_if_cookie_auth(request: Request) -> None:
                 detail="Missing or invalid CSRF token on cookie-authenticated write request.",
                 problem_type="https://globaltolocal.in/problems/csrf-failed",
             )
+
+
+# =====================================================================
+# ADMIN 2FA (TOTP, RECOVERY CODES & SECRET ENCRYPTION)
+# =====================================================================
+
+def get_fernet_cipher() -> Fernet:
+    key_bytes = hashlib.sha256(settings.JWT_SECRET_KEY.encode("utf-8")).digest()
+    fernet_key = base64.urlsafe_b64encode(key_bytes)
+    return Fernet(fernet_key)
+
+
+def encrypt_totp_secret(secret: str) -> str:
+    cipher = get_fernet_cipher()
+    return cipher.encrypt(secret.encode("utf-8")).decode("utf-8")
+
+
+def decrypt_totp_secret(encrypted_secret: str) -> str:
+    cipher = get_fernet_cipher()
+    return cipher.decrypt(encrypted_secret.encode("utf-8")).decode("utf-8")
+
+
+def generate_totp_secret() -> str:
+    return pyotp.random_base32()
+
+
+def get_totp_uri(secret: str, email: str) -> str:
+    totp = pyotp.TOTP(secret)
+    return totp.provisioning_uri(name=email, issuer_name="Global to Local Admin")
+
+
+def verify_totp_code(secret: str, code: str) -> bool:
+    clean_code = str(code).strip().replace(" ", "").replace("-", "")
+    totp = pyotp.TOTP(secret)
+    return bool(totp.verify(clean_code, valid_window=1))
+
+
+def generate_recovery_codes(n: int = 10) -> tuple[list[str], list[str]]:
+    """Generate n plain recovery codes and their SHA-256 hashes."""
+    plain: list[str] = []
+    hashed: list[str] = []
+    for _ in range(n):
+        part1 = secrets.token_hex(2).upper()
+        part2 = secrets.token_hex(2).upper()
+        code = f"{part1}-{part2}"
+        plain.append(code)
+        h = hashlib.sha256(code.encode("utf-8")).hexdigest()
+        hashed.append(h)
+    return plain, hashed
+
+
+def verify_and_consume_recovery_code(code: str, stored_json: Optional[str]) -> tuple[bool, Optional[str]]:
+    """
+    Verifies if a recovery code matches one of the stored hashes.
+    If matched, consumes it and returns (True, updated_json_string).
+    """
+    if not stored_json:
+        return False, stored_json
+    try:
+        hashes = json.loads(stored_json)
+        if not isinstance(hashes, list):
+            return False, stored_json
+    except Exception:
+        return False, stored_json
+
+    clean_code = code.strip().upper()
+    target_hash = hashlib.sha256(clean_code.encode("utf-8")).hexdigest()
+
+    if target_hash in hashes:
+        hashes.remove(target_hash)
+        return True, json.dumps(hashes)
+
+    return False, stored_json
+
+
+def create_2fa_temp_token(user_id: str, email: Optional[str] = None) -> str:
+    now = datetime.now(timezone.utc)
+    expire = now + timedelta(minutes=5)
+    payload = {
+        "sub": str(user_id),
+        "email": email,
+        "type": "2fa_temp",
+        "iat": int(now.timestamp()),
+        "exp": int(expire.timestamp()),
+    }
+    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm="HS256")
+
+
+def decode_2fa_temp_token(token: str) -> dict[str, Any]:
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
+        if payload.get("type") != "2fa_temp":
+            raise ProblemException(
+                status_code=401,
+                title="Unauthorized",
+                detail="Invalid 2FA challenge token.",
+                problem_type="https://globaltolocal.in/problems/invalid-token",
+            )
+        return payload
+    except JWTError:
+        raise ProblemException(
+            status_code=401,
+            title="Unauthorized",
+            detail="2FA session expired. Please log in again.",
+            problem_type="https://globaltolocal.in/problems/invalid-token",
+        )
 

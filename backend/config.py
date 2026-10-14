@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     CAPTCHA_SECRET_KEY: str = "1x0000000000000000000000000000000AA"
 
     ADMIN_EMAIL: str = "admin@globaltolocal.in"
-    ADMIN_PASSWORD: str = "ChangeMeAdmin!2026"
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "")
     ADMIN_FULL_NAME: str = "Asha Arondekar"
 
     @model_validator(mode="after")

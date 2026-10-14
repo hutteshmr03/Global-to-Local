@@ -16,7 +16,7 @@ def create_admin() -> None:
     if not admin_email or not admin_password:
         print("ERROR: ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required.", file=sys.stderr)
         print("Example usage:", file=sys.stderr)
-        print("  ADMIN_EMAIL=admin@globaltolocal.in ADMIN_PASSWORD=GoaHeritageAdmin123! python -m backend.cli create-admin", file=sys.stderr)
+        print("  ADMIN_EMAIL=admin@globaltolocal.in ADMIN_PASSWORD=your_secure_password python -m backend.cli create-admin", file=sys.stderr)
         sys.exit(1)
 
     db = SessionLocal()
@@ -81,16 +81,19 @@ def reset_admin() -> None:
         admin_user.email = admin_email
         admin_user.password_hash = hash_password(admin_password)
         admin_user.is_active = True
+        admin_user.totp_enabled = False
+        admin_user.totp_secret_encrypted = None
+        admin_user.recovery_codes_hash = None
         admin_user.updated_at = datetime.now(timezone.utc)
         db.commit()
-        print(f"SUCCESS: Admin account for '{admin_email}' has been reset and reactivated.")
+        print(f"SUCCESS: Admin account for '{admin_email}' has been reset, reactivated, and 2FA reset for fresh setup.")
     finally:
         db.close()
 
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python -m backend.cli [create-admin | reset-admin]", file=sys.stderr)
+        print("Usage: python -m backend.cli [create-admin | reset-admin | seed-demo]", file=sys.stderr)
         sys.exit(1)
 
     command = sys.argv[1].lower()
@@ -98,8 +101,11 @@ def main() -> None:
         create_admin()
     elif command == "reset-admin":
         reset_admin()
+    elif command == "seed-demo":
+        from scripts.seed_demo_data import seed_demo_data
+        seed_demo_data()
     else:
-        print(f"Unknown command '{command}'. Available: create-admin, reset-admin", file=sys.stderr)
+        print(f"Unknown command '{command}'. Available: create-admin, reset-admin, seed-demo", file=sys.stderr)
         sys.exit(1)
 
 

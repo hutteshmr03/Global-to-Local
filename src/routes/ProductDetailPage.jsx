@@ -10,7 +10,7 @@ import NotFoundPage from './NotFoundPage';
 
 export default function ProductDetailPage() {
   const { slug } = useParams();
-  const { data: product } = useProductDetail(slug);
+  const { data: product, isLoading } = useProductDetail(slug);
   const { data: categories = [] } = useCategories();
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -22,13 +22,54 @@ export default function ProductDetailPage() {
   });
   const flyToCart = useFlyToCart();
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <main id="main-content" className="pt-24 sm:pt-28 pb-16 sm:pb-20 bg-ground min-h-screen">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-24 text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-palm border-t-transparent mb-3" />
+          <p className="text-xs font-semibold text-content-muted">Loading product details...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!product || product.is_active === false || product.status === 'Hidden' || product.status === 'Draft') {
     return <NotFoundPage />;
   }
 
   const category = product.category || categories.find(c => c.slug === product.categorySlug);
   const images = product.gallery && product.gallery.length > 0 ? product.gallery : [product.imageSrc];
-  const relatedProducts = product.related_products || [];
+  const relatedProducts = (product.related_products || []).filter(
+    (p) => p && p.is_active !== false && p.status !== 'Hidden' && p.status !== 'Draft'
+  );
+
+  const categoryMakerMap = {
+    kunbi: 'Kunbi weavers, Goa',
+    masala: 'Self-help group kitchens, Goa',
+    'papads-pickles': 'Self-help group kitchens, Goa',
+    'papads-and-pickles': 'Self-help group kitchens, Goa',
+    'chutneys-and-spreads': 'Self-help group kitchens, Goa',
+    'chutneys-spreads': 'Self-help group kitchens, Goa',
+    'hand-crafted': 'Goan makers',
+    'sustainable-products': 'Goan makers',
+    wellness: 'Goan makers',
+    sweet: 'Traditional Goan confectioners',
+    farsaan: 'Goan bakers & snack makers',
+    seafood: 'Coastal Goan fisherfolk collectives',
+    'oils-and-vinegars': 'Goan cold-press mills & distilleries',
+    'oils-vinegars': 'Goan cold-press mills & distilleries',
+    grains: 'Heritage Goan paddy farmers',
+    spices: 'Goan spice estates & growers',
+  };
+
+  const madeByText =
+    product.made_by ||
+    product.madeBy ||
+    (product.maker && product.maker.name) ||
+    (product.slug && product.slug.startsWith('mitti-') ? 'Mitti potters, Goa' : null) ||
+    categoryMakerMap[product.categorySlug] ||
+    categoryMakerMap[category?.slug] ||
+    'Goan makers';
 
   const handleAddToCart = (e) => {
     if (e) {
@@ -94,15 +135,22 @@ export default function ProductDetailPage() {
 
           {/* Right: Info & Purchase Controls (Aligned to top, filling right column) */}
           <div className="lg:col-span-6 flex flex-col justify-start w-full">
-            {/* Category Tag */}
-            {category && (
-              <Link
-                to={`/product-category/${category.slug}`}
-                className="font-sans text-xs font-bold uppercase tracking-[0.16em] text-accent hover:underline"
-              >
-                {category.name}
-              </Link>
-            )}
+            {/* Category Tag & Badges */}
+            <div className="flex flex-wrap items-center gap-2">
+              {category && (
+                <Link
+                  to={`/product-category/${category.slug}`}
+                  className="rounded-full bg-surface-muted/90 border border-border/50 px-3 py-1 font-sans text-xs font-semibold text-content hover:border-accent hover:text-accent transition-colors"
+                >
+                  {category.name}
+                </Link>
+              )}
+              {(product.bestSeller || product.is_featured) && (
+                <span className="rounded-full bg-[#faeedd] border border-[#d97757]/30 px-3 py-1 text-xs font-semibold text-[#b85433]">
+                  Best seller
+                </span>
+              )}
+            </div>
 
             <h1 className="mt-2 font-display text-3xl sm:text-4xl lg:text-[2.65rem] font-bold tracking-tight text-content leading-tight">
               {product.name}
@@ -113,9 +161,11 @@ export default function ProductDetailPage() {
               <span className="font-sans text-3xl sm:text-4xl font-bold tabular-nums tracking-tight text-content">
                 {formatPrice(product.price)}
               </span>
-              <span className="text-sm font-medium text-content-muted">
-                inclusive of all taxes / {product.weight}
-              </span>
+              {(product.weight || product.unit_label) && (
+                <span className="text-sm font-medium text-content-muted">
+                  {product.weight || product.unit_label}
+                </span>
+              )}
             </div>
 
             {/* Description */}
@@ -124,6 +174,14 @@ export default function ProductDetailPage() {
                 {product.description || product.shortDescription || 'Authentic Goan specialty product prepared following age-old traditional recipes and methods.'}
               </p>
             </div>
+
+            {/* Made by Callout with terracotta accent line (Matches Image 1) */}
+            {madeByText && (
+              <div className="mt-4 flex items-center border-l-2 border-[#d97757]/60 pl-3 py-0.5">
+                <span className="text-sm text-content-muted">Made by&nbsp;</span>
+                <span className="text-sm font-semibold text-content">{madeByText}</span>
+              </div>
+            )}
 
             {/* Availability Status */}
             <div className="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold">

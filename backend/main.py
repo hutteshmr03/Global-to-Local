@@ -102,10 +102,32 @@ def health_liveness():
     return {"status": "ok", "service": "global-to-local-api", "env": settings.APP_ENV}
 
 
+@app.get("/api/v1/ready", tags=["System"])
 @app.get("/api/v1/health/ready", tags=["System"])
 def health_readiness(db: Session = Depends(get_db)):
-    db.execute(text("SELECT 1"))
-    return {"status": "ready", "database": "connected", "checks": {"postgres": "ok", "redis": "ok"}}
+    pg_status = "ok"
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        pg_status = f"error: {e}"
+
+    redis_status = "ok"
+    try:
+        from backend.core.redis import get_redis
+        r = get_redis()
+        r.ping()
+    except Exception as e:
+        redis_status = f"error: {e}"
+
+    if pg_status != "ok" or redis_status != "ok":
+        raise ProblemException(
+            status_code=503,
+            title="Service Unavailable",
+            detail=f"Service not ready. Postgres: {pg_status}, Redis: {redis_status}",
+            problem_type="https://globaltolocal.in/problems/not-ready",
+        )
+
+    return {"status": "ready", "database": "connected", "checks": {"postgres": pg_status, "redis": redis_status}}
 
 
 @app.get("/api/v1/dev/outbox", tags=["Development Only"])

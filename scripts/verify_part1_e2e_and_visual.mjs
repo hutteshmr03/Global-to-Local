@@ -308,6 +308,7 @@ async function main() {
     console.log('6. Running Email Sign-Up, Bag-with-Items, Checkout (Razorpay Test Mode), Order History & Two-Browser Proof...');
     const uniqueEmail = `goa.proof.${Date.now()}@example.com`;
     const uniqueName = 'Asha Fontainhas Proof';
+    const uniquePassword = 'TestPwd_' + Math.random().toString(36).slice(2) + '!';
     let createdOrderNumber = null;
 
     const context1 = await browser.newContext({
@@ -336,7 +337,7 @@ async function main() {
     await page1.click('button:has-text("Create an account")');
     await page1.fill('input[placeholder*="Maria"]', uniqueName);
     await page1.fill('input[type="email"]', uniqueEmail);
-    await page1.fill('input[placeholder="••••••••"]', 'GoaHeritage123!');
+    await page1.fill('input[placeholder="••••••••"]', uniquePassword);
     await page1.click('form button[type="submit"]');
 
     await page1.waitForURL('**/checkout', { timeout: 10000 });
@@ -413,7 +414,7 @@ async function main() {
     await page2.goto(`${FRONTEND_URL}/login`, { waitUntil: 'networkidle' });
     await page2.click('button:has-text("Email")');
     await page2.fill('input[type="email"]', uniqueEmail);
-    await page2.fill('input[placeholder="••••••••"]', 'GoaHeritage123!');
+    await page2.fill('input[placeholder="••••••••"]', uniquePassword);
     await page2.click('form button[type="submit"]');
 
     await page2.waitForURL('**/account', { timeout: 10000 });

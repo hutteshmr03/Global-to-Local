@@ -21,6 +21,7 @@ import {
   Star,
 } from 'lucide-react';
 import { apiFetch } from '../../lib/api-client';
+import { queryClient } from '../../lib/catalogue-hooks';
 
 const SHELVES = [
   { slug: 'all', name: 'All 13 Shelves' },
@@ -87,6 +88,83 @@ function generateSkuFromName(name, shelfSlug) {
   return code ? `${prefix}-${code}` : `${prefix}-NEW-ITEM`;
 }
 
+function cleanNameDashes(str) {
+  if (!str) return '';
+  let s = str.replace(/\s*[-–—]\s*/g, ' ');
+  s = s.replace(/Goan themed/gi, 'Goan-themed').replace(/Khat khate/gi, 'Khat-khate');
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+export const CATEGORY_DEFAULT_MAKERS = {
+  kunbi: 'Kunbi weavers, Goa',
+  masala: 'Self-help group kitchens, Goa',
+  'papads-pickles': 'Self-help group kitchens, Goa',
+  'papads-and-pickles': 'Self-help group kitchens, Goa',
+  'chutneys-and-spreads': 'Self-help group kitchens, Goa',
+  'chutneys-spreads': 'Self-help group kitchens, Goa',
+  'hand-crafted': 'Goan makers',
+  'sustainable-products': 'Goan makers',
+  wellness: 'Goan makers',
+  sweet: 'Traditional Goan confectioners',
+  farsaan: 'Goan bakers & snack makers',
+  seafood: 'Coastal Goan fisherfolk collectives',
+  'oils-and-vinegars': 'Goan cold-press mills & distilleries',
+  'oils-vinegars': 'Goan cold-press mills & distilleries',
+  grains: 'Heritage Goan paddy farmers',
+  spices: 'Goan spice estates & growers',
+};
+
+export function parseWeight(str) {
+  const s = (str || '').trim();
+  const match = s.match(/(\d+)\s*(kg|g|gm|grams|ml|l)?/i);
+  if (match) {
+    const val = parseInt(match[1], 10);
+    const unit = (match[2] || 'g').toLowerCase();
+    const grams = unit === 'kg' || unit === 'l' ? val * 1000 : val;
+    return {
+      unit_label: s.toLowerCase().includes('piece') ? 'One piece' : match[2] ? s : `${val} g`,
+      weight_grams: Math.max(1, grams),
+    };
+  }
+  return {
+    unit_label: s || 'One piece',
+    weight_grams: 250,
+  };
+}
+
+export function formatProductDisplayName(product) {
+  if (!product) return '';
+  const rawName = (product.name || '').trim();
+  const unit = (product.unit_label || '').trim();
+
+  // Pattern matches weight or quantity specification (e.g. 80 grams, 200 g, 500 ml, 1 Kg, pack of 4, per piece)
+  const qtyPattern = /[-–—]?\s*\b(\d+\s*(?:grams?|gm?|g|kg|kgs?|kilo(?:gram)?s?|ml|l|ltr|litres?|liters?|pieces?|pcs)|pack\s+of\s+\d+|per\s+piece)\b/i;
+
+  const match = rawName.match(qtyPattern);
+  if (match) {
+    const weightStr = match[1].trim();
+    let baseName = rawName.slice(0, match.index).trim();
+    baseName = baseName.replace(/[-–—,]\s*$/, '').trim();
+    const remainder = rawName.slice(match.index + match[0].length).trim();
+    if (remainder) {
+      baseName = `${baseName} ${remainder}`.trim();
+    }
+    baseName = cleanNameDashes(baseName);
+    if (baseName) {
+      return `${baseName} • ${weightStr}`;
+    }
+    return `${cleanNameDashes(rawName)} • ${weightStr}`;
+  }
+
+  const cleaned = cleanNameDashes(rawName);
+  // If no weight in name, format as name • One piece / unit_label
+  if (unit) {
+    return `${cleaned} • ${unit}`;
+  }
+
+  return cleaned;
+}
+
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -114,18 +192,14 @@ export default function AdminProducts() {
   const [formProduct, setFormProduct] = useState(null); // null = Add, obj = Edit Details
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
-    sku: '',
-    shelf_slug: 'spices',
+    shelf_slug: 'chutneys-and-spreads',
     price_rupees: '',
-    unit_label: '250 g',
-    weight_grams: '250',
+    weight: '100 g',
+    made_by: 'Self-help group kitchens, Goa',
     description: '',
-    origin: 'Made in Goa',
     stock_qty: '50',
     low_stock_threshold: '5',
-    is_featured: false,
-    status: 'Published',
+    status: 'published',
     images: [],
   });
   const [formErrors, setFormErrors] = useState({});
@@ -252,6 +326,11 @@ export default function AdminProducts() {
         )
       );
 
+      // Invalidate customer queries
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['collection'] });
+
       setTimeout(() => {
         setEditingProduct(null);
       }, 900);
@@ -270,8 +349,12 @@ export default function AdminProducts() {
         body: { is_active: nextStatus },
       });
       setProducts((prev) =>
-        prev.map((p) => (p.id === prod.id ? { ...p, is_active: nextStatus } : p))
+        prev.map((p) => (p.id === prod.id ? { ...p, is_active: nextStatus, status: nextStatus ? 'Published' : 'Hidden' } : p))
       );
+      // Invalidate customer-facing catalogue queries so changes reflect immediately
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['collection'] });
     } catch (err) {
       alert(err.detail || err.message || 'Failed to toggle status');
     }
@@ -299,18 +382,14 @@ export default function AdminProducts() {
 
     setFormData({
       name: '',
-      slug: '',
-      sku: '',
-      shelf_slug: 'spices',
+      shelf_slug: 'chutneys-and-spreads',
       price_rupees: '',
-      unit_label: '250 g',
-      weight_grams: '250',
+      weight: '100 g',
+      made_by: CATEGORY_DEFAULT_MAKERS['chutneys-and-spreads'] || 'Self-help group kitchens, Goa',
       description: '',
-      origin: 'Made in Goa',
       stock_qty: '50',
       low_stock_threshold: '5',
-      is_featured: false,
-      status: 'Published',
+      status: 'published',
       images: [],
     });
     setIsFormOpen(true);
@@ -339,20 +418,19 @@ export default function AdminProducts() {
       ];
     }
 
+    const currentShelf = prod.shelf_slug || prod.category_slug || 'chutneys-and-spreads';
+    const fallbackMaker = CATEGORY_DEFAULT_MAKERS[currentShelf] || 'Goan makers';
+
     setFormData({
       name: prod.name || '',
-      slug: prod.slug || '',
-      sku: prod.sku || '',
-      shelf_slug: prod.shelf_slug || prod.category_slug || 'spices',
+      shelf_slug: currentShelf,
       price_rupees: ((prod.price_paise || 0) / 100).toString(),
-      unit_label: prod.unit_label || '250 g',
-      weight_grams: (prod.weight_grams ?? 250).toString(),
+      weight: prod.unit_label || (prod.net_weight_grams ? `${prod.net_weight_grams} g` : '100 g'),
+      made_by: prod.made_by || prod.madeBy || (prod.maker && prod.maker.name) || fallbackMaker,
       description: prod.description || '',
-      origin: prod.origin || 'Made in Goa',
       stock_qty: (prod.stock_qty ?? 50).toString(),
       low_stock_threshold: (prod.low_stock_threshold ?? 5).toString(),
-      is_featured: Boolean(prod.is_featured),
-      status: prod.status || (prod.is_active ? 'Published' : 'Hidden'),
+      status: prod.status || (prod.is_active ? 'published' : 'draft'),
       images: initialImages,
     });
     setIsFormOpen(true);
@@ -360,26 +438,28 @@ export default function AdminProducts() {
 
   const handleNameChange = (e) => {
     const val = e.target.value;
-    const oldSlug = slugify(formData.name);
-    const shouldSyncSlug = !formData.slug || formData.slug === oldSlug;
-    const autoSku = generateSkuFromName(val, formData.shelf_slug);
-
     setFormData((prev) => ({
       ...prev,
       name: val,
-      slug: shouldSyncSlug ? slugify(val) : prev.slug,
-      sku: formProduct ? prev.sku : autoSku,
     }));
     if (formErrors.name) {
       setFormErrors((prev) => ({ ...prev, name: '' }));
     }
   };
 
-  const handleSlugChange = (e) => {
-    setFormData((prev) => ({ ...prev, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') }));
-    if (formErrors.slug) {
-      setFormErrors((prev) => ({ ...prev, slug: '' }));
-    }
+  const handleShelfChange = (e) => {
+    const newShelf = e.target.value;
+    setFormData((prev) => {
+      const prevDefault = CATEGORY_DEFAULT_MAKERS[prev.shelf_slug] || 'Goan makers';
+      const shouldUpdateMadeBy = !prev.made_by || prev.made_by === prevDefault;
+      const nextMadeBy = shouldUpdateMadeBy ? (CATEGORY_DEFAULT_MAKERS[newShelf] || 'Goan makers') : prev.made_by;
+      return {
+        ...prev,
+        shelf_slug: newShelf,
+        made_by: nextMadeBy,
+      };
+    });
+    if (formErrors.shelf_slug) setFormErrors((prev) => ({ ...prev, shelf_slug: '' }));
   };
 
   const handleFileUpload = async (files) => {
@@ -474,11 +554,6 @@ export default function AdminProducts() {
     if (!formData.name.trim()) {
       errors.name = 'Product name is required.';
     }
-    if (!formData.slug.trim()) {
-      errors.slug = 'Slug is required.';
-    } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(formData.slug.trim())) {
-      errors.slug = 'Slug must only contain lowercase alphanumeric characters and hyphens.';
-    }
     if (!formData.shelf_slug) {
       errors.shelf_slug = 'Shelf selection is required.';
     }
@@ -486,9 +561,8 @@ export default function AdminProducts() {
     if (isNaN(price) || price <= 0) {
       errors.price_rupees = 'Price must be greater than zero.';
     }
-    const weight = parseInt(formData.weight_grams, 10);
-    if (isNaN(weight) || weight <= 0) {
-      errors.weight_grams = 'Weight in grams must be greater than zero.';
+    if (!formData.weight.trim()) {
+      errors.weight = 'Weight is required (e.g. 100 g or One piece).';
     }
     const stock = parseInt(formData.stock_qty, 10);
     if (isNaN(stock) || stock < 0) {
@@ -510,29 +584,33 @@ export default function AdminProducts() {
 
     setIsFormSubmitting(true);
     try {
+      const parsedWeight = parseWeight(formData.weight);
+      const generatedSlug = formProduct ? formProduct.slug : slugify(formData.name.trim());
       const finalSku =
-        (formData.sku && formData.sku.trim()) ||
+        (formProduct && formProduct.sku) ||
         generateSkuFromName(formData.name.trim(), formData.shelf_slug);
 
       const payload = {
         name: formData.name.trim(),
-        slug: formData.slug.trim(),
+        slug: generatedSlug,
         sku: finalSku,
         shelf: formData.shelf_slug,
         shelf_slug: formData.shelf_slug,
         category_slug: formData.shelf_slug,
         price_paise: Math.round(parseFloat(formData.price_rupees) * 100),
         price_rupees: parseFloat(formData.price_rupees),
-        unit_label: formData.unit_label.trim() || 'One piece',
-        weight_grams: parseInt(formData.weight_grams, 10) || 250,
-        net_weight_grams: parseInt(formData.weight_grams, 10) || 250,
+        unit_label: parsedWeight.unit_label,
+        weight_grams: parsedWeight.weight_grams,
+        net_weight_grams: parsedWeight.weight_grams,
         description: formData.description.trim(),
-        origin: formData.origin.trim() || 'Made in Goa',
-        origin_text: formData.origin.trim() || 'Made in Goa',
+        short_description: formData.description.trim().slice(0, 300),
+        made_by: formData.made_by.trim() || 'Self-help group kitchens, Goa',
+        origin: 'Made in Goa',
+        origin_text: 'Made in Goa',
         stock_qty: parseInt(formData.stock_qty, 10) || 0,
         low_stock_threshold: parseInt(formData.low_stock_threshold, 10) || 5,
-        is_featured: Boolean(formData.is_featured),
-        status: formData.status,
+        is_featured: false,
+        status: formData.status || 'published',
         images: formData.images.map((img, idx) => ({
           url: img.image_url || img.url,
           image_url: img.image_url || img.url,
@@ -550,7 +628,7 @@ export default function AdminProducts() {
 
         const productObj = updated.product || updated;
         setProducts((prev) => prev.map((p) => (p.id === productObj.id ? productObj : p)));
-        setToastMessage(`Product "${productObj.name}" updated successfully.`);
+        setToastMessage(`Product "${formatProductDisplayName(productObj)}" updated successfully.`);
       } else {
         const created = await apiFetch('/api/v1/admin/products', {
           method: 'POST',
@@ -559,8 +637,13 @@ export default function AdminProducts() {
 
         const productObj = created.product || created;
         setProducts((prev) => [productObj, ...prev]);
-        setToastMessage(`Product "${productObj.name}" created successfully.`);
+        setToastMessage(`Product "${formatProductDisplayName(productObj)}" created successfully.`);
       }
+
+      // Invalidate customer queries
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['collection'] });
 
       setIsFormOpen(false);
       setTimeout(() => {
@@ -642,7 +725,7 @@ export default function AdminProducts() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by product name, SKU, or slug..."
+            placeholder="Search by product name, shelf, or slug..."
             className="w-full rounded-pill border border-border bg-surface py-2.5 pl-10 pr-4 text-xs font-medium text-content outline-none focus:border-palm shadow-xs"
           />
         </form>
@@ -691,7 +774,7 @@ export default function AdminProducts() {
                 <tbody className="divide-y divide-border/20">
                   {products.map((p) => (
                     <tr key={p.id} className="hover:bg-ground/40 transition-colors">
-                      {/* Title + SKU */}
+                      {/* Title & Quantity */}
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
                           <img
@@ -700,9 +783,8 @@ export default function AdminProducts() {
                             className="h-10 w-10 rounded-lg object-cover bg-surface-sunken shrink-0 border border-border/40"
                           />
                           <div className="min-w-0">
-                            <p className="font-semibold text-content truncate max-w-xs">{p.name}</p>
-                            <p className="font-sans font-semibold text-[10px] text-content-subtle">
-                              {p.sku} • {p.unit_label}
+                            <p className="font-semibold text-content truncate max-w-sm sm:max-w-md">
+                              {formatProductDisplayName(p)}
                             </p>
                           </div>
                         </div>
@@ -796,7 +878,7 @@ export default function AdminProducts() {
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-content text-sm">{p.name}</p>
+                        <p className="font-semibold text-content text-sm">{formatProductDisplayName(p)}</p>
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(p)}
@@ -811,9 +893,6 @@ export default function AdminProducts() {
                           <span>{p.is_active ? 'Active' : 'Hidden'}</span>
                         </button>
                       </div>
-                      <p className="text-[11px] text-content-subtle font-medium mt-0.5">
-                        {p.sku} • {p.unit_label}
-                      </p>
                       <p className="text-xs text-content-muted font-medium mt-0.5">{p.category_name}</p>
                     </div>
                   </div>
@@ -911,11 +990,9 @@ export default function AdminProducts() {
                 </div>
               )}
 
-              {/* 1. Basic Details */}
+              {/* Form Fields */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-content-muted">Basic Information</h3>
-
-                {/* Name */}
+                {/* Product Name */}
                 <div>
                   <label htmlFor="field-name" className="block text-xs font-semibold text-content mb-1">
                     Product Name *
@@ -926,71 +1003,39 @@ export default function AdminProducts() {
                     required
                     value={formData.name}
                     onChange={handleNameChange}
-                    placeholder="e.g. Goan Kokum Butter Soap"
+                    placeholder="e.g. Coconut Cashew Chutney 100 grams"
                     className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
                   />
                   {formErrors.name && <p className="text-xs font-semibold text-accent mt-1">{formErrors.name}</p>}
                 </div>
 
-                {/* Slug and Shelf Selection Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Slug */}
-                  <div>
-                    <label htmlFor="field-slug" className="block text-xs font-semibold text-content mb-1">
-                      Slug * <span className="text-[10px] text-content-subtle font-normal">(URL key, unique)</span>
-                    </label>
-                    <input
-                      id="field-slug"
-                      type="text"
-                      required
-                      value={formData.slug}
-                      onChange={handleSlugChange}
-                      placeholder="e.g. goan-kokum-butter-soap"
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
-                    />
-                    {formErrors.slug && <p className="text-xs font-semibold text-accent mt-1">{formErrors.slug}</p>}
-                  </div>
-
-                  {/* Shelf Selection */}
-                  <div>
-                    <label htmlFor="field-shelf" className="block text-xs font-semibold text-content mb-1">
-                      Shelf (Category) * <span className="text-[10px] text-content-subtle font-normal">(One of 13 shelves)</span>
-                    </label>
-                    <select
-                      id="field-shelf"
-                      required
-                      value={formData.shelf_slug}
-                      onChange={(e) => {
-                        const newShelf = e.target.value;
-                        setFormData((prev) => ({
-                          ...prev,
-                          shelf_slug: newShelf,
-                          sku: formProduct ? prev.sku : generateSkuFromName(formData.name, newShelf),
-                        }));
-                        if (formErrors.shelf_slug) setFormErrors((prev) => ({ ...prev, shelf_slug: '' }));
-                      }}
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-2xs"
-                    >
-                      {PRODUCT_SHELVES.map((s) => (
-                        <option key={s.slug} value={s.slug}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                    {formErrors.shelf_slug && <p className="text-xs font-semibold text-accent mt-1">{formErrors.shelf_slug}</p>}
-                  </div>
+                {/* Shelf Selection */}
+                <div>
+                  <label htmlFor="field-shelf" className="block text-xs font-semibold text-content mb-1">
+                    Shelf (Category) * <span className="text-[10px] text-content-subtle font-normal">(One of 13 shelves)</span>
+                  </label>
+                  <select
+                    id="field-shelf"
+                    required
+                    value={formData.shelf_slug}
+                    onChange={handleShelfChange}
+                    className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-2xs"
+                  >
+                    {PRODUCT_SHELVES.map((s) => (
+                      <option key={s.slug} value={s.slug}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                  {formErrors.shelf_slug && <p className="text-xs font-semibold text-accent mt-1">{formErrors.shelf_slug}</p>}
                 </div>
-              </div>
 
-              {/* 2. Pricing, Unit & Logistics */}
-              <div className="space-y-4 pt-2 border-t border-border/30">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-content-muted">Pricing & Specifications</h3>
-
+                {/* Price & Weight Grid (2 columns) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Price in Rupees */}
                   <div>
                     <label htmlFor="field-price" className="block text-xs font-semibold text-content mb-1">
-                      Price (in ₹) * <span className="text-[10px] text-content-subtle font-normal">(Stored in paise)</span>
+                      Price (in ₹) *
                     </label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-2.5 text-xs font-bold text-content-muted">₹</span>
@@ -1005,69 +1050,55 @@ export default function AdminProducts() {
                           setFormData((prev) => ({ ...prev, price_rupees: e.target.value }));
                           if (formErrors.price_rupees) setFormErrors((prev) => ({ ...prev, price_rupees: '' }));
                         }}
-                        placeholder="e.g. 450"
+                        placeholder="e.g. 120"
                         className="w-full rounded-pill border border-border bg-surface py-2.5 pl-8 pr-4 text-xs font-bold text-content outline-none focus:border-palm shadow-2xs tabular-nums"
                       />
                     </div>
                     {formErrors.price_rupees && <p className="text-xs font-semibold text-accent mt-1">{formErrors.price_rupees}</p>}
                   </div>
 
-                  {/* Weight in Grams */}
+                  {/* Weight */}
                   <div>
                     <label htmlFor="field-weight" className="block text-xs font-semibold text-content mb-1">
-                      Weight (in grams) * <span className="text-[10px] text-content-subtle font-normal">(Used for shipping rates)</span>
+                      Weight * <span className="text-[10px] text-content-subtle font-normal">(e.g. "100 g", "One piece")</span>
                     </label>
                     <input
                       id="field-weight"
-                      type="number"
-                      step="1"
-                      min="1"
+                      type="text"
                       required
-                      value={formData.weight_grams}
+                      value={formData.weight}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, weight_grams: e.target.value }));
-                        if (formErrors.weight_grams) setFormErrors((prev) => ({ ...prev, weight_grams: '' }));
+                        setFormData((prev) => ({ ...prev, weight: e.target.value }));
+                        if (formErrors.weight) setFormErrors((prev) => ({ ...prev, weight: '' }));
                       }}
-                      placeholder="e.g. 250"
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs tabular-nums"
+                      placeholder="e.g. 100 g"
+                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
                     />
-                    {formErrors.weight_grams && <p className="text-xs font-semibold text-accent mt-1">{formErrors.weight_grams}</p>}
+                    {formErrors.weight && <p className="text-xs font-semibold text-accent mt-1">{formErrors.weight}</p>}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Unit Label */}
-                  <div>
-                    <label htmlFor="field-unit" className="block text-xs font-semibold text-content mb-1">
-                      Unit Label <span className="text-[10px] text-content-subtle font-normal">(e.g. "250 g", "One piece")</span>
+                {/* Made by */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="field-made-by" className="block text-xs font-semibold text-content">
+                      Made by
                     </label>
-                    <input
-                      id="field-unit"
-                      type="text"
-                      value={formData.unit_label}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, unit_label: e.target.value }))}
-                      placeholder="e.g. 250 g"
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
-                    />
+                    <span className="text-[11px] text-content-subtle">
+                      Origin: <strong className="text-content font-medium">Made in Goa</strong>
+                    </span>
                   </div>
-
-                  {/* Origin */}
-                  <div>
-                    <label htmlFor="field-origin" className="block text-xs font-semibold text-content mb-1">
-                      Origin Text <span className="text-[10px] text-content-subtle font-normal">(e.g. "Made in Goa")</span>
-                    </label>
-                    <input
-                      id="field-origin"
-                      type="text"
-                      value={formData.origin}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, origin: e.target.value }))}
-                      placeholder="e.g. Made in Goa"
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
-                    />
-                  </div>
+                  <input
+                    id="field-made-by"
+                    type="text"
+                    value={formData.made_by}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, made_by: e.target.value }))}
+                    placeholder="e.g. Self-help group kitchens, Goa"
+                    className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs text-content outline-none focus:border-palm shadow-2xs"
+                  />
                 </div>
 
-                {/* Stock & Low Stock Threshold */}
+                {/* Stock Quantity & Low-Stock Threshold Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="field-stock" className="block text-xs font-semibold text-content mb-1">
@@ -1110,41 +1141,7 @@ export default function AdminProducts() {
                   </div>
                 </div>
 
-                {/* Status & Featured */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="field-status" className="block text-xs font-semibold text-content mb-1">
-                      Publish Status *
-                    </label>
-                    <select
-                      id="field-status"
-                      value={formData.status}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value }))}
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-2xs"
-                    >
-                      <option value="Published">Published (Live in store)</option>
-                      <option value="Draft">Draft (Hidden from store)</option>
-                      <option value="Hidden">Hidden (Unlisted)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="field-featured" className="block text-xs font-semibold text-content mb-1">
-                      Featured Item
-                    </label>
-                    <select
-                      id="field-featured"
-                      value={formData.is_featured ? 'yes' : 'no'}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, is_featured: e.target.value === 'yes' }))}
-                      className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-2xs"
-                    >
-                      <option value="no">No (Standard item)</option>
-                      <option value="yes">Yes (Featured on homepage)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Description */}
+                {/* Product Description */}
                 <div>
                   <label htmlFor="field-description" className="block text-xs font-semibold text-content mb-1">
                     Product Description
@@ -1154,9 +1151,26 @@ export default function AdminProducts() {
                     rows={3}
                     value={formData.description}
                     onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe the product, authentic Goan sourcing, tasting notes, and culinary usage..."
+                    placeholder="Describe the product (e.g. Desiccated coconut ground with cashew and red chillies)..."
                     className="w-full rounded-2xl border border-border bg-surface p-3 text-xs text-content outline-none focus:border-palm shadow-2xs resize-y"
                   />
+                </div>
+
+                {/* Status Selection */}
+                <div>
+                  <label htmlFor="field-status" className="block text-xs font-semibold text-content mb-1">
+                    Status *
+                  </label>
+                  <select
+                    id="field-status"
+                    value={formData.status}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value }))}
+                    className="w-full rounded-pill border border-border bg-surface px-4 py-2.5 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-2xs"
+                  >
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                    <option value="hidden">Hidden</option>
+                  </select>
                 </div>
               </div>
 
@@ -1340,7 +1354,7 @@ export default function AdminProducts() {
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-accent">Audit-Logged Edit</span>
                 <h2 className="font-sans text-lg font-bold text-content mt-0.5">Edit Price & Stock</h2>
-                <p className="text-xs text-content-muted truncate max-w-xs">{editingProduct.name}</p>
+                <p className="text-xs text-content-muted truncate max-w-xs">{formatProductDisplayName(editingProduct)}</p>
               </div>
               <button
                 type="button"
@@ -1475,7 +1489,7 @@ export default function AdminProducts() {
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-accent">Audit History</span>
                 <h2 className="font-sans text-lg font-bold text-content mt-0.5">Price Change History</h2>
-                <p className="text-xs text-content-muted">{historyProduct.name} ({historyProduct.sku})</p>
+                <p className="text-xs text-content-muted">{formatProductDisplayName(historyProduct)}</p>
               </div>
               <button
                 type="button"

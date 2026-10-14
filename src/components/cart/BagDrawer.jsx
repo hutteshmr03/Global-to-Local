@@ -59,10 +59,26 @@ export default function BagDrawer() {
 
             {cartError && (
               <div className="mx-6 mt-3 flex items-center justify-between gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-medium text-red-700">
-                <span>{cartError}</span>
-                <button type="button" onClick={clearCartError} className="text-red-700 hover:underline cursor-pointer">
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                <span>
+                  {String(cartError).includes('500') || String(cartError).includes('Request failed')
+                    ? 'Something went wrong. Please try again.'
+                    : cartError}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearCartError();
+                      useCartStore.getState().hydrateCart(useCartStore.getState().isLoggedIn);
+                    }}
+                    className="text-red-700 underline font-semibold hover:text-red-800 cursor-pointer"
+                  >
+                    Retry
+                  </button>
+                  <button type="button" onClick={clearCartError} className="text-red-700 hover:opacity-75 cursor-pointer">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
 

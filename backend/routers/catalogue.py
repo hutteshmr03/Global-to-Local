@@ -44,7 +44,8 @@ def list_categories(db: Session = Depends(get_db)):
             Product,
             (Product.category_id == Category.id)
             & (Product.is_active == True)  # noqa: E712
-            & (Product.deleted_at.is_(None)),
+            & (Product.deleted_at.is_(None))
+            & (Product.status == "published"),
         )
         .filter(Category.is_active == True)  # noqa: E712
         .group_by(Category.id)
@@ -75,6 +76,7 @@ def get_category_detail(slug: str, db: Session = Depends(get_db)):
             Product.category_id == cat.id,
             Product.is_active == True,  # noqa: E712
             Product.deleted_at.is_(None),
+            Product.status == "published",
         )
         .scalar()
         or 0
@@ -105,7 +107,11 @@ def list_products(
             joinedload(Product.images),
             joinedload(Product.inventory),
         )
-        .filter(Product.is_active == True, Product.deleted_at.is_(None))  # noqa: E712
+        .filter(
+            Product.is_active == True,  # noqa: E712
+            Product.deleted_at.is_(None),
+            Product.status == "published",
+        )
     )
 
     cat_slug = category or shelf
@@ -192,7 +198,12 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
             joinedload(Product.images),
             joinedload(Product.inventory),
         )
-        .filter(Product.slug == slug, Product.is_active == True, Product.deleted_at.is_(None))  # noqa: E712
+        .filter(
+            Product.slug == slug,
+            Product.is_active == True,  # noqa: E712
+            Product.deleted_at.is_(None),
+            Product.status == "published",
+        )
         .first()
     )
     if not prod:
@@ -216,6 +227,7 @@ def get_product_detail(slug: str, db: Session = Depends(get_db)):
             Product.id != prod.id,
             Product.is_active == True,  # noqa: E712
             Product.deleted_at.is_(None),
+            Product.status == "published",
         )
         .order_by(Product.is_featured.desc(), Product.name.asc())
         .limit(4)
@@ -258,7 +270,7 @@ def get_collection_detail(slug: str, db: Session = Depends(get_db)):
     products = [
         serialize_product(link.product)
         for link in links
-        if link.product and link.product.is_active and link.product.deleted_at is None
+        if link.product and link.product.is_active and link.product.deleted_at is None and link.product.status == "published"
     ]
 
     return {
@@ -290,6 +302,7 @@ def search_suggestions(
         .filter(
             Product.is_active == True,  # noqa: E712
             Product.deleted_at.is_(None),
+            Product.status == "published",
             or_(
                 Product.name.ilike(f"%{clean_q}%"),
                 Product.short_description.ilike(f"%{clean_q}%"),

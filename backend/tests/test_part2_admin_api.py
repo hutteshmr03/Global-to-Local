@@ -26,6 +26,7 @@ from backend.models import (
     UserRole,
     UserSession,
 )
+from backend.routers.checkout_orders import generate_next_order_number
 
 
 @pytest.fixture(scope="module")
@@ -49,6 +50,10 @@ def admin_test_setup():
             customer.is_active = True
             db.commit()
 
+        admin_password = os.environ.get("ADMIN_PASSWORD")
+        if not admin_password:
+            pytest.skip("ADMIN_PASSWORD environment variable is required to run admin tests.")
+
         # Create single test admin
         admin = db.query(User).filter(User.role == UserRole.admin, User.is_active.is_(True)).first()
         if not admin:
@@ -56,14 +61,14 @@ def admin_test_setup():
                 id=uuid.uuid4(),
                 email="admin.test@globaltolocal.in",
                 phone="9879998888",
-                password_hash=hash_password("AdminPass123!"),
+                password_hash=hash_password(admin_password),
                 full_name="Head Admin",
                 role=UserRole.admin,
                 is_active=True,
             )
             db.add(admin)
         else:
-            admin.password_hash = hash_password("AdminPass123!")
+            admin.password_hash = hash_password(admin_password)
             db.commit()
 
         # Ensure an active category and product exist
@@ -110,6 +115,7 @@ def admin_test_setup():
             "admin_id": str(admin.id),
             "admin_token": admin_token,
             "admin_email": admin.email,
+            "admin_password": admin_password,
             "product_id": str(prod.id),
             "product_slug": prod.slug,
         }
@@ -146,10 +152,11 @@ def test_admin_login_records_login_events_and_stricter_rate_limit(admin_test_set
     client = TestClient(app)
     db = SessionLocal()
     try:
-        # Successful admin login
-        res = client.post("/api/v1/auth/login", json={"email": admin_test_setup["admin_email"], "password": "AdminPass123!"})
+        # Successful admin login triggers MFA verification step
+        res = client.post("/api/v1/auth/login", json={"email": admin_test_setup["admin_email"], "password": admin_test_setup["admin_password"]})
         assert res.status_code == 200
-        assert res.json()["user"]["role"] == "admin"
+        assert res.json().get("mfa_required") is True
+        assert "temp_token" in res.json()
 
         # Verify login_event was logged
         evt = (
@@ -208,6 +215,14 @@ def test_admin_product_price_edit_validation_and_audit_logs(admin_test_setup):
     assert res_no_reason.status_code == 422
 
     # 3. Valid price change (warns above 25%)
+    db_init = SessionLocal()
+    try:
+        p_row = db_init.query(Product).filter(Product.id == uuid.UUID(pid)).first()
+        p_row.price_paise = 50000
+        db_init.commit()
+    finally:
+        db_init.close()
+
     res_ok = client.patch(f"/api/v1/admin/products/{pid}/price", headers=headers, json={"new_price_paise": 85000, "reason": "Raw material cost update"})
     assert res_ok.status_code == 200
     data = res_ok.json()
@@ -248,7 +263,7 @@ def test_price_change_reflected_on_public_shop_and_old_orders_keep_snapshot(admi
 
     # 1. Create an order with original price
     db = SessionLocal()
-    order_num = f"GTL-TEST-{uuid.uuid4().hex[:6].upper()}"
+    order_num = generate_next_order_number(db)
     try:
         prod = db.query(Product).filter(Product.id == uuid.UUID(pid)).first()
         original_price = prod.price_paise
@@ -310,7 +325,7 @@ def test_admin_orders_forward_only_status_and_notes(admin_test_setup):
     admin_headers = {"Authorization": f"Bearer {admin_test_setup['admin_token']}"}
 
     db = SessionLocal()
-    order_num = f"GTL-TEST-{uuid.uuid4().hex[:6].upper()}"
+    order_num = generate_next_order_number(db)
     try:
         order = Order(
             id=uuid.uuid4(),

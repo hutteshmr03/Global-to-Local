@@ -158,4 +158,6 @@ def serialize_product(prod: Product) -> dict[str, Any]:
         "inStock": in_stock,
         "featured": prod.is_featured,
         "origin": prod.origin_text or "Made in Goa",
+        "made_by": prod.made_by or (prod.maker.name if prod.maker else None),
+        "madeBy": prod.made_by or (prod.maker.name if prod.maker else None),
     }

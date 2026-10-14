@@ -4,9 +4,9 @@
     "route": "http://localhost:5173/",
     "viewport": "1440px",
     "filename": "home_1440px.png",
-    "currentSize": 3709655,
+    "currentSize": 3702369,
     "baselineSize": 3710476,
-    "sizeDiffPct": "0.02%",
+    "sizeDiffPct": "0.22%",
     "baselineExists": true,
     "domInfo": {
       "shelvesCount": 13,
@@ -18,9 +18,9 @@
     "route": "http://localhost:5173/",
     "viewport": "768px",
     "filename": "home_768px.png",
-    "currentSize": 2255321,
+    "currentSize": 2249750,
     "baselineSize": 2256139,
-    "sizeDiffPct": "0.04%",
+    "sizeDiffPct": "0.28%",
     "baselineExists": true,
     "domInfo": {
       "shelvesCount": 13,
@@ -32,9 +32,9 @@
     "route": "http://localhost:5173/",
     "viewport": "360px",
     "filename": "home_360px.png",
-    "currentSize": 1060622,
+    "currentSize": 1058502,
     "baselineSize": 1058492,
-    "sizeDiffPct": "0.20%",
+    "sizeDiffPct": "0.00%",
     "baselineExists": true,
     "domInfo": {
       "shelvesCount": 13,
@@ -46,14 +46,14 @@
     "route": "http://localhost:5173/shop",
     "viewport": "1440px",
     "filename": "shop_1440px.png",
-    "currentSize": 6191276,
+    "currentSize": 8396213,
     "baselineSize": 6191165,
-    "sizeDiffPct": "0.00%",
+    "sizeDiffPct": "35.62%",
     "baselineExists": true,
     "domInfo": {
-      "shelfPills": 245,
-      "productCards": 255,
-      "resultsText": "Showing 230 of 230 products"
+      "shelfPills": 263,
+      "productCards": 273,
+      "resultsText": "Showing 248 of 248 products"
     }
   },
   {
@@ -61,14 +61,14 @@
     "route": "http://localhost:5173/shop",
     "viewport": "768px",
     "filename": "shop_768px.png",
-    "currentSize": 2934141,
+    "currentSize": 3593118,
     "baselineSize": 2933946,
-    "sizeDiffPct": "0.01%",
+    "sizeDiffPct": "22.47%",
     "baselineExists": true,
     "domInfo": {
-      "shelfPills": 245,
-      "productCards": 255,
-      "resultsText": "Showing 230 of 230 products"
+      "shelfPills": 263,
+      "productCards": 273,
+      "resultsText": "Showing 248 of 248 products"
     }
   },
   {
@@ -76,14 +76,14 @@
     "route": "http://localhost:5173/shop",
     "viewport": "360px",
     "filename": "shop_360px.png",
-    "currentSize": 2450290,
+    "currentSize": 3149492,
     "baselineSize": 2449865,
-    "sizeDiffPct": "0.02%",
+    "sizeDiffPct": "28.56%",
     "baselineExists": true,
     "domInfo": {
-      "shelfPills": 245,
-      "productCards": 255,
-      "resultsText": "Showing 230 of 230 products"
+      "shelfPills": 263,
+      "productCards": 273,
+      "resultsText": "Showing 248 of 248 products"
     }
   },
   {
@@ -91,13 +91,13 @@
     "route": "http://localhost:5173/product-category/chutneys-and-spreads",
     "viewport": "1440px",
     "filename": "category_chutneys_1440px.png",
-    "currentSize": 801956,
+    "currentSize": 1639440,
     "baselineSize": 801956,
-    "sizeDiffPct": "0.00%",
+    "sizeDiffPct": "104.43%",
     "baselineExists": true,
     "domInfo": {
       "categoryHeading": "Chutneys & Spreads",
-      "itemsCountText": "Showing all 4 items on this shelf"
+      "itemsCountText": "Showing all 22 items on this shelf"
     }
   },
   {
@@ -105,13 +105,13 @@
     "route": "http://localhost:5173/product-category/chutneys-and-spreads",
     "viewport": "768px",
     "filename": "category_chutneys_768px.png",
-    "currentSize": 481898,
+    "currentSize": 706449,
     "baselineSize": 481898,
-    "sizeDiffPct": "0.00%",
+    "sizeDiffPct": "46.60%",
     "baselineExists": true,
     "domInfo": {
       "categoryHeading": "Chutneys & Spreads",
-      "itemsCountText": "Showing all 4 items on this shelf"
+      "itemsCountText": "Showing all 22 items on this shelf"
     }
   },
   {
@@ -119,13 +119,13 @@
     "route": "http://localhost:5173/product-category/chutneys-and-spreads",
     "viewport": "360px",
     "filename": "category_chutneys_360px.png",
-    "currentSize": 358166,
+    "currentSize": 703065,
     "baselineSize": 358166,
-    "sizeDiffPct": "0.00%",
+    "sizeDiffPct": "96.30%",
     "baselineExists": true,
     "domInfo": {
       "categoryHeading": "Chutneys & Spreads",
-      "itemsCountText": "Showing all 4 items on this shelf"
+      "itemsCountText": "Showing all 22 items on this shelf"
     }
   },
   {
@@ -133,9 +133,9 @@
     "route": "http://localhost:5173/product/pineapple-jam-250-grams",
     "viewport": "1440px",
     "filename": "product_pineapple_jam_1440px.png",
-    "currentSize": 773557,
+    "currentSize": 685014,
     "baselineSize": 773557,
-    "sizeDiffPct": "0.00%",
+    "sizeDiffPct": "11.45%",
     "baselineExists": true,
     "domInfo": {
       "productTitle": "Pineapple Jam 250 grams",
@@ -147,9 +147,9 @@
     "route": "http://localhost:5173/product/pineapple-jam-250-grams",
     "viewport": "768px",
     "filename": "product_pineapple_jam_768px.png",
-    "currentSize": 641273,
+    "currentSize": 605735,
     "baselineSize": 641273,
-    "sizeDiffPct": "0.00%",
+    "sizeDiffPct": "5.54%",
     "baselineExists": true,
     "domInfo": {
       "productTitle": "Pineapple Jam 250 grams",
@@ -161,13 +161,343 @@
     "route": "http://localhost:5173/product/pineapple-jam-250-grams",
     "viewport": "360px",
     "filename": "product_pineapple_jam_360px.png",
-    "currentSize": 473367,
+    "currentSize": 440113,
     "baselineSize": 473367,
-    "sizeDiffPct": "0.00%",
+    "sizeDiffPct": "7.02%",
     "baselineExists": true,
     "domInfo": {
       "productTitle": "Pineapple Jam 250 grams",
       "priceText": "₹190"
     }
+  },
+  {
+    "page": "Bag",
+    "route": "http://localhost:5173/bag",
+    "viewport": "1440px",
+    "filename": "bag_1440px.png",
+    "currentSize": 45307,
+    "baselineSize": 45308,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Bag",
+    "route": "http://localhost:5173/bag",
+    "viewport": "768px",
+    "filename": "bag_768px.png",
+    "currentSize": 38123,
+    "baselineSize": 38123,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Bag",
+    "route": "http://localhost:5173/bag",
+    "viewport": "360px",
+    "filename": "bag_360px.png",
+    "currentSize": 28225,
+    "baselineSize": 28227,
+    "sizeDiffPct": "0.01%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Contact",
+    "route": "http://localhost:5173/contact",
+    "viewport": "1440px",
+    "filename": "contact_1440px.png",
+    "currentSize": 1894175,
+    "baselineSize": 1894306,
+    "sizeDiffPct": "0.01%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Contact",
+    "route": "http://localhost:5173/contact",
+    "viewport": "768px",
+    "filename": "contact_768px.png",
+    "currentSize": 1247212,
+    "baselineSize": 1247393,
+    "sizeDiffPct": "0.01%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Contact",
+    "route": "http://localhost:5173/contact",
+    "viewport": "360px",
+    "filename": "contact_360px.png",
+    "currentSize": 667110,
+    "baselineSize": 667134,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "In the News",
+    "route": "http://localhost:5173/in-the-news",
+    "viewport": "1440px",
+    "filename": "in_the_news_1440px.png",
+    "currentSize": 867719,
+    "baselineSize": 867785,
+    "sizeDiffPct": "0.01%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "In the News",
+    "route": "http://localhost:5173/in-the-news",
+    "viewport": "768px",
+    "filename": "in_the_news_768px.png",
+    "currentSize": 684337,
+    "baselineSize": 683893,
+    "sizeDiffPct": "0.06%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "In the News",
+    "route": "http://localhost:5173/in-the-news",
+    "viewport": "360px",
+    "filename": "in_the_news_360px.png",
+    "currentSize": 396988,
+    "baselineSize": 397384,
+    "sizeDiffPct": "0.10%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Login",
+    "route": "http://localhost:5173/login",
+    "viewport": "1440px",
+    "filename": "login_1440px.png",
+    "currentSize": 302676,
+    "baselineSize": 302417,
+    "sizeDiffPct": "0.09%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Login",
+    "route": "http://localhost:5173/login",
+    "viewport": "768px",
+    "filename": "login_768px.png",
+    "currentSize": 48708,
+    "baselineSize": 48708,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Login",
+    "route": "http://localhost:5173/login",
+    "viewport": "360px",
+    "filename": "login_360px.png",
+    "currentSize": 38452,
+    "baselineSize": 38454,
+    "sizeDiffPct": "0.01%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Our Social Corner",
+    "route": "http://localhost:5173/our-social-corner",
+    "viewport": "1440px",
+    "filename": "our_social_corner_1440px.png",
+    "currentSize": 1960163,
+    "baselineSize": 1955417,
+    "sizeDiffPct": "0.24%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Our Social Corner",
+    "route": "http://localhost:5173/our-social-corner",
+    "viewport": "768px",
+    "filename": "our_social_corner_768px.png",
+    "currentSize": 1175667,
+    "baselineSize": 1170052,
+    "sizeDiffPct": "0.48%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Our Social Corner",
+    "route": "http://localhost:5173/our-social-corner",
+    "viewport": "360px",
+    "filename": "our_social_corner_360px.png",
+    "currentSize": 578484,
+    "baselineSize": 577984,
+    "sizeDiffPct": "0.09%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Our Story",
+    "route": "http://localhost:5173/our-story",
+    "viewport": "1440px",
+    "filename": "our_story_1440px.png",
+    "currentSize": 2045023,
+    "baselineSize": 2045666,
+    "sizeDiffPct": "0.03%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Our Story",
+    "route": "http://localhost:5173/our-story",
+    "viewport": "768px",
+    "filename": "our_story_768px.png",
+    "currentSize": 2013154,
+    "baselineSize": 2013074,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Our Story",
+    "route": "http://localhost:5173/our-story",
+    "viewport": "360px",
+    "filename": "our_story_360px.png",
+    "currentSize": 734650,
+    "baselineSize": 734207,
+    "sizeDiffPct": "0.06%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Privacy Policy",
+    "route": "http://localhost:5173/privacy-policy",
+    "viewport": "1440px",
+    "filename": "privacy_1440px.png",
+    "currentSize": 79195,
+    "baselineSize": 79195,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Privacy Policy",
+    "route": "http://localhost:5173/privacy-policy",
+    "viewport": "768px",
+    "filename": "privacy_768px.png",
+    "currentSize": 70375,
+    "baselineSize": 70377,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Privacy Policy",
+    "route": "http://localhost:5173/privacy-policy",
+    "viewport": "360px",
+    "filename": "privacy_360px.png",
+    "currentSize": 60728,
+    "baselineSize": 60728,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Return Policy",
+    "route": "http://localhost:5173/return-and-exchange-policy",
+    "viewport": "1440px",
+    "filename": "return_policy_1440px.png",
+    "currentSize": 348539,
+    "baselineSize": 347518,
+    "sizeDiffPct": "0.29%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Return Policy",
+    "route": "http://localhost:5173/return-and-exchange-policy",
+    "viewport": "768px",
+    "filename": "return_policy_768px.png",
+    "currentSize": 343516,
+    "baselineSize": 343292,
+    "sizeDiffPct": "0.07%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Return Policy",
+    "route": "http://localhost:5173/return-and-exchange-policy",
+    "viewport": "360px",
+    "filename": "return_policy_360px.png",
+    "currentSize": 227609,
+    "baselineSize": 227367,
+    "sizeDiffPct": "0.11%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Shipping Policy",
+    "route": "http://localhost:5173/shipping-policy",
+    "viewport": "1440px",
+    "filename": "shipping_policy_1440px.png",
+    "currentSize": 366407,
+    "baselineSize": 366407,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Shipping Policy",
+    "route": "http://localhost:5173/shipping-policy",
+    "viewport": "768px",
+    "filename": "shipping_policy_768px.png",
+    "currentSize": 356271,
+    "baselineSize": 356271,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Shipping Policy",
+    "route": "http://localhost:5173/shipping-policy",
+    "viewport": "360px",
+    "filename": "shipping_policy_360px.png",
+    "currentSize": 240600,
+    "baselineSize": 240600,
+    "sizeDiffPct": "0.00%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Terms",
+    "route": "http://localhost:5173/terms-and-conditions",
+    "viewport": "1440px",
+    "filename": "terms_1440px.png",
+    "currentSize": 74134,
+    "baselineSize": 74434,
+    "sizeDiffPct": "0.40%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Terms",
+    "route": "http://localhost:5173/terms-and-conditions",
+    "viewport": "768px",
+    "filename": "terms_768px.png",
+    "currentSize": 65464,
+    "baselineSize": 65765,
+    "sizeDiffPct": "0.46%",
+    "baselineExists": true,
+    "domInfo": {}
+  },
+  {
+    "page": "Terms",
+    "route": "http://localhost:5173/terms-and-conditions",
+    "viewport": "360px",
+    "filename": "terms_360px.png",
+    "currentSize": 56374,
+    "baselineSize": 56709,
+    "sizeDiffPct": "0.59%",
+    "baselineExists": true,
+    "domInfo": {}
   }
 ]

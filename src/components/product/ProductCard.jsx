@@ -6,15 +6,21 @@ import { useCartStore } from '../../lib/cart-store';
 import { useFlyToCart } from '../cart/FlyToCart';
 
 export default function ProductCard({ product }) {
+  const isHidden = !product || product.is_active === false || product.status === 'Hidden' || product.status === 'Draft';
   const addItem = useCartStore(state => state.addItem);
   const updateQty = useCartStore(state => state.updateQty);
   const removeItem = useCartStore(state => state.removeItem);
   const inCartQty = useCartStore(state => {
+    if (!product?.id) return 0;
     const item = state.items.find(i => i.product.id === product.id);
     return item ? item.qty : 0;
   });
   const flyToCart = useFlyToCart();
   const [isAdded, setIsAdded] = useState(false);
+
+  if (isHidden) {
+    return null;
+  }
 
   const handleQuickAdd = (e) => {
     e.preventDefault();

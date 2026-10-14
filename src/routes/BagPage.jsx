@@ -30,10 +30,26 @@ export default function BagPage() {
         </h1>
         {cartError && (
           <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs font-medium text-red-700">
-            <span>{cartError}</span>
-            <button type="button" onClick={clearCartError} className="text-red-700 hover:underline cursor-pointer">
-              Dismiss
-            </button>
+            <span>
+              {String(cartError).includes('500') || String(cartError).includes('Request failed')
+                ? 'Something went wrong. Please try again.'
+                : cartError}
+            </span>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  clearCartError();
+                  useCartStore.getState().hydrateCart(useCartStore.getState().isLoggedIn);
+                }}
+                className="text-red-700 underline font-semibold hover:text-red-800 cursor-pointer"
+              >
+                Retry
+              </button>
+              <button type="button" onClick={clearCartError} className="text-red-700 hover:underline cursor-pointer">
+                Dismiss
+              </button>
+            </div>
           </div>
         )}
 

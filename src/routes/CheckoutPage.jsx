@@ -26,20 +26,19 @@ export default function CheckoutPage() {
   const idempotencyKeyRef = useRef(makeIdempotencyKey());
   const [checkoutError, setCheckoutError] = useState('');
 
-  if (!isInitialized) {
-    return <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen" />;
-  }
-
-  if (!user) {
-    return <Navigate to="/login?redirect=/checkout" replace />;
-  }
-
   const savedAddresses = user?.addresses || [];
   const defaultAddr = savedAddresses.find(a => a.isDefault) || savedAddresses[0] || null;
 
   // Selected address id: either a saved address ID or 'new'
   const [selectedAddressId, setSelectedAddressId] = useState(defaultAddr ? defaultAddr.id : 'new');
   const [saveToProfile, setSaveToProfile] = useState(true);
+
+  // Auto-select default address once loaded
+  useEffect(() => {
+    if (defaultAddr && (selectedAddressId === 'new' || !savedAddresses.some(a => a.id === selectedAddressId))) {
+      setSelectedAddressId(defaultAddr.id);
+    }
+  }, [defaultAddr?.id, savedAddresses.length]);
 
   // Custom/New Address Fields
   const [newAddress, setNewAddress] = useState({
@@ -102,6 +101,14 @@ export default function CheckoutPage() {
       };
     }
   }, [activeAddress.pincode]);
+
+  if (!isInitialized) {
+    return <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen" />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login?redirect=/checkout" replace />;
+  }
 
   if (items.length === 0) {
     return (

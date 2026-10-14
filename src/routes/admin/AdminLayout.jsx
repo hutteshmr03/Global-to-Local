@@ -98,7 +98,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="admin-scope min-h-screen bg-ground flex flex-col text-content font-sans overflow-x-hidden">
+    <div className="admin-scope min-h-screen bg-ground flex flex-col text-content font-sans overflow-x-clip">
       {/* Admin Top Navigation Bar */}
       <header className="sticky top-0 z-40 border-b border-border/60 bg-surface/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -121,7 +121,7 @@ export default function AdminLayout() {
                 </div>
               </Link>
               <span className="rounded-pill bg-palm/10 border border-palm/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-palm whitespace-nowrap shrink-0">
-                ADMIN BACK OFFICE
+                Admin Office
               </span>
             </div>
 
@@ -171,7 +171,7 @@ export default function AdminLayout() {
                 type="button"
                 onClick={handleSignOut}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border border-border bg-ground px-3.5 py-1.5 text-xs font-semibold text-content hover:bg-surface hover:border-content-subtle transition-all shadow-xs whitespace-nowrap min-h-[36px]"
-                title="Sign out of back office"
+                title="Sign out of admin office"
               >
                 <LogOut className="h-3.5 w-3.5 text-accent" />
                 <span>Sign Out</span>
@@ -202,7 +202,7 @@ export default function AdminLayout() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25 }}
-              className="lg:hidden border-t border-border/50 bg-ground px-5 py-6 shadow-2xl overflow-hidden"
+              className="lg:hidden border-t border-border/50 bg-ground px-5 py-6 shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto"
             >
               <div className="pb-4 mb-3 border-b border-border/40 flex items-center justify-between">
                 <div>

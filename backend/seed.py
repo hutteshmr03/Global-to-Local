@@ -4,7 +4,10 @@ from pathlib import Path
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from backend.database import SessionLocal
+import uuid
+from backend.core.security import hash_password
 from backend.models import (
+    Address,
     AvailabilityState,
     Category,
     CmsPage,
@@ -25,6 +28,8 @@ from backend.models import (
     StockMovement,
     StockMovementReason,
     StoreReview,
+    User,
+    UserRole,
 )
 
 SHELL_SHELF_LEGACY_IDS = [6163, 6167, 6176, 6140, 6168, 6141, 6157, 6180, 6155, 6177]
@@ -224,8 +229,8 @@ CMS_PAGES_SEED = [
                     "body": "If your item arrives damaged in transit, leaking, defective, or expired, please email us at customerservice@globaltolocal.in or call +91 80103 67153 within 48 hours of delivery with photos of the damaged shipment.",
                 },
                 {
-                    "heading": "Refund Process",
-                    "body": "Approved refunds are processed back to the original payment method via Razorpay within 3–5 business days.",
+                    "heading": "Order Cancellation",
+                    "body": "Customers can cancel orders directly while pending payment. For paid orders, please contact the store to cancel.",
                 },
             ]
         ),
@@ -247,7 +252,7 @@ CMS_PAGES_SEED = [
                 },
                 {
                     "heading": "Order Acceptance",
-                    "body": "We reserve the right to refuse or cancel any order in the event of product unavailability or pricing inaccuracies, in which case any charged amount will be fully refunded.",
+                    "body": "We reserve the right to refuse or cancel any order in the event of product unavailability or pricing inaccuracies. For paid orders, please contact the store to cancel.",
                 },
             ]
         ),

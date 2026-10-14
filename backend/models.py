@@ -46,6 +46,13 @@ class AvailabilityState(str, enum.Enum):
     discontinued = "discontinued"
 
 
+class ProductStatus(str, enum.Enum):
+    draft = "draft"
+    published = "published"
+    hidden = "hidden"
+    archived = "archived"
+
+
 class StockMovementReason(str, enum.Enum):
     initial_seed = "initial_seed"
     purchase_order_received = "purchase_order_received"
@@ -135,6 +142,9 @@ class User(Base):
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     email_verified_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    totp_secret_encrypted: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    totp_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    recovery_codes_hash: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
@@ -285,6 +295,7 @@ class Product(Base):
     maker_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("makers.id", ondelete="SET NULL"), nullable=True
     )
+    made_by: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
     short_description: Mapped[Optional[str]] = mapped_column(String(360), nullable=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     ingredients_or_materials: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -297,6 +308,7 @@ class Product(Base):
     is_featured: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_new: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="published")
     availability: Mapped[AvailabilityState] = mapped_column(
         SQLEnum(AvailabilityState, name="availability_state", create_type=False),
         nullable=False,

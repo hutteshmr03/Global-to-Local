@@ -8,8 +8,13 @@ import NotFoundPage from './NotFoundPage';
 export default function CategoryPage() {
   const { slug } = useParams();
   const { data: categories = [] } = useCategories();
-  const { data: products = [] } = useCategoryProducts(slug);
-  const category = categories.find((c) => c.slug === slug);
+  const normalizeSlug = (s) => (s || '').replace(/-and-/g, '-');
+  const category = categories.find((c) => c.slug === slug || normalizeSlug(c.slug) === normalizeSlug(slug));
+  const { data: products = [] } = useCategoryProducts(category ? category.slug : slug);
+
+  const activeProducts = React.useMemo(() => {
+    return products.filter((p) => p && p.is_active !== false && p.status !== 'Hidden' && p.status !== 'Draft');
+  }, [products]);
 
   if (!category) {
     return <NotFoundPage />;
@@ -40,7 +45,7 @@ export default function CategoryPage() {
               {category.blurb || `Authentic Goan ${category.name.toLowerCase()} sourced from local producers.`}
             </p>
             <p className="mt-4 text-xs font-semibold text-palm">
-              Showing all {products.length} {products.length === 1 ? 'item' : 'items'} on this shelf
+              Showing all {activeProducts.length} {activeProducts.length === 1 ? 'item' : 'items'} on this shelf
             </p>
           </div>
 
@@ -57,7 +62,7 @@ export default function CategoryPage() {
 
         {/* Products Grid */}
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 sm:gap-6">
-          {products.map(product => (
+          {activeProducts.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

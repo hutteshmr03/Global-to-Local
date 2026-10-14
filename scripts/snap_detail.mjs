@@ -8,7 +8,7 @@ async function run() {
   const res = await context.request.post('http://localhost:5173/api/v1/auth/login', {
     data: {
       email: 'admin@globaltolocal.in',
-      password: 'GoaHeritageAdmin123!',
+      password: process.env.ADMIN_PASSWORD || '',
     },
   });
   console.log('Login status:', res.status());

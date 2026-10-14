@@ -92,15 +92,17 @@ const fallbackShellItems = [
 export default function ShellShelf() {
   const { data: rawCollectionItems } = useCollection('shell-shelf', fallbackShellItems);
   const shellItems = React.useMemo(() => {
-    if (!rawCollectionItems || rawCollectionItems.length === 0) return fallbackShellItems;
-    return rawCollectionItems.map((item) => ({
-      id: item.legacy_id ?? item.id,
-      title: item.title || item.name,
-      subtitle: item.subtitle || 'Shell craft, Goan shore',
-      price: item.price_paise !== undefined ? Math.round(item.price_paise / 100) : item.price,
-      slug: item.slug,
-      image: item.image || item.imageSrc,
-    }));
+    const list = rawCollectionItems && rawCollectionItems.length > 0 ? rawCollectionItems : fallbackShellItems;
+    return list
+      .filter((item) => item.is_active !== false && item.status !== 'Hidden' && item.status !== 'Draft')
+      .map((item) => ({
+        id: item.legacy_id ?? item.id,
+        title: item.title || item.name,
+        subtitle: item.subtitle || 'Shell craft, Goan shore',
+        price: item.price_paise !== undefined ? Math.round(item.price_paise / 100) : item.price,
+        slug: item.slug,
+        image: item.image || item.imageSrc,
+      }));
   }, [rawCollectionItems]);
 
   const scrollRef = useRef(null);

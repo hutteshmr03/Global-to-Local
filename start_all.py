@@ -30,6 +30,25 @@ def wait_for_port(host: str, port: int, name: str, timeout: float = 30.0):
     print("TIMEOUT.")
     return False
 
+def wait_for_http_ready(url: str, name: str, timeout: float = 30.0) -> bool:
+    import urllib.request
+    import urllib.error
+    start = time.time()
+    sys.stdout.write(f"[*] Verifying {name}... ")
+    sys.stdout.flush()
+    while time.time() - start < timeout:
+        try:
+            req = urllib.request.Request(url, headers={"Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=2.0) as res:
+                if res.status == 200:
+                    print("PASSED.")
+                    return True
+        except Exception:
+            pass
+        time.sleep(0.5)
+    print("FAILED / TIMEOUT.")
+    return False
+
 def run_command(cmd, desc):
     print(f"[*] {desc}...")
     res = subprocess.run(cmd, shell=True)
@@ -68,11 +87,14 @@ def main():
     )
     admin_status = subprocess.check_output(admin_check_cmd, shell=True, text=True).strip()
     if "NO_ADMIN" in admin_status:
-        print("[*] Creating default admin account...")
-        env = os.environ.copy()
-        env.setdefault("ADMIN_EMAIL", "admin@globaltolocal.in")
-        env.setdefault("ADMIN_PASSWORD", "GoaHeritageAdmin123!")
-        subprocess.run(["python", "-m", "backend.cli", "create-admin"], env=env)
+        admin_pw = os.environ.get("ADMIN_PASSWORD")
+        if admin_pw:
+            print("[*] Creating admin account from ADMIN_PASSWORD environment variable...")
+            env = os.environ.copy()
+            env.setdefault("ADMIN_EMAIL", "admin@globaltolocal.in")
+            subprocess.run(["python", "-m", "backend.cli", "create-admin"], env=env)
+        else:
+            print("[*] Notice: No admin account found. Set ADMIN_EMAIL and ADMIN_PASSWORD in environment to create an admin account.")
 
     # 5. Launch FastAPI Backend and Vite Frontend concurrently
     print("\n" + "=" * 65)
@@ -89,6 +111,19 @@ def main():
     backend_proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", "8000", "--reload"],
     )
+
+    # Verify FastAPI Health & Readiness checks
+    if not wait_for_http_ready("http://127.0.0.1:8000/api/v1/health", "FastAPI Liveness (/api/v1/health)", timeout=20.0):
+        print("[!] ERROR: FastAPI failed health check at http://127.0.0.1:8000/api/v1/health")
+        backend_proc.kill()
+        sys.exit(1)
+
+    if not wait_for_http_ready("http://127.0.0.1:8000/api/v1/ready", "FastAPI Readiness (/api/v1/ready)", timeout=20.0):
+        print("[!] ERROR: FastAPI failed readiness check at http://127.0.0.1:8000/api/v1/ready")
+        backend_proc.kill()
+        sys.exit(1)
+
+    print("[+] Backend is fully ready (PostgreSQL & Redis connected).")
 
     # Start Vite Frontend
     npm_cmd = "npm.cmd" if sys.platform == "win32" else "npm"

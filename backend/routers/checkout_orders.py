@@ -239,8 +239,9 @@ def calculate_checkout_quote(
 
 
 def generate_next_order_number(db: Session) -> str:
+    year = datetime.now(timezone.utc).year
     seq_val = db.execute(text("SELECT nextval('order_number_seq')")).scalar()
-    return f"ORD-{int(seq_val):04d}"
+    return f"GTL-{year}-{int(seq_val):04d}"
 
 
 STATUS_LABELS: dict[OrderStatus, str] = {
@@ -354,6 +355,7 @@ def serialize_order(order: Order) -> dict[str, Any]:
         }
         if payment
         else None,
+        "razorpay_order_id": payment.provider_order_id if payment else None,
         # Frontend compatibility fields for CheckoutPage / OrderConfirmationPage / AccountPage
         "subtotal": order.subtotal_paise,
         "shipping": order.shipping_paise,
@@ -475,6 +477,7 @@ class InlineAddressInput(BaseModel):
 class CreateOrderRequest(BaseModel):
     address_id: Optional[uuid.UUID] = None
     address: Optional[InlineAddressInput] = None
+    delivery_address: Optional[InlineAddressInput] = None
     save_address: bool = False
     items: Optional[list[QuoteItemInput]] = None
     customer_note: Optional[str] = Field(None, max_length=500)
@@ -548,8 +551,8 @@ def create_order(
             "pincode": addr.pincode,
             "country": addr.country,
         }
-    elif payload.address:
-        in_addr = payload.address
+    elif (payload.address or payload.delivery_address):
+        in_addr = payload.address or payload.delivery_address
         pin = in_addr.pincode.strip()
         if not PINCODE_6_RE.match(pin):
             raise ProblemException(
@@ -612,6 +615,13 @@ def create_order(
     if payload.items and len(payload.items) > 0:
         for entry in payload.items:
             prod = resolve_product(db, entry.product_id)
+            if not prod.is_active or prod.deleted_at is not None or getattr(prod, "status", "published") != "published":
+                raise ProblemException(
+                    status_code=409,
+                    title="Product Unavailable",
+                    detail=f"'{prod.name}' is no longer available for purchase.",
+                    problem_type="https://globaltolocal.in/problems/product-unavailable",
+                )
             raw_items.append((prod, int(entry.quantity)))
     else:
         user_cart = db.query(Cart).filter(Cart.user_id == user.id).first()
@@ -622,17 +632,26 @@ def create_order(
                 detail="Your shopping bag is empty.",
                 problem_type="https://globaltolocal.in/problems/empty-cart",
             )
-        for ci in user_cart.items:
-            if ci.product and ci.product.is_active:
+        removed_count = 0
+        for ci in list(user_cart.items):
+            if (
+                ci.product
+                and ci.product.is_active
+                and ci.product.deleted_at is None
+                and getattr(ci.product, "status", "published") == "published"
+            ):
                 raw_items.append((ci.product, int(ci.quantity)))
-
-    if not raw_items:
-        raise ProblemException(
-            status_code=422,
-            title="Empty Bag",
-            detail="Your shopping bag has no active items.",
-            problem_type="https://globaltolocal.in/problems/empty-cart",
-        )
+            else:
+                db.delete(ci)
+                removed_count += 1
+        if removed_count > 0:
+            db.flush()
+            raise ProblemException(
+                status_code=409,
+                title="Bag Updated",
+                detail="One or more items in your bag became unavailable and were removed. Please review your bag.",
+                problem_type="https://globaltolocal.in/problems/cart-items-unavailable",
+            )
 
     # Lock inventory rows and reserve stock (30m window)
     subtotal_paise = 0

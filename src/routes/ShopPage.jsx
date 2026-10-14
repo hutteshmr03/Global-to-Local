@@ -115,14 +115,17 @@ export default function ShopPage() {
   const filteredProducts = useMemo(() => {
     return products
       .filter((p) => {
+        if (!p || p.is_active === false || p.status === 'Hidden' || p.status === 'Draft') {
+          return false;
+        }
         if (currentCategory !== 'all' && p.categorySlug !== currentCategory) {
           return false;
         }
         if (currentSearch) {
           const q = currentSearch.toLowerCase();
-          const matchesName = p.name.toLowerCase().includes(q);
+          const matchesName = (p.name || '').toLowerCase().includes(q);
           const matchesDesc = (p.description || '').toLowerCase().includes(q);
-          const matchesCat = p.categorySlug.toLowerCase().includes(q);
+          const matchesCat = (p.categorySlug || '').toLowerCase().includes(q);
           if (!matchesName && !matchesDesc && !matchesCat) return false;
         }
         if (inStockOnly && p.inStock === false) {

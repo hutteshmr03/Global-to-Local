@@ -25,11 +25,14 @@ export function getCsrfToken() {
 
 export class ApiProblemError extends Error {
   constructor(status, problem) {
-    super(problem?.detail || problem?.title || `Request failed (${status})`);
+    const rawMsg = problem?.detail || problem?.title || `Request failed (${status})`;
+    const isServerError = status >= 500 || String(rawMsg).includes('500') || String(rawMsg).includes('ECONNREFUSED');
+    const friendlyMsg = isServerError ? 'Something went wrong. Please try again.' : rawMsg;
+    super(friendlyMsg);
     this.name = 'ApiProblemError';
     this.status = status;
-    this.title = problem?.title || 'Error';
-    this.detail = problem?.detail || this.message;
+    this.title = problem?.title || (isServerError ? 'Something went wrong' : 'Error');
+    this.detail = friendlyMsg;
     this.type = problem?.type || '';
     this.errors = problem?.errors || [];
     this.traceId = problem?.trace_id || '';
@@ -83,18 +86,19 @@ export async function apiFetch(path, options = {}) {
     networkFailed = true;
   }
 
-  // Standalone fallback: If backend server is not hosted (any 5xx error like 500/502/503/504 or 404, or network unreachable)
-  if (networkFailed || (res && (res.status === 404 || res.status >= 500))) {
+  // Standalone fallback: Only when backend server is completely unreachable (networkFailed)
+  // Ensures catalogue fallback never overrides live API data.
+  if (networkFailed) {
     try {
       const mockResult = await handleMockBackend(path, options, method);
       if (mockResult !== undefined) {
         return mockResult;
       }
     } catch (mockErr) {
-      if (mockErr instanceof ApiProblemError) {
+      if (mockErr instanceof ApiProblemError || mockErr.name === 'ApiProblemError') {
         throw mockErr;
       }
-      throw new ApiProblemError(400, { detail: mockErr.message || 'Request failed' });
+      throw new ApiProblemError(mockErr.status || 400, { detail: mockErr.detail || mockErr.message || 'Request failed' });
     }
   }
 

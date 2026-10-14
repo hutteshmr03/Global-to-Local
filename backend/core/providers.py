@@ -163,6 +163,32 @@ def send_order_status_email(
     )
 
 
+def send_enquiry_acknowledgement_email(
+    to_email: Optional[str],
+    name: str,
+    enquiry_type: str,
+    subject: Optional[str] = None,
+) -> None:
+    if not to_email:
+        return
+    provider = get_email_provider()
+    type_display = enquiry_type.replace('_', ' ').title()
+    provider.send_email(
+        to_email=to_email,
+        subject=f"Enquiry Received: {type_display} — Global to Local Goa",
+        body_text=(
+            f"Dear {name},\n\n"
+            f"Thank you for contacting Global to Local, Fontainhas, Goa.\n"
+            f"We have received your {type_display} enquiry (\"{subject or type_display}\").\n"
+            f"Our team will review your requirements and respond shortly.\n\n"
+            f"Warm regards,\n"
+            f"Global to Local Team\n"
+            f"31st January Road, Fontainhas, Panaji, Goa"
+        ),
+        meta={"enquiry_type": enquiry_type, "type": "enquiry_acknowledgement"},
+    )
+
+
 def verify_captcha_token(token: Optional[str], remote_ip: Optional[str] = None) -> bool:
     if not token or token.strip() == "" or token.strip().upper() in ("FAIL", "INVALID", "BOT"):
         raise ProblemException(

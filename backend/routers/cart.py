@@ -29,7 +29,12 @@ def resolve_product(
         prod = (
             db.query(Product)
             .options(joinedload(Product.inventory), joinedload(Product.images), joinedload(Product.category))
-            .filter(Product.legacy_id == int(ref_str), Product.is_active == True, Product.deleted_at.is_(None))  # noqa: E712
+            .filter(
+                Product.legacy_id == int(ref_str),
+                Product.is_active == True,  # noqa: E712
+                Product.deleted_at.is_(None),
+                Product.status == "published",
+            )
             .first()
         )
     if not prod:
@@ -38,7 +43,12 @@ def resolve_product(
             prod = (
                 db.query(Product)
                 .options(joinedload(Product.inventory), joinedload(Product.images), joinedload(Product.category))
-                .filter(Product.id == u, Product.is_active == True, Product.deleted_at.is_(None))  # noqa: E712
+                .filter(
+                    Product.id == u,
+                    Product.is_active == True,  # noqa: E712
+                    Product.deleted_at.is_(None),
+                    Product.status == "published",
+                )
                 .first()
             )
         except ValueError:
@@ -51,6 +61,7 @@ def resolve_product(
                 (Product.slug == ref_str) | (Product.sku == ref_str),
                 Product.is_active == True,  # noqa: E712
                 Product.deleted_at.is_(None),
+                Product.status == "published",
             )
             .first()
         )
@@ -137,15 +148,19 @@ def get_or_create_cart(
     return cart
 
 
-def serialize_cart(cart: Cart) -> dict[str, Any]:
+def serialize_cart(cart: Cart, db: Optional[Session] = None) -> dict[str, Any]:
     items_out: list[dict[str, Any]] = []
     subtotal_paise = 0
     total_qty = 0
     total_weight_grams = 0
+    removed_items: list[str] = []
 
-    for ci in cart.items:
+    for ci in list(cart.items):
         prod = ci.product
-        if not prod or not prod.is_active or prod.deleted_at is not None:
+        if not prod or not prod.is_active or prod.deleted_at is not None or getattr(prod, "status", "published") != "published":
+            removed_items.append(prod.name if prod else "An item")
+            if db:
+                db.delete(ci)
             continue
         # Server always takes current price from database
         unit_price = prod.price_paise
@@ -189,7 +204,7 @@ def serialize_cart(cart: Cart) -> dict[str, Any]:
             }
         )
 
-    return {
+    res = {
         "id": str(cart.id),
         "user_id": str(cart.user_id) if cart.user_id else None,
         "items": items_out,
@@ -197,6 +212,12 @@ def serialize_cart(cart: Cart) -> dict[str, Any]:
         "subtotal_paise": subtotal_paise,
         "total_weight_grams": total_weight_grams,
     }
+    if removed_items:
+        if db:
+            db.flush()
+        names = ", ".join(f"'{n}'" for n in removed_items)
+        res["notice"] = f"{names} was removed from your bag as it is no longer available."
+    return res
 
 
 def merge_guest_cart_into_user_cart(
@@ -306,7 +327,7 @@ def get_cart(
 ):
     cart = get_or_create_cart(db, user, request, response)
     db.commit()
-    return serialize_cart(cart)
+    return serialize_cart(cart, db=db)
 
 
 @router.post("/items")
@@ -372,7 +393,7 @@ def add_item_to_cart(
 
     db.commit()
     db.refresh(cart)
-    return serialize_cart(cart)
+    return serialize_cart(cart, db=db)
 
 
 @router.patch("/items/{item_ref}")
@@ -423,7 +444,7 @@ def update_cart_item(
             db.add(ci)
             db.commit()
             db.refresh(cart)
-            return serialize_cart(cart)
+            return serialize_cart(cart, db=db)
 
     if not ci:
         raise ProblemException(
@@ -449,7 +470,7 @@ def update_cart_item(
 
     db.commit()
     db.refresh(cart)
-    return serialize_cart(cart)
+    return serialize_cart(cart, db=db)
 
 
 @router.delete("/items/{item_ref}")
@@ -477,7 +498,7 @@ def remove_cart_item(
         db.delete(ci)
         db.commit()
         db.refresh(cart)
-    return serialize_cart(cart)
+    return serialize_cart(cart, db=db)
 
 
 @router.delete("")
@@ -491,7 +512,7 @@ def clear_cart(
     db.query(CartItem).filter(CartItem.cart_id == cart.id).delete()
     db.commit()
     db.refresh(cart)
-    return serialize_cart(cart)
+    return serialize_cart(cart, db=db)
 
 
 @router.post("/merge")
@@ -509,4 +530,4 @@ def merge_cart_endpoint(
         guest_items=payload.items,
     )
     db.commit()
-    return serialize_cart(cart)
+    return serialize_cart(cart, db=db)

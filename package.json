@@ -10,7 +10,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "smoke": "node scripts/smoke_test.cjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.67.2",

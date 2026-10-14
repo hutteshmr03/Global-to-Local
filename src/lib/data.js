@@ -3841,7 +3841,7 @@ export const faqs = [
   },
   {
     "q": "Can I cancel my order?",
-    "a": "You can cancel an order directly from your account page anytime before it is dispatched (packed/shipped). Paid orders are immediately refunded."
+    "a": "You can cancel an order directly from your account page while it is pending payment. For paid orders, please contact the store to cancel."
   },
   {
     "q": "What payment methods do you accept?",

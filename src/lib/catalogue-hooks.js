@@ -47,7 +47,7 @@ export function useAllProducts() {
       try {
         const items = await fetchAllCatalogueProducts();
         if (items && Array.isArray(items) && items.length > 0) {
-          return items;
+          return items.filter((p) => p.is_active !== false && p.status !== 'Hidden' && p.status !== 'Draft');
         }
         return fallbackProducts;
       } catch (err) {
@@ -55,8 +55,6 @@ export function useAllProducts() {
         return fallbackProducts;
       }
     },
-    initialData: fallbackProducts,
-    placeholderData: fallbackProducts,
   });
 }
 
@@ -70,8 +68,8 @@ export function useCategoryProducts(categorySlug) {
     queryFn: async () => {
       try {
         const res = await apiFetch(`/api/v1/products?category=${encodeURIComponent(categorySlug)}&page_size=60`);
-        if (res && Array.isArray(res.items) && res.items.length > 0) {
-          return res.items;
+        if (res && Array.isArray(res.items)) {
+          return res.items.filter((p) => p.is_active !== false && p.status !== 'Hidden' && p.status !== 'Draft');
         }
         return fallback;
       } catch (err) {
@@ -80,8 +78,6 @@ export function useCategoryProducts(categorySlug) {
       }
     },
     enabled: Boolean(categorySlug),
-    initialData: fallback,
-    placeholderData: fallback,
   });
 }
 
@@ -100,15 +96,24 @@ export function useProductDetail(slug) {
     queryFn: async () => {
       try {
         const res = await apiFetch(`/api/v1/products/${encodeURIComponent(slug)}`);
-        return res || fallback;
+        if (!res || res.is_active === false || res.status === 'Hidden' || res.status === 'Draft') {
+          return null;
+        }
+        return res;
       } catch (err) {
-        console.warn(`API /api/v1/products/${slug} unreachable; using fallback:`, err);
-        return fallback;
+        // If server explicitly returned 404 (product hidden, deleted, or does not exist),
+        // we MUST return null so the customer is NOT shown a hidden product!
+        if (err.status === 404) {
+          return null;
+        }
+        // Only if network dropped completely do we use fallback
+        if (err.status === 503 || err.name === 'TypeError' || err.message?.includes('unreachable')) {
+          return fallback;
+        }
+        return null;
       }
     },
     enabled: Boolean(slug),
-    initialData: fallback,
-    placeholderData: fallback,
   });
 }
 
@@ -118,8 +123,8 @@ export function useCollection(slug, fallbackItems = []) {
     queryFn: async () => {
       try {
         const res = await apiFetch(`/api/v1/collections/${encodeURIComponent(slug)}`);
-        if (res && Array.isArray(res.items) && res.items.length > 0) {
-          return res.items;
+        if (res && Array.isArray(res.items)) {
+          return res.items.filter((p) => p.is_active !== false && p.status !== 'Hidden' && p.status !== 'Draft');
         }
         return fallbackItems;
       } catch {
@@ -127,8 +132,6 @@ export function useCollection(slug, fallbackItems = []) {
       }
     },
     enabled: Boolean(slug),
-    initialData: fallbackItems,
-    placeholderData: fallbackItems,
   });
 }
 
