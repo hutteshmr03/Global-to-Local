@@ -75,7 +75,7 @@ export default function HomePage() {
       {/* 9. Video Banner: Masala Makers */}
       <FilmVideoBanner
         title="Hands that grind the masala"
-        description="80% of what we stock is made by women from self-help groups. Asha Arondekar started the store as a social venture. We support livelihoods."
+        description="Founded by Asha Arondekar and made by women of Goa."
         videoSrc="/videos/maker.mp4"
         poster="/videos/maker-poster.jpg"
         alt="Hands grinding red masala"
