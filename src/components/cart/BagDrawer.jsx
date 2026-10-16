@@ -43,7 +43,7 @@ export default function BagDrawer() {
             <div className="flex items-center justify-between border-b border-border/40 px-6 py-5">
               <div className="flex items-center gap-2.5">
                 <ShoppingBag className="w-5 h-5 text-palm" />
-                <h2 className="font-display text-xl font-bold text-content">Your Bag</h2>
+                <h2 className="font-display text-xl font-bold text-content">Shopping Cart</h2>
                 <span className="text-xs font-semibold text-content-muted">
                   ({items.reduce((s, i) => s + i.qty, 0)} items)
                 </span>
@@ -51,7 +51,7 @@ export default function BagDrawer() {
               <button
                 onClick={closeCart}
                 className="p-1.5 text-content-muted hover:text-content rounded-full hover:bg-surface-muted transition-colors cursor-pointer"
-                aria-label="Close Bag"
+                aria-label="Close Shopping Cart"
               >
                 <X className="w-5 h-5" />
               </button>
