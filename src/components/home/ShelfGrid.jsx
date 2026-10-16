@@ -24,7 +24,7 @@ export default function ShelfGrid() {
             Everything Goan
           </h2>
           <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">
-            Art and handicraft, spices and grains, wellness, bakery, desserts — made in the state.
+            Art and handicraft, spices and grains, wellness, bakery, desserts — more exclusively from the state.
           </p>
         </motion.div>
 
