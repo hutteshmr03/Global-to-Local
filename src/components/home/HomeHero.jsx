@@ -50,7 +50,7 @@ export default function HomeHero() {
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-          className="max-w-[24rem] sm:max-w-[36rem] lg:max-w-[46rem]"
+          className="max-w-[26rem] sm:max-w-[46rem] lg:max-w-[56rem]"
         >
           {/* Tagline */}
           <p className="font-display text-xl sm:text-2xl lg:text-3xl italic text-content-ondark [text-shadow:0_1px_16px_rgba(18,38,43,0.45)]">
@@ -58,23 +58,21 @@ export default function HomeHero() {
           </p>
 
           {/* Heading (2 lines with big font) */}
-          <h1 className="mt-2.5 font-display text-[clamp(2.75rem,5.6vw,4.8rem)] font-bold leading-[1.0] tracking-[-0.03em] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.6)]">
-            AN EXCLUSIVE GOAN
+          <h1 className="mt-2.5 sm:mt-3 font-display text-[clamp(2.65rem,5.2vw,4.5rem)] font-bold leading-[1.04] tracking-[-0.03em] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.6)]">
+            <span className="sm:whitespace-nowrap">AN EXCLUSIVE GOAN</span>
             <br />
-            SUPERMARKET.
+            <span>SUPERMARKET.</span>
           </h1>
 
-          {/* Subheading (3 lines with big font) */}
-          <p className="mt-4 max-w-[40ch] font-sans text-base sm:text-lg lg:text-xl font-normal leading-[1.42] text-content-ondark/95 [text-shadow:0_1px_12px_rgba(18,38,43,0.45)]">
-            Local patios, Konkani on the speakers,
-            <br className="hidden sm:inline" />
-            {' '}shelves made by women across the
-            <br className="hidden sm:inline" />
-            {' '}state. Open all through the week, 10 AM to 9 PM.
-          </p>
+          {/* Subheading (strictly 3 rows with clean spacing) */}
+          <div className="mt-4 sm:mt-5 max-w-2xl font-sans text-base sm:text-lg lg:text-xl font-normal leading-[1.46] text-content-ondark/95 [text-shadow:0_1px_12px_rgba(18,38,43,0.45)]">
+            <p className="block">Local patios, Konkani on the speakers,</p>
+            <p className="block">shelves made by women across the</p>
+            <p className="block">state. Open all through the week, 10 AM to 9 PM.</p>
+          </div>
 
           {/* Action Buttons */}
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 sm:mt-7 flex flex-wrap items-center gap-3.5">
             <Link
               to="/shop"
               className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
@@ -90,7 +88,7 @@ export default function HomeHero() {
           </div>
 
           {/* Address - Always in a single row */}
-          <p className="mt-3.5 whitespace-nowrap text-[12px] sm:text-sm text-content-ondark/85 tracking-tight [text-shadow:0_1px_8px_rgba(18,38,43,0.45)]">
+          <p className="mt-4 whitespace-nowrap text-[12px] sm:text-sm text-content-ondark/85 tracking-tight [text-shadow:0_1px_8px_rgba(18,38,43,0.45)]">
             {siteConfig.contact.address}
           </p>
         </motion.div>
