@@ -59,9 +59,9 @@ export default function HomeHero() {
 
           {/* Heading (2 lines with big font) */}
           <h1 className="mt-2.5 font-display text-[clamp(2.75rem,5.6vw,4.8rem)] font-bold leading-[1.0] tracking-[-0.03em] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.6)]">
-            An exclusive Goan
+            AN EXCLUSIVE GOAN
             <br />
-            supermarket.
+            SUPERMARKET.
           </h1>
 
           {/* Subheading (3 lines with big font) */}
