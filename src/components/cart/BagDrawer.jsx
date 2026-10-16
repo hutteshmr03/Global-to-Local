@@ -196,7 +196,7 @@ export default function BagDrawer() {
                     onClick={closeCart}
                     className="flex w-full items-center justify-center rounded-pill border border-border px-6 py-2.5 text-sm font-semibold text-content hover:bg-surface-muted transition-colors"
                   >
-                    View Full Bag
+                    View Full Shopping Cart
                   </Link>
                 </div>
               </div>
