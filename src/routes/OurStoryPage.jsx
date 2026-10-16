@@ -214,14 +214,6 @@ export default function OurStoryPage() {
               <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">
                 We at Global to Local like to take things the extra mile, an experience is what it’s called by all that visit us with our staff educating you on the uniqueness, creativity, and process that goes into making Goa so culturally enriched.
               </p>
-              <div className="mt-8">
-                <Link
-                  to="/shop"
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-border bg-transparent px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-content hover:bg-surface transition-all duration-200 active:scale-[0.985] shadow-xs"
-                >
-                  Shop the shelves
-                </Link>
-              </div>
             </motion.div>
 
             {/* 2-Image Staggered Gallery */}
