@@ -80,7 +80,7 @@ export default function HomePage() {
         poster="/videos/maker-poster.jpg"
         alt="Hands grinding red masala"
         ctaText="Meet the makers"
-        ctaLink="/our-social-corner"
+        ctaLink="/our-story"
         frondPosition="bottom-right"
       />
 

@@ -76,7 +76,7 @@ export default function FactsTicker() {
           className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-5"
         >
           <Link
-            to="/our-social-corner"
+            to="/our-story"
             className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-palm bg-palm px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-content-ondark hover:bg-ink-deep hover:border-ink-deep transition-all duration-200 active:scale-[0.985] shadow-sm"
           >
             Meet the makers
