@@ -60,23 +60,20 @@ export default function OurSocialCornerPage() {
           {/* Floating shell motifs */}
           <ShellDrift tone="dark" />
 
-          <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 pt-12 sm:pt-16 pb-8 sm:pb-10">
+          <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 py-6 sm:py-8 lg:py-10">
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex flex-col justify-between gap-6 sm:gap-8"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-8"
             >
-              <div className="max-w-2xl">
-                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight text-content-ondark">
+              <div>
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-content-ondark">
                   Our Social Corner
                 </h1>
-                <p className="mt-4 sm:mt-5 text-base sm:text-lg lg:text-xl text-content-ondark-muted leading-relaxed max-w-2xl">
-                  80% of our products are made by women from self-help groups. This is the part of the store that matters most to us.
-                </p>
               </div>
 
-              <div className="flex justify-end pt-2 sm:pt-4">
+              <div className="shrink-0">
                 <a
                   href="https://www.instagram.com/globaltolocalgoa/"
                   target="_blank"
