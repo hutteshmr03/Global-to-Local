@@ -37,7 +37,7 @@ export default function MakerSteps() {
   return (
     <section className="relative mx-[clamp(12px,2.5vw,32px)] my-3 overflow-clip rounded-2xl bg-surface-muted text-content">
       {/* Main Container */}
-      <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell py-20 sm:py-24 lg:py-28 relative z-10">
+      <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell py-10 sm:py-14 lg:py-16 relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -52,14 +52,14 @@ export default function MakerSteps() {
         </motion.div>
 
         {/* Zig-Zag Alternating Steps */}
-        <div className="mt-12 sm:mt-16 lg:mt-20 space-y-20 sm:space-y-28 lg:space-y-36">
+        <div className="mt-8 sm:mt-10 lg:mt-12 space-y-10 sm:space-y-14 lg:space-y-16">
           {steps.map((step, idx) => {
             const isEven = idx % 2 === 0;
 
             return (
               <div
                 key={step.num}
-                className={`grid grid-cols-1 lg:grid-cols-12 items-center gap-8 sm:gap-12 lg:gap-16 ${
+                className={`grid grid-cols-1 lg:grid-cols-12 items-center gap-6 sm:gap-10 lg:gap-12 ${
                   isEven ? '' : 'lg:grid-flow-dense'
                 }`}
               >
@@ -71,7 +71,7 @@ export default function MakerSteps() {
                   transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                   className={`lg:col-span-6 ${isEven ? '' : 'lg:col-start-7'}`}
                 >
-                  <div className="group relative aspect-[4/3] sm:aspect-[16/11] overflow-hidden rounded-3xl border border-border/40 bg-surface shadow-md transition-all duration-500 hover:shadow-xl hover:border-accent/30">
+                  <div className="group relative aspect-[16/10] sm:aspect-[16/10] overflow-hidden rounded-2xl sm:rounded-3xl border border-border/40 bg-surface shadow-md transition-all duration-500 hover:shadow-xl hover:border-accent/30">
                     <img
                       src={step.image}
                       alt={step.alt}
@@ -80,7 +80,7 @@ export default function MakerSteps() {
                     />
 
                     {/* Subtle Corner Step Pill */}
-                    <div className="absolute top-4 left-4 rounded-full bg-ground/90 backdrop-blur-md px-3.5 py-1 text-xs font-display font-bold text-accent border border-border/30 shadow-xs">
+                    <div className="absolute top-3.5 left-3.5 sm:top-4 sm:left-4 rounded-full bg-ground/90 backdrop-blur-md px-3 py-0.5 sm:px-3.5 sm:py-1 text-xs font-display font-bold text-accent border border-border/30 shadow-xs">
                       Step {step.num}
                     </div>
                   </div>
@@ -104,11 +104,11 @@ export default function MakerSteps() {
                       </h3>
                     </div>
 
-                    <p className="mt-4 sm:mt-5 text-base sm:text-lg text-content-muted leading-relaxed">
+                    <p className="mt-2.5 sm:mt-3 text-base sm:text-lg text-content-muted leading-relaxed">
                       {step.body}
                     </p>
 
-                    <div className="mt-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent/80">
+                    <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent/80">
                       <span>Goan Craft & Heritage</span>
                       <span className="text-accent">✦</span>
                       <span>Handmade</span>

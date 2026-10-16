@@ -88,7 +88,7 @@ export default function ShelfRail() {
   };
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24 mx-[clamp(12px,2.5vw,32px)] my-3 overflow-clip rounded-2xl bg-surface-muted text-content">
+    <section className="py-10 sm:py-12 lg:py-14 mx-[clamp(12px,2.5vw,32px)] my-3 overflow-clip rounded-2xl bg-surface-muted text-content">
       <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -99,14 +99,14 @@ export default function ShelfRail() {
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content">
             Everything Goan
           </h2>
-          <p className="mt-4 max-w-2xl text-base sm:text-lg text-content-muted leading-relaxed">
+          <p className="mt-2.5 sm:mt-3 max-w-2xl text-base sm:text-lg text-content-muted leading-relaxed">
             Art and handicraft, spices and grains, wellness, bakery, desserts — more exclusively from the state.
           </p>
         </motion.div>
       </div>
 
       {/* 13 Category Cards Rail */}
-      <div className="mt-10 lg:mt-12">
+      <div className="mt-6 sm:mt-8">
         <div className="relative">
           <div
             ref={shelfRailRef}
@@ -137,7 +137,7 @@ export default function ShelfRail() {
                         className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
                       />
                     </div>
-                    <div className="p-5">
+                    <div className="p-4 sm:p-5">
                       <div className="flex items-baseline justify-between gap-3">
                         <h3 className="text-base sm:text-[1.0625rem] font-semibold transition-colors group-hover:text-accent text-content">
                           {cat.name}
@@ -146,7 +146,7 @@ export default function ShelfRail() {
                           {count}
                         </span>
                       </div>
-                      <p className="mt-2 line-clamp-2 text-xs sm:text-sm leading-relaxed text-content-muted">
+                      <p className="mt-1.5 line-clamp-2 text-xs sm:text-sm leading-relaxed text-content-muted">
                         {cat.blurb}
                       </p>
                     </div>
@@ -157,7 +157,7 @@ export default function ShelfRail() {
           </div>
 
           {/* Scroll Navigation Controls */}
-          <div className="mt-6 flex items-center gap-5 rail-gutter">
+          <div className="mt-4 sm:mt-5 flex items-center gap-5 rail-gutter">
             <div className="h-1 flex-1 overflow-hidden rounded-full bg-border/40" role="presentation">
               <div
                 className="h-full rounded-full bg-accent will-change-[width] transition-[width] duration-150 ease-out"
