@@ -97,10 +97,10 @@ export default function ShelfRail() {
           transition={{ duration: 0.5 }}
         >
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content">
-            Thirteen shelves, all Goan
+            Everything Goan
           </h2>
-          <p className="mt-4 max-w-[52ch] text-base sm:text-lg text-content-muted leading-relaxed">
-            Every shelf is stocked from the state. Pick one, or filter the whole catalogue below.
+          <p className="mt-4 max-w-2xl text-base sm:text-lg text-content-muted leading-relaxed">
+            Art and handicraft, spices and grains, wellness, bakery, desserts — more exclusively from the state.
           </p>
         </motion.div>
       </div>
