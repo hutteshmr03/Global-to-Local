@@ -529,6 +529,17 @@ def test_admin_create_product_auth_and_validation(admin_test_setup):
         assert pc.new_paise == 45000
         assert pc.old_paise == 0
     finally:
+        # Clean up test product and related records
+        try:
+            p_uuid = uuid.UUID(prod_id)
+            db.query(ProductImage).filter(ProductImage.product_id == p_uuid).delete(synchronize_session=False)
+            db.query(StockMovement).filter(StockMovement.product_id == p_uuid).delete(synchronize_session=False)
+            db.query(PriceChange).filter(PriceChange.product_id == p_uuid).delete(synchronize_session=False)
+            db.query(Inventory).filter(Inventory.product_id == p_uuid).delete(synchronize_session=False)
+            db.query(Product).filter(Product.id == p_uuid).delete(synchronize_session=False)
+            db.commit()
+        except Exception:
+            db.rollback()
         db.close()
 
 
