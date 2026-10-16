@@ -14,7 +14,7 @@ export default function FilmVideoBanner({
 }) {
   return (
     <section className="relative bg-ground px-[clamp(12px,2.5vw,32px)] py-[clamp(10px,1.6vw,22px)]">
-      <div className="relative isolate overflow-hidden rounded-xl bg-ink-deep text-content-ondark min-h-[88vh]">
+      <div className="relative isolate overflow-hidden rounded-2xl bg-ink-deep text-content-ondark min-h-[68vh] sm:min-h-[74vh] lg:min-h-[78vh] shadow-lg">
         {/* Background Video */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden bg-ink-deep">
           <div className="absolute -inset-[12%] will-change-transform" style={{ transform: 'scale(1.08)' }}>
@@ -52,25 +52,25 @@ export default function FilmVideoBanner({
         )}
 
         {/* Content Container */}
-        <div className="relative z-10 flex min-h-[88vh] flex-col justify-end px-5 pb-16 pt-28 sm:px-8 sm:pb-20 lg:px-16">
+        <div className="relative z-10 flex min-h-[68vh] sm:min-h-[74vh] lg:min-h-[78vh] flex-col justify-end px-6 pb-12 pt-20 sm:px-10 sm:pb-16 lg:px-16">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-[22rem] sm:max-w-[28rem] lg:max-w-[34rem]"
+            className="max-w-3xl lg:max-w-4xl"
           >
-            <h2 className="font-display text-[clamp(2.1rem,4.6vw,3.4rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.55)]">
+            <h2 className="font-display text-[clamp(2rem,3.8vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.025em] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.55)] whitespace-normal sm:whitespace-nowrap">
               {title}
             </h2>
-            <p className="mt-5 max-w-[42ch] text-base sm:text-lg leading-relaxed text-content-ondark/95 [text-shadow:0_1px_14px_rgba(18,38,43,0.5)]">
+            <p className="mt-3.5 sm:mt-4 max-w-2xl text-base sm:text-lg leading-relaxed text-content-ondark/95 [text-shadow:0_1px_14px_rgba(18,38,43,0.5)] whitespace-normal sm:whitespace-nowrap">
               {description}
             </p>
             {ctaText && ctaLink && (
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-7">
                 <Link
                   to={ctaLink}
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-6 py-3 text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
                 >
                   {ctaText}
                 </Link>
