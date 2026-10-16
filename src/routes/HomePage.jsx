@@ -4,6 +4,7 @@ import FactsTicker from '../components/home/FactsTicker';
 import FilmVideoDuo from '../components/home/FilmVideoDuo';
 import FilmVideoBanner from '../components/home/FilmVideoBanner';
 import ShelfGrid from '../components/home/ShelfGrid';
+import ShelfRail from '../components/home/ShelfRail';
 import MakerSteps from '../components/home/MakerSteps';
 import ShellShelf from '../components/home/ShellShelf';
 import ReviewCarousel from '../components/home/ReviewCarousel';
@@ -41,6 +42,9 @@ export default function HomePage() {
           },
         ]}
       />
+
+      {/* 4. Thirteen shelves, all Goan horizontal rail */}
+      <ShelfRail />
 
       {/* 5. All 13 Shelves Interactive Grid */}
       <ShelfGrid />
