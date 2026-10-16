@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const revealSentence =
-  "One shop in Fontainhas. Thirteen shelves. Nearly everything on them ground, dried, woven or fired by hand — most of it by women from self-help groups across Goa.";
+  "One-stop shop in Fontainhas, locally handmade and homemade products crafted by women across Goa.";
 
 export default function FactsTicker() {
   const words = revealSentence.split(' ');
