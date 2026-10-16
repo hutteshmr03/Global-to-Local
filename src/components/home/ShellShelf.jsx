@@ -198,9 +198,14 @@ export default function ShellShelf() {
           transition={{ duration: 0.6 }}
         >
           <div className="flex flex-wrap items-end justify-between gap-6">
-            <h2 className="max-w-[24ch] font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
-              Shells that came back as lamps, mirrors and a tortoise
-            </h2>
+            <div>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content whitespace-normal sm:whitespace-nowrap">
+                Beach shells into Design
+              </h2>
+              <p className="mt-2.5 text-base sm:text-lg text-content-muted leading-relaxed whitespace-normal sm:whitespace-nowrap">
+                Cowries, conches and whelks off the Goan coast, cut and set by hand.
+              </p>
+            </div>
             <Link
               to="/product-category/hand-crafted"
               className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-border bg-surface px-6 py-2.5 text-sm font-semibold tracking-[-0.01em] text-content hover:bg-surface-muted hover:border-border-subtle transition-all duration-200 active:scale-[0.985] shadow-xs"
@@ -208,10 +213,6 @@ export default function ShellShelf() {
               All hand-crafted
             </Link>
           </div>
-
-          <p className="mt-4 max-w-[52ch] text-base sm:text-lg text-content-muted leading-relaxed">
-            Cowries, conches and whelks off the Goan coast, cut and set by hand. Swipe the shelf.
-          </p>
         </motion.div>
       </div>
 
