@@ -9,22 +9,22 @@ const pillars = [
   {
     num: '01',
     title: 'Everything is Goan in origin',
-    body: 'All our products are made in Goa and of Goan origin. Nothing is bought in from elsewhere and relabelled.'
+    body: 'All our products are made in Goa and of Goan origin.'
   },
   {
     num: '02',
     title: 'Made by women, at scale',
-    body: '80% of our products are made by women from self-help groups. We believe in our mantra: we support livelihoods.'
+    body: 'Handmade and Homemade by the women and we also store local goan brands.'
   },
   {
     num: '03',
-    title: 'Staff who can explain it',
+    title: 'Walk in for an experience and learn more about Goa',
     body: 'Our staff educate you on the uniqueness, creativity, and process that goes into making Goa so culturally enriched.'
   },
   {
     num: '04',
     title: 'We courier it home',
-    body: 'We courier across state and country borders, so nostalgia can be brought to your doorstep no matter where you are.'
+    body: 'We courier across state and country, so nostalgia can be brought to your doorstep no matter where you are.'
   }
 ];
 
@@ -327,7 +327,7 @@ export default function OurStoryPage() {
               Visiting Goa and want to take some of its flavour back home with you? We are not just a must visit for the locals to tick off their monthly stocks, but for every tourist of Goa who get to take back home a little bit of Goa in their backpacks.
             </p>
             <p className="mt-5 text-base sm:text-lg text-content-muted leading-relaxed">
-              Like something you bought and reminiscing your good ol’ days in Goa? Not a worry, we also courier across state and country borders so you can now have nostalgia brought to your doorstep no matter where you are.
+              Like something you bought and reminiscing your good ol’ days in Goa? Not a worry, we also courier across state and country so you can now have nostalgia brought to your doorstep no matter where you are.
             </p>
           </motion.div>
         </div>
