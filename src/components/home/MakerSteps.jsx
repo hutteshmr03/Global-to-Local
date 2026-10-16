@@ -26,8 +26,8 @@ const steps = [
   },
   {
     num: '04',
-    title: 'Packed in cane, sent on',
-    body: 'Wrapped and set into a cane basket by hand. Ask at the store or write to us — hampers are put together in Goa.',
+    title: 'Packed and Ready',
+    body: 'Customize and wrap into paper, cane and more',
     image: '/videos/hamper-poster.jpg',
     alt: 'Hands packing a cane basket',
   },
