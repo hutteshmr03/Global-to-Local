@@ -55,10 +55,7 @@ export default function BagPage() {
 
         {items.length === 0 ? (
           <div className="mt-16 rounded-2xl border border-border/40 bg-surface p-12 sm:p-16 text-center max-w-md mx-auto shadow-xs">
-            <h2 className="font-display text-2xl sm:text-3xl font-semibold text-content">The bag is empty</h2>
-            <p className="mt-2 text-base text-content-muted">
-              Thirteen shelves of Goa are waiting.
-            </p>
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold text-content">The shopping cart is empty</h2>
             <Link
               to="/shop"
               className="mt-6 inline-flex items-center justify-center rounded-pill bg-palm px-8 py-3 text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-md active:scale-[0.98]"

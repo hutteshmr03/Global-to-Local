@@ -87,11 +87,8 @@ export default function BagDrawer() {
               {items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center text-center py-16 px-4">
                   <h3 className="font-display text-2xl sm:text-[1.75rem] font-semibold text-content leading-tight">
-                    The bag is empty
+                    The shopping cart is empty
                   </h3>
-                  <p className="mt-2 text-sm sm:text-base text-content-muted leading-relaxed">
-                    Thirteen shelves of Goa are waiting.
-                  </p>
                   <Link
                     to="/shop"
                     onClick={closeCart}
