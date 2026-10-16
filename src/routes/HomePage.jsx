@@ -92,7 +92,12 @@ export default function HomePage() {
         banners={[
           {
             title: 'Customize gift hampers',
-            description: 'Gift hampers are packed in Goa, for addresses in Goa. Write to us or ask at the Fontainhas store — this site cannot take a hamper order yet.',
+            description: (
+              <>
+                <span className="block">Gift hampers are packed in Goa, for addresses in Goa.</span>
+                <span className="block">Write to us or ask at the Fontainhas store — this site cannot take a hamper order yet.</span>
+              </>
+            ),
             videoSrc: '/videos/hamper.mp4',
             poster: '/videos/hamper-poster.jpg',
             alt: 'Packing a cane basket',
@@ -101,7 +106,12 @@ export default function HomePage() {
           },
           {
             title: 'Local patios, Konkani on the speakers',
-            description: 'A quaint store in the Latin Quarters of Goa, Fontainhas. Open all through the week, 10 AM to 9 PM.',
+            description: (
+              <>
+                <span className="block">A quaint store in the Latin Quarters of Goa, Fontainhas.</span>
+                <span className="block">Open all through the week, 10 AM to 9 PM.</span>
+              </>
+            ),
             videoSrc: '/videos/patio.mp4',
             poster: '/videos/patio-poster.jpg',
             alt: 'Inside the Fontainhas store',

@@ -38,13 +38,13 @@ export default function FilmVideoDuo({ banners }) {
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 film-scrim" />
 
             {/* Content Box */}
-            <div className="relative z-10 max-w-[28rem]">
+            <div className="relative z-10 max-w-xl lg:max-w-2xl">
               <h2 className="font-display text-[clamp(1.85rem,3.2vw,2.75rem)] font-semibold leading-[1.05] tracking-[-0.025em] text-content-ondark [text-shadow:0_2px_20px_rgba(18,38,43,0.6)]">
                 {banner.title}
               </h2>
-              <p className="mt-3.5 max-w-[36ch] text-sm sm:text-base leading-relaxed text-content-ondark/95 [text-shadow:0_1px_12px_rgba(18,38,43,0.5)]">
+              <div className="mt-3.5 max-w-xl lg:max-w-2xl text-sm sm:text-base leading-relaxed text-content-ondark/95 [text-shadow:0_1px_12px_rgba(18,38,43,0.5)]">
                 {banner.description}
-              </p>
+              </div>
               {banner.ctaText && banner.ctaLink && (
                 <div className="mt-6">
                   <Link
