@@ -91,7 +91,7 @@ export default function HomePage() {
       <FilmVideoDuo
         banners={[
           {
-            title: 'Packed in cane, by hand',
+            title: 'Customize gift hampers',
             description: 'Gift hampers are packed in Goa, for addresses in Goa. Write to us or ask at the Fontainhas store — this site cannot take a hamper order yet.',
             videoSrc: '/videos/hamper.mp4',
             poster: '/videos/hamper-poster.jpg',
