@@ -3,7 +3,6 @@ import HomeHero from '../components/home/HomeHero';
 import FactsTicker from '../components/home/FactsTicker';
 import FilmVideoDuo from '../components/home/FilmVideoDuo';
 import FilmVideoBanner from '../components/home/FilmVideoBanner';
-import ShelfGrid from '../components/home/ShelfGrid';
 import ShelfRail from '../components/home/ShelfRail';
 import MakerSteps from '../components/home/MakerSteps';
 import ShellShelf from '../components/home/ShellShelf';
@@ -46,10 +45,7 @@ export default function HomePage() {
       {/* 4. Thirteen shelves, all Goan horizontal rail */}
       <ShelfRail />
 
-      {/* 5. All 13 Shelves Interactive Grid */}
-      <ShelfGrid />
-
-      {/* 6. Combined Single Row: Spices (Kokum) + Sustainable (Mitti) Video Banners */}
+      {/* 5. Combined Single Row: Spices (Kokum) + Sustainable (Mitti) Video Banners */}
       <FilmVideoDuo
         banners={[
           {
