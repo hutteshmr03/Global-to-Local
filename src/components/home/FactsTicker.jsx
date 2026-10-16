@@ -3,16 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShellCockleIcon } from '../common/Icons';
 
-const tickerItems = [
-  "Handmade in Goa",
-  "80% by women’s self-help groups",
-  "Thirteen shelves",
-  "Fontainhas, Panaji",
-  "Shells off the Goan shore",
-  "Packed in cane",
-  "Open 10 AM to 9 PM, all week"
-];
-
 const revealSentence =
   "One shop in Fontainhas. Thirteen shelves. Nearly everything on them ground, dried, woven or fired by hand — most of it by women from self-help groups across Goa.";
 
@@ -21,35 +11,6 @@ export default function FactsTicker() {
 
   return (
     <section className="relative isolate overflow-hidden bg-ground">
-      {/* Infinite Top Marquee Ticker */}
-      <div className="relative z-10 border-y border-border/40 py-4">
-        <div className="overflow-hidden flex">
-          <motion.div
-            className="flex w-max shrink-0 items-center"
-            animate={{ x: ['0%', '-50%'] }}
-            transition={{
-              duration: 32,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          >
-            {/* Repeated twice for infinite seamless loop */}
-            {[0, 1].map((loopIdx) => (
-              <ul
-                key={loopIdx}
-                className="flex shrink-0 items-center gap-8 pr-8 font-sans text-xs font-medium uppercase tracking-[0.14em] sm:gap-12 sm:pr-12 text-content-muted"
-              >
-                {tickerItems.map((item, idx) => (
-                  <li key={idx} className="flex shrink-0 items-center gap-8 sm:gap-12">
-                    <span className="whitespace-nowrap">{item}</span>
-                    <ShellCockleIcon className="h-[18px] w-[18px] text-accent/70" />
-                  </li>
-                ))}
-              </ul>
-            ))}
-          </motion.div>
-        </div>
-      </div>
 
       {/* "Why it is called Global to Local" Section (Clean background without floating shell motifs) */}
       <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 py-16 sm:py-24 lg:py-28">
