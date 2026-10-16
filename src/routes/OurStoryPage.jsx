@@ -111,12 +111,12 @@ export default function OurStoryPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-6 sm:mt-12 aspect-[21/9] overflow-hidden rounded-2xl border border-border bg-surface shadow-md lg:mt-20 group"
+            className="mt-6 sm:mt-12 aspect-[16/9] sm:aspect-[21/9] overflow-hidden rounded-2xl border border-border bg-surface shadow-md lg:mt-20 group"
           >
             <img
-              alt="Wide interior of the store: shelves, baskets, warm lamps"
-              src="/images/site/organic-products-hero.png"
-              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              alt="Visitors, women makers, and team members inside the Global to Local store"
+              src="/images/site/team.png"
+              className="h-full w-full object-cover object-[center_20%] transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             />
           </motion.div>
         </div>
@@ -240,7 +240,7 @@ export default function OurStoryPage() {
               >
                 <img
                   alt="Handicraft and woven baskets on display"
-                  src="/images/site/organic-products-hero.png"
+                  src="/images/site/hamper-patio.jpg"
                   className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
                 />
               </motion.div>
