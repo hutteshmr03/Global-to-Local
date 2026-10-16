@@ -21,7 +21,7 @@ export default function ShelfGrid() {
           className="max-w-2xl"
         >
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
-            All thirteen shelves
+            Everything Goan
           </h2>
           <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">
             Art and handicraft, spices and grains, wellness, bakery, desserts — made in the state.
