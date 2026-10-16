@@ -61,26 +61,23 @@ export default function InTheNewsPage() {
           {/* Floating shell motifs */}
           <ShellDrift tone="dark" />
 
-          <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 py-14 sm:py-18 lg:py-24">
+          <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 py-7 sm:py-9 lg:py-11">
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="max-w-3xl"
             >
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight text-content-ondark">
-                In the News
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-content-ondark">
+                They are Talking
               </h1>
-              <p className="mt-5 text-base sm:text-lg lg:text-xl text-content-ondark-muted leading-relaxed max-w-2xl">
-                What has been written about the store, the women who make its products, and the idea behind it.
-              </p>
             </motion.div>
           </div>
         </section>
       </div>
 
       {/* 2. PRESS ARTICLES GRID */}
-      <section className="py-16 sm:py-20 lg:py-24 bg-ground text-content">
+      <section className="py-10 sm:py-14 lg:py-16 bg-ground text-content">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {pressArticles.map((article, idx) => {
