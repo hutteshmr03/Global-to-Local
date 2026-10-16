@@ -97,7 +97,7 @@ export default function OurStoryPage() {
                 The brain child of Goan entrepreneur Asha Arondekar to support the local women of this tropical little state. Conceptualised during the pandemic as a sole social venture to support women and promote the forgotten essence of our serene state.
               </p>
               <p>
-                Since its inception two years ago, we have gone on to make{' '}
+                Since its inception five years ago, we have gone on to make{' '}
                 <strong className="font-semibold text-content">100+ Goan women financially independent</strong>{' '}
                 and creative while also assisting them in upgrading their skills to make them more confident, competent, and self sufficient individuals.
               </p>
@@ -168,7 +168,7 @@ export default function OurStoryPage() {
             transition={{ duration: 0.5 }}
             className="font-display text-3xl sm:text-4xl font-semibold text-content-ondark"
           >
-            What two years of buying local adds up to
+            What five years of buying local adds up to
           </motion.h2>
 
           <div className="mt-12 lg:mt-16">
