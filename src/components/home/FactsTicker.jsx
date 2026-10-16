@@ -10,7 +10,7 @@ const tickerItems = [
   "Fontainhas, Panaji",
   "Shells off the Goan shore",
   "Packed in cane",
-  "Open 9 am to 9 pm, all week"
+  "Open 10 AM to 9 PM, all week"
 ];
 
 const revealSentence =

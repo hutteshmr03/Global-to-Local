@@ -6,7 +6,7 @@ Vite, Python FastAPI, SQLAlchemy, Alembic, PostgreSQL, JWT authentication, and R
 Native + Expo + TypeScript mobile app is a future phase. 
 1. Purpose and scope 
 Global to Local is a one-shop Goan supermarket at Tarcar Mansion, Fontainhas, Panaji, Goa 403001, 
-open 9 am to 9 pm all week, selling products made in Goa across thirteen shelves. The website is rebuilt 
+open 10 AM to 9 PM all week, selling products made in Goa across thirteen shelves. The website is rebuilt 
 from scratch with new animations, a working bag and checkout, and a staff admin. The visual design 
 and colors stay exactly as they are today. 
 Precedence: the live website decides the look, copy and content. This document and the Backend 

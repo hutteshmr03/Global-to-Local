@@ -101,7 +101,7 @@ export default function HomePage() {
           },
           {
             title: 'Local patios, Konkani on the speakers',
-            description: 'A quaint store in the Latin Quarters of Goa, Fontainhas. Open all through the week, 9 am to 9 pm.',
+            description: 'A quaint store in the Latin Quarters of Goa, Fontainhas. Open all through the week, 10 AM to 9 PM.',
             videoSrc: '/videos/patio.mp4',
             poster: '/videos/patio-poster.jpg',
             alt: 'Inside the Fontainhas store',

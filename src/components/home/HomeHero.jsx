@@ -70,7 +70,7 @@ export default function HomeHero() {
             <br className="hidden sm:inline" />
             {' '}shelves made by women across the
             <br className="hidden sm:inline" />
-            {' '}state. Open all through the week, 9 am to 9 pm.
+            {' '}state. Open all through the week, 10 AM to 9 PM.
           </p>
 
           {/* Action Buttons */}

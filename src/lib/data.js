@@ -14,7 +14,7 @@ export const siteConfig = {
     phoneDisplay: "+91 80103 67153",
     phoneHref: "tel:+918010367153",
     supportEmail: "customerservice@globaltolocal.in",
-    hours: "Open all through the week, 9 am to 9 pm",
+    hours: "Open all through the week, 10 AM to 9 PM",
     mapsUrl: "https://maps.google.com/?q=Tarcar+Mansion+Fontainhas+Panaji+Goa"
   }
 };

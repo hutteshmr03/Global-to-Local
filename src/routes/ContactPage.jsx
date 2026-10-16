@@ -230,7 +230,7 @@ export default function ContactPage() {
                     Hours
                   </p>
                   <p className="mt-2 text-base sm:text-lg text-content">
-                    Open all through the week, 9 am to 9 pm
+                    Open all through the week, 10 AM to 9 PM
                   </p>
                 </div>
               </div>
@@ -390,7 +390,7 @@ export default function ContactPage() {
                 Inside the Fontainhas store
               </h2>
               <p className="mt-5 text-base sm:text-lg text-content-ondark/90 leading-relaxed [text-shadow:0_1px_14px_rgba(18,38,43,0.5)]">
-                Tarcar Mansion, Fontainhas, Panaji, Goa 403001. Open all through the week, 9 am to 9 pm.
+                Tarcar Mansion, Fontainhas, Panaji, Goa 403001. Open all through the week, 10 AM to 9 PM.
               </p>
               <div className="mt-8">
                 <a
