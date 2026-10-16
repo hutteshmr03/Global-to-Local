@@ -44,18 +44,15 @@ export default function MakerSteps() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6 }}
-          className="max-w-2xl text-left"
+          className="max-w-3xl text-left"
         >
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
-            Four steps from her kitchen to your shelf
+            Her kitchen to your home
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">
-            80% of what we stock is made by women from self-help groups across Goa. Nothing here comes off a line.
-          </p>
         </motion.div>
 
         {/* Zig-Zag Alternating Steps */}
-        <div className="mt-16 sm:mt-24 space-y-20 sm:space-y-28 lg:space-y-36">
+        <div className="mt-12 sm:mt-16 lg:mt-20 space-y-20 sm:space-y-28 lg:space-y-36">
           {steps.map((step, idx) => {
             const isEven = idx % 2 === 0;
 
