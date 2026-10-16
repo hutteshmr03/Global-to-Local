@@ -114,9 +114,9 @@ export default function OurStoryPage() {
             className="mt-6 sm:mt-12 aspect-[16/9] sm:aspect-[21/9] overflow-hidden rounded-2xl border border-border bg-surface shadow-md lg:mt-20 group"
           >
             <img
-              alt="Visitors, women makers, and team members inside the Global to Local store"
-              src="/images/site/team.png"
-              className="h-full w-full object-cover object-[center_20%] transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              alt="Customers and visitors exploring authentic Goan products and handcrafted textiles at Global to Local"
+              src="/images/site/community-shoppers.jpg"
+              className="h-full w-full object-cover object-[center_35%] transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             />
           </motion.div>
         </div>
