@@ -13,14 +13,14 @@ const steps = [
   {
     num: '02',
     title: 'Dried in the sun, cured slowly',
-    body: 'Kokum sola on cotton, papads on the roof, sola in the shade. The coast does half the work and it will not be hurried.',
+    body: 'Kokum sola on cotton, papads on the roof, sola in the shade. The coast does half the work.',
     image: '/videos/kokum-poster.jpg',
     alt: 'Kokum sola drying on cotton cloth',
   },
   {
     num: '03',
     title: 'Onto the shelf in Fontainhas',
-    body: 'It reaches Tarcar Mansion and goes out on the shelf beside the rest — one shop, thirteen shelves, all of it from the state.',
+    body: 'It reaches store and goes on to the shelf.',
     image: '/videos/patio-poster.jpg',
     alt: 'Inside the Global to Local store in Fontainhas',
   },
