@@ -136,7 +136,7 @@ export default function OurStoryPage() {
               One small state, one long coast
             </h2>
             <p className="mt-6 text-base sm:text-lg text-content-muted leading-relaxed">
-              Goa is a short stretch of coast and not much behind it. The kokum, the cashew, the coconut and the shells all come off this strip — and so does everything on our shelves.
+              Goa is not just about kokum, cashew and fish just walk into the store and learn more.
             </p>
           </motion.div>
         </div>
