@@ -7,7 +7,6 @@ import ProductCard from '../components/product/ProductCard';
 import ShellShelf from '../components/home/ShellShelf';
 import StoreBanner from '../components/home/StoreBanner';
 import ShellDrift from '../components/common/ShellDrift';
-import { ShellCockleIcon } from '../components/common/Icons';
 
 export default function ShopPage() {
   const { data: categories = [], isLoading: isCategoriesLoading, isError: isCategoriesError, refetch: refetchCategories } = useCategories();
@@ -186,11 +185,7 @@ export default function ShopPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <p className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-accent">
-              <ShellCockleIcon className="h-[18px] w-[18px]" />
-              <span>Shelf by shelf</span>
-            </p>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content">
               Thirteen shelves, all Goan
             </h2>
             <p className="mt-4 max-w-[52ch] text-base sm:text-lg text-content-muted leading-relaxed">
@@ -296,10 +291,7 @@ export default function ShopPage() {
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
           {/* Header */}
           <div className="border-b border-border/40 pb-8">
-            <span className="font-mono text-xs font-bold uppercase tracking-widest text-accent">
-              Explore The Shelves
-            </span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
               The Complete Goan Catalogue
             </h2>
             <p className="mt-3 max-w-2xl text-base text-content-muted leading-relaxed">

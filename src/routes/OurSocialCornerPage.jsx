@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star, ArrowUpRight, ArrowRight } from 'lucide-react';
-import { ShellCockleIcon } from '../components/common/Icons';
 import ShellDrift from '../components/common/ShellDrift';
 import StoreBanner from '../components/home/StoreBanner';
 import { useReviews } from '../lib/catalogue-hooks';
@@ -152,11 +151,7 @@ export default function OurSocialCornerPage() {
             transition={{ duration: 0.5 }}
             className="max-w-2xl"
           >
-            <p className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-accent">
-              <ShellCockleIcon className="h-[18px] w-[18px]" />
-              <span>From the visitors' book</span>
-            </p>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content">
               What people say after they visit
             </h2>
             <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">

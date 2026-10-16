@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useCategories } from '../../lib/catalogue-hooks';
-import { ShellCockleIcon } from '../common/Icons';
 
 export default function ShelfGrid() {
   const { data: categories = [] } = useCategories();
@@ -21,11 +20,7 @@ export default function ShelfGrid() {
           transition={{ duration: 0.6 }}
           className="max-w-2xl"
         >
-          <p className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-accent">
-            <ShellCockleIcon className="h-[18px] w-[18px]" />
-            The whole shop
-          </p>
-          <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
             All thirteen shelves
           </h2>
           <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">

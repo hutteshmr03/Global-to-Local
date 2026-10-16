@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { GoaPalmBranchIcon, TropicalSunIcon, CoastalWaveIcon, PalmLeafIcon } from '../components/common/Icons';
+import { TropicalSunIcon, CoastalWaveIcon, PalmLeafIcon } from '../components/common/Icons';
 import ShellDrift from '../components/common/ShellDrift';
 import StoreBanner from '../components/home/StoreBanner';
 
@@ -132,11 +132,7 @@ export default function OurStoryPage() {
             transition={{ duration: 0.6 }}
             className="max-w-2xl"
           >
-            <p className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-accent">
-              <GoaPalmBranchIcon className="h-4 w-4" />
-              <span>Where it all comes from</span>
-            </p>
-            <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.04] tracking-[-0.03em] text-content">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.04] tracking-[-0.03em] text-content">
               One small state, one long coast
             </h2>
             <p className="mt-6 text-base sm:text-lg text-content-muted leading-relaxed">

@@ -35,10 +35,7 @@ export default function CategoryPage() {
         {/* Shelf Header Banner */}
         <div className="rounded-2xl border border-border/40 bg-surface p-8 sm:p-10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="max-w-xl">
-            <span className="font-mono text-xs font-bold uppercase tracking-widest text-accent">
-              Shelf Category
-            </span>
-            <h1 className="mt-2 font-display text-3xl sm:text-4xl font-bold tracking-tight text-content">
+            <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-content">
               {category.name}
             </h1>
             <p className="mt-3 text-sm sm:text-base text-content-muted leading-relaxed">

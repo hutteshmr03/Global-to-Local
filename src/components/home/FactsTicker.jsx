@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShellCockleIcon } from '../common/Icons';
 
 const revealSentence =
   "One shop in Fontainhas. Thirteen shelves. Nearly everything on them ground, dried, woven or fired by hand — most of it by women from self-help groups across Goa.";
@@ -14,21 +13,9 @@ export default function FactsTicker() {
 
       {/* "Why it is called Global to Local" Section (Clean background without floating shell motifs) */}
       <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell relative z-10 py-16 sm:py-24 lg:py-28">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-        >
-          <p className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-accent">
-            <ShellCockleIcon className="h-[18px] w-[18px]" />
-            Why it is called Global to Local
-          </p>
-        </motion.div>
-
         {/* Slow, Refined Cinematic Word-by-Word Reveal */}
         <motion.p
-          className="flex flex-wrap mt-7 max-w-[34ch] font-display text-[clamp(1.75rem,4.2vw,3.1rem)] font-semibold leading-[1.18] tracking-[-0.026em] text-content"
+          className="flex flex-wrap max-w-[34ch] font-display text-[clamp(1.75rem,4.2vw,3.1rem)] font-semibold leading-[1.18] tracking-[-0.026em] text-content"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}

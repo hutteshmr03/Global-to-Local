@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ShellCockleIcon } from '../common/Icons';
 import ShellDrift from '../common/ShellDrift';
 import { useCollection } from '../../lib/catalogue-hooks';
 
@@ -198,12 +197,7 @@ export default function ShellShelf() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <p className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-accent">
-            <ShellCockleIcon className="h-[18px] w-[18px]" />
-            Picked off the shore
-          </p>
-
-          <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
+          <div className="flex flex-wrap items-end justify-between gap-6">
             <h2 className="max-w-[24ch] font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
               Shells that came back as lamps, mirrors and a tortoise
             </h2>

@@ -158,10 +158,7 @@ export default function InTheNewsPage() {
             transition={{ duration: 0.5 }}
             className="max-w-2xl"
           >
-            <span className="font-mono text-xs font-bold uppercase tracking-widest text-accent">
-              Recognition
-            </span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content-ondark">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-content-ondark">
               Awards and honours
             </h2>
             <p className="mt-4 text-base sm:text-lg text-content-ondark-muted leading-relaxed">

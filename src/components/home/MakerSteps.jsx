@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShellCockleIcon, ScallopTrimPattern } from '../common/Icons';
+import { ScallopTrimPattern } from '../common/Icons';
 
 const steps = [
   {
@@ -46,11 +46,7 @@ export default function MakerSteps() {
           transition={{ duration: 0.6 }}
           className="max-w-2xl text-left"
         >
-          <p className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-accent">
-            <ShellCockleIcon className="h-[18px] w-[18px]" />
-            Made by hand, start to finish
-          </p>
-          <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
             Four steps from her kitchen to your shelf
           </h2>
           <p className="mt-4 text-base sm:text-lg text-content-muted leading-relaxed">
