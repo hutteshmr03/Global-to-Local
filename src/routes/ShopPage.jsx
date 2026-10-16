@@ -166,10 +166,10 @@ export default function ShopPage() {
               className="max-w-3xl"
             >
               <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.08] text-content-ondark [text-shadow:0_1px_18px_rgba(18,38,43,0.45)]">
-                Everything on our shelves, made in Goa
+                Everything Goan
               </h1>
               <p className="mt-4 text-sm sm:text-base lg:text-lg text-content-ondark-muted leading-relaxed max-w-2xl">
-                Local Goan farm-grown vegetables, fruits, cashews, kokum, eggs, milk, sweets, savories, authentic Goan masalas, pastes, powders, and more.
+                Every shelf is stocked from the different parts of the state.
               </p>
             </motion.div>
           </div>
