@@ -30,9 +30,9 @@ const pillars = [
 
 const stats = [
   { value: '100+', label: 'Goan women made financially independent' },
-  { value: '80%', label: 'Of products made by women from self-help groups' },
-  { value: '13', label: 'Product categories, all Goan in origin' },
-  { value: '9–9', label: 'Open every day of the week' }
+  { value: '100%', label: 'Local authentic products' },
+  { value: '200+', label: 'Products, all Goan in origin' },
+  { value: '10AM to 9PM', label: 'Open every day of the week' }
 ];
 
 export default function OurStoryPage() {
@@ -182,7 +182,7 @@ export default function OurStoryPage() {
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   className="border-t border-white/20 pt-6"
                 >
-                  <p className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-none text-content-ondark">
+                  <p className="font-display text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight text-content-ondark">
                     {stat.value}
                   </p>
                   <p className="mt-3 text-xs sm:text-sm leading-relaxed text-content-ondark-muted">
