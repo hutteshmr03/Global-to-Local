@@ -90,7 +90,8 @@ export async function apiFetch(path, options = {}) {
   // or proxy gateway failed (502, 503, 504 on hosted preview environments like Vercel).
   // Ensures catalogue & preview fallback never overrides live API data on localhost.
   const isGatewayUnreachable = res && [502, 503, 504].includes(res.status);
-  if (networkFailed || isGatewayUnreachable) {
+  const isRouteNotFound = res && res.status === 404;
+  if (networkFailed || isGatewayUnreachable || isRouteNotFound) {
     try {
       const mockResult = await handleMockBackend(path, options, method);
       if (mockResult !== undefined) {
