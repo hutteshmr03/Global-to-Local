@@ -1180,7 +1180,7 @@ export default function AdminProducts() {
                   <div>
                     <h3 className="text-xs font-bold uppercase tracking-wider text-content-muted">Product Images</h3>
                     <p className="text-[11px] text-content-subtle">
-                      Upload JPG, PNG, or WebP up to 5 MB. Server verifies magic bytes and generates web-friendly sizes.
+                      Upload JPG, PNG up to 5 MB
                     </p>
                   </div>
                   {formData.images.length > 0 && (
