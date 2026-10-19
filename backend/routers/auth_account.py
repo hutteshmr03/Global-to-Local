@@ -230,24 +230,7 @@ def request_phone_otp(
                 problem_type="https://globaltolocal.in/problems/account-exists",
             )
 
-    # Strict 3 sends per hour per phone number (enforced in both Redis and DB)
     now = datetime.now(timezone.utc)
-    one_hour_ago = now - timedelta(hours=1)
-    recent_sends = (
-        db.query(func.count(OtpChallenge.id))
-        .filter(OtpChallenge.phone == phone, OtpChallenge.created_at >= one_hour_ago)
-        .scalar()
-        or 0
-    )
-    phone_ok, _, phone_ttl = check_rate_limit(f"rl:otp_phone:{phone}", max_attempts=3, window_seconds=3600)
-    if not phone_ok or recent_sends >= 3:
-        raise ProblemException(
-            status_code=429,
-            title="OTP Limit Reached",
-            detail="Maximum 3 verification codes can be sent per hour for this number. Please try again later.",
-            problem_type="https://globaltolocal.in/problems/otp-hourly-limit",
-            headers={"Retry-After": str(max(phone_ttl, 60))},
-        )
 
     # Neutral lookup rule for sign-in: do not reveal whether a phone is registered
     if payload.mode == "login" and not existing_user:
