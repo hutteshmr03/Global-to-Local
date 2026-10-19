@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, User, Menu, X, Search } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, Search, ShieldCheck } from 'lucide-react';
 import { useCartStore } from '../../lib/cart-store';
+import { useAuthStore } from '../../lib/auth-store';
 import { siteConfig } from '../../lib/data';
 
 const navLinks = [
@@ -30,6 +31,10 @@ export default function Header() {
     setIsMobileMenuOpen(false);
     setIsSearchOpen(false);
   }, [location.pathname, location.search]);
+
+  const user = useAuthStore(state => state.user);
+  const isAdminUser = user?.role === 'admin';
+  const accountPath = isAdminUser ? '/admin' : '/account';
 
   const totalItems = useCartStore(state => state.getTotalItems());
   const openCart = useCartStore(state => state.openCart);
@@ -256,19 +261,23 @@ export default function Header() {
               )}
             </motion.button>
 
-            {/* Customer Symbol Button (Flipkart Style) */}
+            {/* Customer / Admin Symbol Button */}
             <Link
-              to="/account"
+              to={accountPath}
               onClick={() => setIsMobileMenuOpen(false)}
-              aria-label="Customer Account / Profile"
-              title="My Account"
-              className={`grid h-10 w-10 sm:h-11 sm:w-11 cursor-pointer place-items-center rounded-pill border transition-all duration-200 active:scale-95 ${
+              aria-label={isAdminUser ? 'Admin Office' : 'Customer Account / Profile'}
+              title={isAdminUser ? 'Admin Office' : 'My Account'}
+              className={`relative grid h-10 w-10 sm:h-11 sm:w-11 cursor-pointer place-items-center rounded-pill border transition-all duration-200 active:scale-95 ${
                 isTransparentOnVideo
                   ? 'border-content-ondark/30 text-content-ondark hover:bg-content-ondark/10 hover:border-content-ondark/60'
                   : 'border-border/60 bg-surface text-content hover:bg-surface-muted shadow-xs'
               }`}
             >
-              <User className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+              {isAdminUser ? (
+                <ShieldCheck className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-palm" />
+              ) : (
+                <User className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+              )}
             </Link>
 
             {/* Mobile Hamburger Toggle */}
@@ -362,21 +371,25 @@ export default function Header() {
                     );
                   })}
 
-                  {/* My Account Option in Drawer */}
+                  {/* My Account / Admin Office Option in Drawer */}
                   <Link
-                    to="/account"
+                    to={accountPath}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center justify-between rounded-xl px-4 py-2.5 text-base font-medium transition-colors ${
-                      pathname.startsWith('/account') || pathname.startsWith('/login')
+                      pathname.startsWith('/account') || pathname.startsWith('/admin') || pathname.startsWith('/login')
                         ? isTransparentOnVideo ? 'bg-white/15 text-white font-semibold' : 'bg-surface-muted text-accent font-semibold'
                         : isTransparentOnVideo ? 'text-white/80 hover:bg-white/5' : 'text-content-muted hover:bg-surface'
                     }`}
                   >
                     <span className="flex items-center gap-2.5">
-                      <User className="w-4 h-4 text-accent" />
-                      <span>My Account</span>
+                      {isAdminUser ? (
+                        <ShieldCheck className="w-4 h-4 text-palm" />
+                      ) : (
+                        <User className="w-4 h-4 text-accent" />
+                      )}
+                      <span>{isAdminUser ? 'Admin Office' : 'My Account'}</span>
                     </span>
-                    {(pathname.startsWith('/account') || pathname.startsWith('/login')) && <span className="text-accent text-xs">●</span>}
+                    {(pathname.startsWith('/account') || pathname.startsWith('/admin') || pathname.startsWith('/login')) && <span className="text-accent text-xs">●</span>}
                   </Link>
 
                   <Link

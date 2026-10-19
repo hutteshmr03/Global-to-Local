@@ -154,6 +154,11 @@ export default function AccountPage() {
     return <Navigate to="/login" replace />;
   }
 
+  // If logged in as admin, redirect directly to admin portal
+  if (user.role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+
   return (
     <main id="main-content" className="pt-20 sm:pt-24 lg:pt-28 pb-16 bg-ground min-h-screen">
       <div className="mx-auto max-w-5xl px-4 sm:px-8">
