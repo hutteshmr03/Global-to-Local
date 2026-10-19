@@ -689,6 +689,16 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     const email = (body?.email || '').trim().toLowerCase();
     const isAdmin = email === 'admin@globaltolocal.in';
 
+    if (isAdmin) {
+      const storedPw = localStorage.getItem('gtl_admin_password') || 'AdminPass123!';
+      if (body?.password !== storedPw) {
+        throw new ApiProblemError(401, {
+          title: 'Sign-In Failed',
+          detail: 'Invalid email address or password.',
+        });
+      }
+    }
+
     const user = {
       id: isAdmin ? '7654a59a-d3f2-488a-92c5-b32f898d97a9' : `user-${Date.now()}`,
       email: email || 'shopper@globaltolocal.in',
@@ -1296,6 +1306,20 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   }
 
   if (pathname === '/api/v1/me/password' && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const storedPw = localStorage.getItem('gtl_admin_password') || 'AdminPass123!';
+    if (body?.current_password && body.current_password !== storedPw) {
+      throw new ApiProblemError(400, {
+        title: 'Current Password Incorrect',
+        detail: 'The current password you entered does not match our records.',
+      });
+    }
+    if (body?.new_password) {
+      localStorage.setItem('gtl_admin_password', body.new_password);
+    }
     return { status: 'password_updated', message: 'Password updated successfully.' };
   }
 
