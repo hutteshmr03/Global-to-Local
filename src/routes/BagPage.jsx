@@ -148,9 +148,12 @@ export default function BagPage() {
                     <span className="text-content-muted">Products Subtotal</span>
                     <span className="font-sans font-bold tabular-nums tracking-tight text-content">{formatPrice(subtotal)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-content-muted">Estimated Delivery</span>
-                    <span className="text-xs text-palm font-semibold">Calculated at checkout</span>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-content-muted block">Delivery Fee</span>
+                      <span className="text-[11px] text-content-subtle">Goa: ₹80 | Outside Goa: ₹120</span>
+                    </div>
+                    <span className="text-xs text-palm font-semibold">Based on address</span>
                   </div>
                 </div>
 
@@ -160,7 +163,7 @@ export default function BagPage() {
                 </div>
 
                 <p className="text-[11px] text-content-muted leading-relaxed">
-                  Prices inclusive of GST. Orders ship in 24–48 hours across India from Fontainhas.
+                  Prices inclusive of GST. Delivery is ₹80 within Goa (pincode 403xxx) or ₹120 for all other Indian states.
                 </p>
 
                 <Link

@@ -100,6 +100,17 @@ export default function OrderConfirmationPage() {
                   </span>
                 </div>
               ))}
+
+              {/* Delivery / Shipping Fee Row */}
+              <div className="flex items-center justify-between text-xs sm:text-sm text-content-muted pt-1">
+                <span className="flex items-center gap-1.5">
+                  <span>Delivery ({order.shipping_method || (order.shipping_paise === 8000 ? 'Goa Express' : 'Pan-India Standard')})</span>
+                </span>
+                <span className="font-sans font-semibold tabular-nums text-content">
+                  {formatPrice(order.shipping_paise ?? ((order.totalPaise || order.total_paise || 0) - order.items.reduce((acc, it) => acc + ((it.price || it.unit_price_paise || 0) * (it.qty || it.quantity || 1)), 0)))}
+                </span>
+              </div>
+
               <div className="flex items-center justify-between border-t border-border/20 pt-2 text-xs sm:text-sm font-bold text-content">
                 <span>Total</span>
                 <span className="font-sans text-accent tabular-nums">
