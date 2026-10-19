@@ -36,30 +36,30 @@
 }
 
 :root {
-  /* Brand and Semantic Colors */
-  --color-ground: #F7F0E2;              /* warm cream background */
-  --color-ground-alt: #FBF6EB;          /* light cream */
-  --color-surface: #FFFFFF;             /* pure white card background */
-  --color-surface-muted: #F4E8D0;       /* cream section tone */
-  --color-surface-tint: #ECE0C8;        /* subtle warm border/tint */
+  /* Brand and Semantic Colors: Mustard/Golden Yellow & Dark Chocolate Brown */
+  --color-ground: #F9F5EA;              /* warm light golden cream background */
+  --color-ground-alt: #FCF9F0;          /* soft golden off-white */
+  --color-surface: #FFFFFF;             /* crisp card background */
+  --color-surface-muted: #F2E8D0;       /* warm honey-golden section tint */
+  --color-surface-tint: #E8D8B6;        /* subtle warm border/tint */
   
-  --color-palm: #1C393F;                /* Goan palm green */
-  --color-palm-shade: #17332D;          /* deep palm green */
-  --color-ink-deep: #12262B;            /* dark ink */
+  --color-palm: #2B1810;                /* rich Dark Chocolate Brown */
+  --color-palm-shade: #1E100A;          /* deep roasted cacao brown */
+  --color-ink-deep: #1A0D07;            /* dark espresso brown */
   
-  --color-accent: #C45C4A;              /* Goan terracotta / red-clay */
-  --color-accent-hover: #B04F3E;        /* darker terracotta */
-  --color-accent-soft: rgba(196, 92, 74, 0.12);
+  --color-accent: #E5A823;              /* vibrant Mustard / Golden Yellow */
+  --color-accent-hover: #C98E15;        /* rich amber gold */
+  --color-accent-soft: rgba(229, 168, 35, 0.16);
   
-  --color-content: #2A221C;             /* deep brown-black text */
-  --color-content-muted: #6B625B;       /* secondary text */
-  --color-content-subtle: #8C827A;      /* caption text */
-  --color-content-ondark: #F7F0E2;      /* cream text on dark backgrounds */
-  --color-content-ondark-muted: rgba(247, 240, 226, 0.72);
+  --color-content: #22120B;             /* dark chocolate brown text */
+  --color-content-muted: #665043;       /* warm cocoa secondary text */
+  --color-content-subtle: #8C7567;      /* warm taupe caption text */
+  --color-content-ondark: #FDF9EE;      /* warm golden cream text on dark chocolate */
+  --color-content-ondark-muted: rgba(253, 249, 238, 0.78);
   
-  --color-border: #D4C2A4;              /* natural cane border */
-  --color-border-subtle: rgba(212, 194, 164, 0.45);
-  --color-border-ondark: rgba(247, 240, 226, 0.25);
+  --color-border: #DEC89C;              /* golden sand border */
+  --color-border-subtle: rgba(222, 200, 156, 0.45);
+  --color-border-ondark: rgba(253, 249, 238, 0.22);
 
   /* Typography */
   --font-display: 'Fraunces', Georgia, serif;
