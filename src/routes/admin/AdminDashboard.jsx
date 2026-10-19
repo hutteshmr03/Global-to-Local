@@ -196,7 +196,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link
           to="/admin/products"
-          className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all space-y-2"
+          className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all"
         >
           <div className="flex items-center justify-between">
             <span className="font-sans text-base sm:text-lg font-bold text-content group-hover:text-palm transition-colors">
@@ -204,14 +204,11 @@ export default function AdminDashboard() {
             </span>
             <ArrowRight className="w-4 h-4 text-content-muted group-hover:text-palm group-hover:translate-x-1 transition-all" />
           </div>
-          <p className="text-xs text-content-muted leading-relaxed">
-            Update prices with mandatory audit reasons, check price change logs, and toggle public shelf visibility.
-          </p>
         </Link>
 
         <Link
           to="/admin/orders"
-          className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all space-y-2"
+          className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all"
         >
           <div className="flex items-center justify-between">
             <span className="font-sans text-base sm:text-lg font-bold text-content group-hover:text-palm transition-colors">
@@ -219,14 +216,11 @@ export default function AdminDashboard() {
             </span>
             <ArrowRight className="w-4 h-4 text-content-muted group-hover:text-palm group-hover:translate-x-1 transition-all" />
           </div>
-          <p className="text-xs text-content-muted leading-relaxed">
-            Progress forward-only order statuses (Paid → Packed → Shipped → Delivered), attach AWB numbers, and email customers.
-          </p>
         </Link>
 
         <Link
           to="/admin/enquiries"
-          className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all space-y-2"
+          className="group rounded-2xl border border-border/60 bg-surface p-6 shadow-xs hover:border-palm transition-all"
         >
           <div className="flex items-center justify-between">
             <span className="font-sans text-base sm:text-lg font-bold text-content group-hover:text-palm transition-colors">
@@ -234,9 +228,6 @@ export default function AdminDashboard() {
             </span>
             <ArrowRight className="w-4 h-4 text-content-muted group-hover:text-palm group-hover:translate-x-1 transition-all" />
           </div>
-          <p className="text-xs text-content-muted leading-relaxed">
-            Process incoming corporate bulk orders and Goa-only custom hamper requests received from the contact page.
-          </p>
         </Link>
       </div>
 
