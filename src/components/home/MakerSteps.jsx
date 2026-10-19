@@ -37,7 +37,7 @@ export default function MakerSteps() {
   return (
     <section className="relative mx-[clamp(12px,2.5vw,32px)] my-3 overflow-clip rounded-2xl bg-surface-muted text-content">
       {/* Main Container */}
-      <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell py-10 sm:py-14 lg:py-16 relative z-10">
+      <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell py-8 sm:py-10 lg:py-12 relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -52,14 +52,14 @@ export default function MakerSteps() {
         </motion.div>
 
         {/* Zig-Zag Alternating Steps */}
-        <div className="mt-8 sm:mt-10 lg:mt-12 space-y-10 sm:space-y-14 lg:space-y-16">
+        <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8 lg:space-y-10">
           {steps.map((step, idx) => {
             const isEven = idx % 2 === 0;
 
             return (
               <div
                 key={step.num}
-                className={`grid grid-cols-1 lg:grid-cols-12 items-center gap-6 sm:gap-10 lg:gap-12 ${
+                className={`grid grid-cols-1 lg:grid-cols-12 items-center gap-6 lg:gap-10 ${
                   isEven ? '' : 'lg:grid-flow-dense'
                 }`}
               >
@@ -92,23 +92,25 @@ export default function MakerSteps() {
                   whileInView={{ opacity: 1, x: 0, y: 0 }}
                   viewport={{ once: true, margin: '-80px' }}
                   transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-                  className={`lg:col-span-6 ${isEven ? '' : 'lg:col-start-1'}`}
+                  className={`lg:col-span-6 flex flex-col justify-center ${
+                    isEven ? 'lg:pl-6 xl:pl-10' : 'lg:col-start-1 lg:pr-6 xl:pr-10'
+                  }`}
                 >
-                  <div className="max-w-xl">
-                    <div className="flex items-baseline gap-3.5">
-                      <span className="font-display text-base sm:text-lg font-bold tabular-nums text-accent">
+                  <div className="max-w-xl space-y-3.5">
+                    <div className="flex items-start gap-4">
+                      <span className="font-display text-2xl sm:text-3xl font-bold tabular-nums text-accent shrink-0 pt-0.5">
                         {step.num}
                       </span>
-                      <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight text-content">
+                      <h3 className="font-display text-2xl sm:text-3xl lg:text-[2rem] font-semibold leading-[1.18] text-content">
                         {step.title}
                       </h3>
                     </div>
 
-                    <p className="mt-2.5 sm:mt-3 text-base sm:text-lg text-content-muted leading-relaxed">
+                    <p className="text-base sm:text-lg text-content-muted leading-relaxed sm:pl-10">
                       {step.body}
                     </p>
 
-                    <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent/80">
+                    <div className="pt-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent/80 sm:pl-10">
                       <span>Goan Craft & Heritage</span>
                       <span className="text-accent">✦</span>
                       <span>Handmade</span>

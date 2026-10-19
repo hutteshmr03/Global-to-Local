@@ -97,7 +97,7 @@ export default function HomeHero() {
           <div className="mt-4 sm:mt-5 max-w-2xl font-sans text-base sm:text-lg lg:text-xl font-normal leading-[1.46] text-content-ondark/95 [text-shadow:0_1px_12px_rgba(18,38,43,0.45)]">
             <p className="block">Local patios, Konkani on the speakers,</p>
             <p className="block">shelves made by women across the</p>
-            <p className="block">state. Open all through the week, 10 AM to 9 PM.</p>
+            <p className="block">state. Open throughout the week from 10 AM to 9 PM.</p>
           </div>
 
           {/* Action Buttons */}

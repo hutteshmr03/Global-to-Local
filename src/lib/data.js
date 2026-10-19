@@ -14,7 +14,7 @@ export const siteConfig = {
     phoneDisplay: "+91 80103 67153",
     phoneHref: "tel:+918010367153",
     supportEmail: "customerservice@globaltolocal.in",
-    hours: "Open all through the week, 10 AM to 9 PM",
+    hours: "Open throughout the week from 10 AM to 9 PM",
     mapsUrl: "https://maps.google.com/?q=Tarcar+Mansion+Fontainhas+Panaji+Goa"
   }
 };
@@ -40,20 +40,6 @@ export const categories = [
     "blurb": "Goan farm-grown rice, pulses and grains, sourced straight from the field.",
     "imageAlt": "Open sacks of red rice and pulses",
     "imageSrc": "/images/catalog/white-chawli-200-grams.jpg"
-  },
-  {
-    "slug": "hand-crafted",
-    "name": "Hand-Crafted",
-    "blurb": "Art, craft and homeware made by hand across the state.",
-    "imageAlt": "Handmade Goan craft objects and woven baskets",
-    "imageSrc": "/images/catalog/goan-themed-blue-mug.jpg"
-  },
-  {
-    "slug": "kunbi",
-    "name": "Kunbi",
-    "blurb": "The Kunbi weave — Goa’s oldest textile tradition, worn and gifted.",
-    "imageAlt": "Folded Kunbi checked cotton textiles in red and white",
-    "imageSrc": "/images/catalog/kunbi-shawl.jpg"
   },
   {
     "slug": "masala",
@@ -110,6 +96,20 @@ export const categories = [
     "blurb": "Balms, oils and remedies made from local botanicals.",
     "imageAlt": "Natural Goan wellness balms and oils",
     "imageSrc": "/images/catalog/old-goa-virgin-coconut-body-oil--lanvendar-200ml.jpg"
+  },
+  {
+    "slug": "kunbi",
+    "name": "Kunbi",
+    "blurb": "The Kunbi weave — Goa’s oldest textile tradition, worn and gifted.",
+    "imageAlt": "Folded Kunbi checked cotton textiles in red and white",
+    "imageSrc": "/images/catalog/kunbi-shawl.jpg"
+  },
+  {
+    "slug": "hand-crafted",
+    "name": "Hand-Crafted",
+    "blurb": "Art, craft and homeware made by hand across the state.",
+    "imageAlt": "Handmade Goan craft objects and woven baskets",
+    "imageSrc": "/images/catalog/goan-themed-blue-mug.jpg"
   }
 ];
 

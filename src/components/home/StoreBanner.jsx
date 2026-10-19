@@ -23,7 +23,7 @@ export default function StoreBanner() {
               Take a little bit of Goa home
             </h2>
             <p className="mt-5 text-base sm:text-lg text-content-ondark-muted leading-relaxed sm:whitespace-nowrap">
-              Stop by our store in the Latin Quarters, Fontainhas. Open all through the week, 10 AM to 9 PM.
+              Stop by our store in the Latin Quarters, Fontainhas. Open throughout the week from 10 AM to 9 PM.
             </p>
 
             {/* CTA Buttons */}

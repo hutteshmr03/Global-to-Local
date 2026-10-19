@@ -22,13 +22,13 @@ export default function HomePage() {
       <FilmVideoDuo
         banners={[
           {
-            title: 'Red rice in a cane soop',
-            description: 'Farm-grown grains from the state — the first thing a Goan kitchen reaches for.',
-            videoSrc: '/videos/rice.mp4',
-            poster: '/videos/rice-poster.jpg',
-            alt: 'Red rice in a cane soop',
-            ctaText: 'Shop grains',
-            ctaLink: '/product-category/grains',
+            title: 'Sweetness in Every Layer',
+            description: 'Discover the authentic flavours of Goan Bebinca, a timeless local delicacy.',
+            imageSrc: '/images/site/red-rice-banner.jpg',
+            poster: '/images/site/red-rice-banner.jpg',
+            alt: 'Sweetness in Every Layer - Authentic Goan Bebinca',
+            ctaText: 'Shop sweets',
+            ctaLink: '/product-category/sweet',
           },
           {
             title: 'The Kunbi check',
@@ -109,7 +109,7 @@ export default function HomePage() {
             description: (
               <>
                 <span className="block">A quaint store in the Latin Quarters of Goa, Fontainhas.</span>
-                <span className="block">Open all through the week, 10 AM to 9 PM.</span>
+                <span className="block">Open throughout the week from 10 AM to 9 PM.</span>
               </>
             ),
             videoSrc: '/videos/patio.mp4',

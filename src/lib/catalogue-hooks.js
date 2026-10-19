@@ -20,6 +20,15 @@ export const queryClient = new QueryClient({
   },
 });
 
+export function sortCategoriesCustom(cats) {
+  if (!Array.isArray(cats)) return cats;
+  const regular = cats.filter((c) => c.slug !== 'kunbi' && c.slug !== 'hand-crafted');
+  const kunbi = cats.find((c) => c.slug === 'kunbi');
+  const handCrafted = cats.find((c) => c.slug === 'hand-crafted');
+  const tail = [kunbi, handCrafted].filter(Boolean);
+  return [...regular, ...tail];
+}
+
 export function useCategories() {
   return useQuery({
     queryKey: ['categories'],
@@ -27,16 +36,16 @@ export function useCategories() {
       try {
         const res = await apiFetch('/api/v1/categories');
         if (res && Array.isArray(res.items) && res.items.length > 0) {
-          return res.items;
+          return sortCategoriesCustom(res.items);
         }
-        return fallbackCategories;
+        return sortCategoriesCustom(fallbackCategories);
       } catch (err) {
         console.warn('API /api/v1/categories unreachable; using Goan fallback categories:', err);
-        return fallbackCategories;
+        return sortCategoriesCustom(fallbackCategories);
       }
     },
-    initialData: fallbackCategories,
-    placeholderData: fallbackCategories,
+    initialData: () => sortCategoriesCustom(fallbackCategories),
+    placeholderData: () => sortCategoriesCustom(fallbackCategories),
   });
 }
 
