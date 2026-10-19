@@ -234,18 +234,6 @@ export default function ContactPage() {
                   </p>
                 </div>
               </div>
-
-              <div className="mt-10">
-                <a
-                  href="https://www.google.com/maps/search/?api=1&query=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-border bg-transparent px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-content hover:bg-surface transition-all duration-200 active:scale-[0.985] shadow-xs"
-                >
-                  <MapPin className="h-4 w-4 text-accent" />
-                  <span>Open in Maps</span>
-                </a>
-              </div>
             </motion.div>
 
             {/* Right Column: Send Us a Message */}
