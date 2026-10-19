@@ -302,8 +302,8 @@ export default function InTheNewsPage() {
                 className="relative overflow-hidden rounded-2xl border border-white/15 bg-white/5 p-7 sm:p-8 backdrop-blur-xs transition-all duration-300 hover:border-white/30"
               >
                 <div className="flex items-start gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-pill bg-accent/20 text-accent">
-                    <Award className="h-6 w-6" />
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-pill bg-[#E5A823]/20 text-[#F0B832] ring-1 ring-[#E5A823]/30 shadow-xs">
+                    <Award className="h-6 w-6 stroke-[2.2]" />
                   </div>
                   <div>
                     <h3 className="font-display text-xl font-semibold text-content-ondark">
