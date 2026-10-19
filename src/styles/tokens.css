@@ -36,29 +36,29 @@
 }
 
 :root {
-  /* Swapped Roles: Golden Yellow / Mustard as Primary Brand, Softened Milk/Mocha Chocolate as Accent */
-  --color-ground: #FAF7F0;              /* warm light golden cream background */
-  --color-ground-alt: #FDFBF5;          /* soft golden off-white */
+  /* Swapped Roles: Golden Yellow / Mustard as Primary Brand, Light Caramel Mocha / Hazelnut Chocolate as Accent */
+  --color-ground: #FAF8F2;              /* soft luminous golden cream background */
+  --color-ground-alt: #FEFCF7;          /* soft warm off-white */
   --color-surface: #FFFFFF;             /* crisp card background */
-  --color-surface-muted: #F5ECD8;       /* warm honey-golden section tint */
-  --color-surface-tint: #EADCB8;        /* subtle warm border/tint */
+  --color-surface-muted: #F6EEDB;       /* warm honey-golden section tint */
+  --color-surface-tint: #EBE0C2;        /* subtle warm border/tint */
   
   --color-palm: #E5A823;                /* primary: vibrant Mustard / Golden Yellow */
   --color-palm-shade: #CD9216;          /* deep golden amber shade */
-  --color-ink-deep: #2D1E16;            /* softened warm espresso for video cards */
+  --color-ink-deep: #3D2C22;            /* lightened warm chestnut/espresso for video cards */
   
-  --color-accent: #4A3326;              /* softened warm mocha chocolate (easier on eyes) */
-  --color-accent-hover: #3A261B;        /* medium roasted chocolate */
-  --color-accent-soft: rgba(74, 51, 38, 0.10);
+  --color-accent: #5C4334;              /* warm caramel hazelnut chocolate (relaxed, pleasant on eyes) */
+  --color-accent-hover: #4A3427;        /* medium warm mocha */
+  --color-accent-soft: rgba(92, 67, 52, 0.10);
   
-  --color-content: #382419;             /* pleasant milk-chocolate brown text (replaces harsh dark brown) */
-  --color-content-muted: #735D4E;       /* gentle warm cocoa secondary text */
-  --color-content-subtle: #988274;      /* gentle warm taupe caption text */
+  --color-content: #483327;             /* soft hazelnut chocolate text (very easy on the eyes) */
+  --color-content-muted: #7E695B;       /* soft warm cocoa secondary text */
+  --color-content-subtle: #A38F82;      /* soft warm taupe caption text */
   --color-content-ondark: #FDF9EE;      /* warm golden cream text on dark banners */
-  --color-content-ondark-muted: rgba(253, 249, 238, 0.88);
+  --color-content-ondark-muted: rgba(253, 249, 238, 0.90);
   
-  --color-border: #E2CF9F;              /* golden sand border */
-  --color-border-subtle: rgba(226, 207, 159, 0.45);
+  --color-border: #E5D5AA;              /* light golden sand border */
+  --color-border-subtle: rgba(229, 213, 170, 0.45);
   --color-border-ondark: rgba(253, 249, 238, 0.25);
 
   /* Typography */

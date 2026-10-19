@@ -57,17 +57,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .palm-shade {
-  background: radial-gradient(circle at 50% 20%, rgba(62, 42, 31, 0.94), rgba(45, 30, 22, 1));
+  background: radial-gradient(circle at 50% 20%, rgba(76, 54, 40, 0.92), rgba(61, 44, 34, 1));
 }
 
 /* 
  * Exact Live Site Film Scrim:
- * 3-layer blend in pleasant warm mocha brown with soft ambient undertones
+ * 3-layer blend in pleasant warm chestnut mocha with soft ambient undertones
  */
 .film-scrim {
-  background: radial-gradient(120% 78% at 8% 92%, rgba(45,30,22,.86) 0, rgba(45,30,22,.46) 38%, rgba(45,30,22,0) 72%),
-              linear-gradient(90deg, rgba(45,30,22,.74), rgba(45,30,22,.30) 36%, rgba(45,30,22,0) 66%),
-              linear-gradient(180deg, rgba(62,42,31,.24), rgba(45,30,22,.04) 24%, rgba(45,30,22,.50));
+  background: radial-gradient(120% 78% at 8% 92%, rgba(61,44,34,.82) 0, rgba(61,44,34,.42) 38%, rgba(61,44,34,0) 72%),
+              linear-gradient(90deg, rgba(61,44,34,.70), rgba(61,44,34,.26) 36%, rgba(61,44,34,0) 66%),
+              linear-gradient(180deg, rgba(76,54,40,.20), rgba(61,44,34,.03) 24%, rgba(61,44,34,.46));
 }
 
 .rounded-pill {
