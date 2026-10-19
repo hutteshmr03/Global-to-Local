@@ -373,19 +373,19 @@ export default function ContactPage() {
             />
           </div>
 
-          {/* Banner Content (Heading in 1 row, Subheading in 1 row, transparent bottom-left) */}
-          <div className="relative z-10 p-6 sm:p-8 lg:p-10 pointer-events-none">
+          {/* Banner Content (Heading in 1 row, Subheading in 1 row, with soft transparent backdrop blur for perfect text visibility) */}
+          <div className="relative z-10 p-5 sm:p-7 lg:p-8 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
-              className="pointer-events-auto max-w-full"
+              className="pointer-events-auto inline-block rounded-2xl bg-white/40 backdrop-blur-md px-5 py-4 sm:px-6 sm:py-5 border border-white/50 shadow-sm max-w-full"
             >
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-ink-deep [text-shadow:0_1px_3px_rgba(255,255,255,0.95),0_0_12px_rgba(255,255,255,0.9)] whitespace-normal sm:whitespace-nowrap">
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-ink-deep whitespace-normal sm:whitespace-nowrap">
                 Inside the Fontainhas store
               </h2>
-              <p className="mt-2 text-sm sm:text-base font-medium text-ink-deep/90 leading-relaxed [text-shadow:0_1px_2px_rgba(255,255,255,0.95),0_0_8px_rgba(255,255,255,0.9)] whitespace-normal sm:whitespace-nowrap">
+              <p className="mt-2 text-sm sm:text-base font-medium text-ink-deep/85 leading-relaxed whitespace-normal sm:whitespace-nowrap">
                 Tarcar Mansion, Fontainhas, Panaji, Goa 403001. Open all through the week, 10 AM to 9 PM.
               </p>
               <div className="mt-4">
