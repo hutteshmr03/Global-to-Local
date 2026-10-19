@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   User, Mail, Phone, Lock, Eye, EyeOff, ShieldCheck, 
-  KeyRound, CheckCircle2, AlertCircle, RefreshCw, Send, ArrowRight
+  KeyRound, CheckCircle2, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../lib/auth-store';
@@ -10,7 +10,6 @@ export default function AdminAccount() {
   const user = useAuthStore((state) => state.user);
   const updateProfile = useAuthStore((state) => state.updateProfile);
   const updatePassword = useAuthStore((state) => state.updatePassword);
-  const forgotPassword = useAuthStore((state) => state.forgotPassword);
 
   // Profile Form State
   const [fullName, setFullName] = useState(user?.name || user?.full_name || 'Global to Local Admin');
@@ -32,12 +31,6 @@ export default function AdminAccount() {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
-  // Reset Password State
-  const [resetSending, setResetSending] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState('');
-  const [resetError, setResetError] = useState('');
-  const [devResetLink, setDevResetLink] = useState('');
 
   // Handle Profile Update
   const handleProfileSubmit = async (e) => {
@@ -104,32 +97,6 @@ export default function AdminAccount() {
     setTimeout(() => setPasswordSuccess(''), 5000);
   };
 
-  // Handle Reset Password Action
-  const handleResetPasswordRequest = async () => {
-    setResetSuccess('');
-    setResetError('');
-    setDevResetLink('');
-
-    const targetEmail = (email || user?.email || '').trim();
-    if (!targetEmail) {
-      setResetError('Please specify an email address to send the reset link.');
-      return;
-    }
-
-    setResetSending(true);
-    const res = await forgotPassword(targetEmail);
-    setResetSending(false);
-
-    if (res.error) {
-      setResetError(res.error);
-    } else {
-      setResetSuccess(res.message || `Password reset instructions initiated for ${targetEmail}.`);
-      if (res.reset_link) {
-        setDevResetLink(res.reset_link);
-      }
-    }
-  };
-
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
       {/* Top Header Card */}
@@ -149,15 +116,7 @@ export default function AdminAccount() {
               <h1 className="mt-0.5 font-display text-2xl sm:text-3xl font-bold text-content">
                 My Account
               </h1>
-              <p className="mt-1 text-xs sm:text-sm text-content-muted">
-                Manage administrator credentials, login email, mobile number, and password security.
-              </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-auto rounded-pill border border-border/60 bg-ground px-3.5 py-1.5 text-xs text-content-subtle font-medium">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Active Session: <strong className="text-content">{user?.email || 'admin@globaltolocal.in'}</strong></span>
           </div>
         </div>
       </div>
@@ -424,88 +383,6 @@ export default function AdminAccount() {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Card 3: Reset Password Option For Admin */}
-      <div className="rounded-3xl border border-accent/25 bg-accent/5 p-6 sm:p-7 shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="space-y-1.5 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-accent bg-accent/10 px-2 py-0.5 rounded-pill">
-                Self-Service Security
-              </span>
-            </div>
-            <h3 className="text-base sm:text-lg font-bold text-content">
-              Reset Password Option for Admin
-            </h3>
-            <p className="text-xs sm:text-sm text-content-muted leading-relaxed">
-              Need a password recovery email or want to generate a formal password reset link for the administrator account? Click below to trigger the secure reset flow.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleResetPasswordRequest}
-            disabled={resetSending}
-            className="inline-flex items-center justify-center gap-2 rounded-pill border border-accent/40 bg-surface px-5 py-2.5 text-xs sm:text-sm font-bold text-accent hover:bg-accent/10 transition-all shadow-xs cursor-pointer shrink-0 disabled:opacity-50"
-          >
-            {resetSending ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin text-accent" />
-                <span>Sending Reset Link...</span>
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4 text-accent" />
-                <span>Trigger Password Reset</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        <AnimatePresence>
-          {resetSuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mt-4 flex flex-col gap-2 rounded-2xl border border-palm/40 bg-palm/10 p-4 text-xs font-semibold text-palm"
-            >
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-palm" />
-                <span>{resetSuccess}</span>
-              </div>
-              {devResetLink && (
-                <div className="mt-2 pt-2 border-t border-palm/20 flex flex-col sm:flex-row sm:items-center gap-2">
-                  <span className="text-[11px] font-mono text-content truncate max-w-lg select-all">
-                    Link: {devResetLink}
-                  </span>
-                  <a
-                    href={devResetLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 font-bold text-palm underline hover:text-palm-shade ml-auto"
-                  >
-                    <span>Open Reset Page</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </a>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {resetError && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mt-4 flex items-center gap-2 rounded-2xl border border-accent/30 bg-accent/10 p-3 text-xs font-semibold text-accent"
-            >
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{resetError}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   );
