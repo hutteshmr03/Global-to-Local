@@ -290,36 +290,40 @@ export default function LoginPage() {
         <div className="overflow-hidden rounded-3xl border border-border/50 bg-surface shadow-xl grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
           
           {/* LEFT: Atmospheric Brand Showcase (Desktop / Tablet) */}
-          <div className="relative isolate hidden lg:flex lg:col-span-5 flex-col justify-between overflow-hidden bg-palm p-10 xl:p-12 text-[#2D1E16]">
-            {/* Background image & warm overlay */}
+          <div className="relative isolate hidden lg:flex lg:col-span-5 flex-col justify-between overflow-hidden bg-[#241A14] p-10 xl:p-12 text-white">
+            {/* Rich cinematic photographic background with soft scrim */}
             <img
               src="/images/site/fontainhas-dusk.jpg"
               alt="Fontainhas Panaji street"
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35 mix-blend-multiply"
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60 brightness-90 saturate-[1.1] scale-105"
             />
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-palm via-palm/75 to-palm/40" />
-            <ShellDrift tone="light" />
+            {/* Subtle radial & linear scrim for clean text contrast */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#1C140F]/95 via-[#1C140F]/60 to-[#1C140F]/30" />
+            <ShellDrift tone="dark" />
 
             {/* Top Brand Tagline */}
             <div className="relative z-10">
-              <h2 className="font-display text-3xl xl:text-4xl font-extrabold leading-tight text-[#2B1B12]">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-[0.2em] text-[#E5A823] mb-3">
+                Fontainhas Heritage
+              </span>
+              <h2 className="font-display text-3xl xl:text-4xl font-semibold leading-tight text-white tracking-tight [text-shadow:0_2px_12px_rgba(0,0,0,0.5)]">
                 Taste the authentic soul of Goa.
               </h2>
-              <p className="mt-3 text-sm font-semibold text-[#3D281C]/90 leading-relaxed">
+              <p className="mt-3 text-sm text-white/80 leading-relaxed font-normal">
                 Sign in to manage your artisanal Goan pantry, track live couriers across India, and save your favourite Fontainhas delicacies.
               </p>
             </div>
 
             {/* Highlights List */}
-            <div className="relative z-10 space-y-3 pt-8 border-t border-[#2B1B12]/20">
-              <div className="flex items-center gap-3 text-xs font-bold text-[#2B1B12]">
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-[#2B1B12]/15 shrink-0 text-[#2B1B12]">
+            <div className="relative z-10 space-y-3 pt-6 border-t border-white/15">
+              <div className="flex items-center gap-3 text-xs text-white/90">
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-white/10 backdrop-blur-sm shrink-0 text-[#E5A823] border border-white/10">
                   <ShoppingBag className="w-3.5 h-3.5" />
                 </div>
                 <span>Thirteen shelves of curated Goan treasures</span>
               </div>
-              <div className="flex items-center gap-3 text-xs font-bold text-[#2B1B12]">
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-[#2B1B12]/15 shrink-0 text-[#2B1B12]">
+              <div className="flex items-center gap-3 text-xs text-white/90">
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-white/10 backdrop-blur-sm shrink-0 text-[#E5A823] border border-white/10">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <span>80% crafted by women self-help cooperatives</span>
