@@ -264,7 +264,9 @@ export default function OurStoryPage() {
               <img
                 alt="Asha Arondekar, founder of Global to Local"
                 src="/images/founder-asha-arondekar.jpg"
-                className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover object-top"
               />
             </motion.div>
 
