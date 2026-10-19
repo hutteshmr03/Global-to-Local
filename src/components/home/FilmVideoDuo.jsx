@@ -15,21 +15,30 @@ export default function FilmVideoDuo({ banners }) {
             transition={{ duration: 0.7, delay: idx * 0.12, ease: [0.22, 1, 0.36, 1] }}
             className="relative isolate overflow-hidden rounded-2xl bg-ink-deep text-content-ondark min-h-[65vh] sm:min-h-[72vh] flex flex-col justify-end p-6 sm:p-8 lg:p-10 shadow-lg group"
           >
-            {/* Background Video */}
+            {/* Background Video or Image */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden bg-ink-deep">
               <div className="absolute -inset-[10%] w-[120%] h-[120%] will-change-transform">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
-                  poster={banner.poster}
-                  aria-hidden="true"
-                  className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[1.18] transition-transform duration-700 group-hover:scale-[1.04]"
-                >
-                  {banner.videoSrc && <source src={banner.videoSrc} type="video/mp4" />}
-                </video>
+                {banner.videoSrc ? (
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="metadata"
+                    poster={banner.poster}
+                    aria-hidden="true"
+                    className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[1.18] transition-transform duration-700 group-hover:scale-[1.04]"
+                  >
+                    <source src={banner.videoSrc} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img
+                    src={banner.imageSrc || banner.poster}
+                    alt={banner.alt || ''}
+                    loading="lazy"
+                    className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[1.18] transition-transform duration-700 group-hover:scale-[1.04]"
+                  />
+                )}
               </div>
               {banner.alt && <span className="sr-only">{banner.alt}</span>}
             </div>

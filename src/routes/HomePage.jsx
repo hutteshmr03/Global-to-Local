@@ -33,9 +33,9 @@ export default function HomePage() {
           {
             title: 'The Kunbi check',
             description: 'Goa’s oldest weave, still on the loom. Shawls, sarees, and cotton for the house.',
-            videoSrc: '/videos/kunbi.mp4',
-            poster: '/videos/kunbi-poster.jpg',
-            alt: 'Kunbi weave on cotton',
+            imageSrc: '/images/site/kunbi-red-check.jpg',
+            poster: '/images/site/kunbi-red-check.jpg',
+            alt: 'Traditional Goan Kunbi weave red and white cotton saree',
             ctaText: 'Shop Kunbi',
             ctaLink: '/product-category/kunbi',
           },
