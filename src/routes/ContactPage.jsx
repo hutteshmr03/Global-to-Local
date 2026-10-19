@@ -347,19 +347,20 @@ export default function ContactPage() {
       </section>
 
       {/* 3. STORE LOCATION BANNER: INSIDE THE FONTAINHAS STORE WITH INTERACTIVE GOOGLE MAP */}
-      <section className="relative bg-ground px-[clamp(12px,2.5vw,32px)] py-4 sm:py-6">
-        <div className="relative isolate overflow-hidden rounded-2xl bg-surface border border-edge/40 text-content min-h-[460px] sm:min-h-[500px] lg:min-h-[540px] flex flex-col justify-end shadow-lg">
-          {/* Background Interactive Google Map - Clean & Bright */}
-          <div className="absolute -top-[55px] -bottom-[10px] -left-[10px] -right-[10px] overflow-hidden pointer-events-auto">
-            <iframe
-              title="Global to Local Store Location, Fontainhas Panaji Goa"
-              src="https://maps.google.com/maps?q=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001&t=m&z=16&output=embed&iwloc=near"
-              className="h-[calc(100%+65px)] w-[calc(100%+20px)] border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              aria-label="Google Map showing Global to Local location at Tarcar Mansion, Fontainhas"
-            />
-          </div>
+      <section className="relative bg-ground px-5 sm:px-8 lg:px-12 py-4 sm:py-6">
+        <div className="mx-auto w-full max-w-shell">
+          <div className="relative isolate overflow-hidden rounded-2xl bg-surface border border-edge/40 text-content h-[320px] sm:h-[360px] lg:h-[380px] flex flex-col justify-end shadow-md">
+            {/* Background Interactive Google Map - Clean & Bright */}
+            <div className="absolute -top-[55px] -bottom-[10px] -left-[10px] -right-[10px] overflow-hidden pointer-events-auto">
+              <iframe
+                title="Global to Local Store Location, Fontainhas Panaji Goa"
+                src="https://maps.google.com/maps?q=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001&t=m&z=16&output=embed&iwloc=near"
+                className="h-[calc(100%+65px)] w-[calc(100%+20px)] border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                aria-label="Google Map showing Global to Local location at Tarcar Mansion, Fontainhas"
+              />
+            </div>
 
           {/* Banner Content (Heading in 1 row, Subheading in 1 row, compact glass card) */}
           <div className="relative z-10 p-3 sm:p-4 lg:p-5 pointer-events-none">
@@ -390,7 +391,8 @@ export default function ContactPage() {
             </motion.div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* 4. QUESTIONS WE GET ASKED MOST (19 FAQS ACCORDION) */}
       <section className="py-16 sm:py-20 lg:py-24 bg-ground text-content">
