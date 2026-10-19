@@ -101,8 +101,8 @@ export const categories = [
     "slug": "sweet",
     "name": "Sweet",
     "blurb": "Bebinca, dodol and the desserts Goa is remembered for.",
-    "imageAlt": "Traditional Goan sweets including bebinca and dodol",
-    "imageSrc": "/images/catalog/wine-biscuits-200-grams.jpg"
+    "imageAlt": "Traditional Goan Bebinca layered dessert cake",
+    "imageSrc": "/images/site/sweet-shelf-bebinca.jpg"
   },
   {
     "slug": "wellness",
