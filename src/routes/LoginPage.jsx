@@ -290,37 +290,37 @@ export default function LoginPage() {
         <div className="overflow-hidden rounded-3xl border border-border/50 bg-surface shadow-xl grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
           
           {/* LEFT: Atmospheric Brand Showcase (Desktop / Tablet) */}
-          <div className="relative isolate hidden lg:flex lg:col-span-5 flex-col justify-between overflow-hidden bg-palm p-10 xl:p-12 text-content-ondark">
-            {/* Background image & gradient overlay */}
+          <div className="relative isolate hidden lg:flex lg:col-span-5 flex-col justify-between overflow-hidden bg-palm p-10 xl:p-12 text-[#2D1E16]">
+            {/* Background image & warm overlay */}
             <img
               src="/images/site/fontainhas-dusk.jpg"
               alt="Fontainhas Panaji street"
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 brightness-75 saturate-125"
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35 mix-blend-multiply"
             />
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-palm via-palm/80 to-palm/40" />
-            <ShellDrift tone="dark" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-palm via-palm/75 to-palm/40" />
+            <ShellDrift tone="light" />
 
             {/* Top Brand Tagline */}
             <div className="relative z-10">
-              <h2 className="font-display text-3xl xl:text-4xl font-bold leading-tight text-content-ondark">
+              <h2 className="font-display text-3xl xl:text-4xl font-extrabold leading-tight text-[#2B1B12]">
                 Taste the authentic soul of Goa.
               </h2>
-              <p className="mt-3 text-sm text-content-ondark-muted leading-relaxed">
+              <p className="mt-3 text-sm font-semibold text-[#3D281C]/90 leading-relaxed">
                 Sign in to manage your artisanal Goan pantry, track live couriers across India, and save your favourite Fontainhas delicacies.
               </p>
             </div>
 
             {/* Highlights List */}
-            <div className="relative z-10 space-y-3 pt-8 border-t border-white/15">
-              <div className="flex items-center gap-3 text-xs text-content-ondark/90">
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-white/15 shrink-0">
-                  <ShoppingBag className="w-3.5 h-3.5 text-accent" />
+            <div className="relative z-10 space-y-3 pt-8 border-t border-[#2B1B12]/20">
+              <div className="flex items-center gap-3 text-xs font-bold text-[#2B1B12]">
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-[#2B1B12]/15 shrink-0 text-[#2B1B12]">
+                  <ShoppingBag className="w-3.5 h-3.5" />
                 </div>
                 <span>Thirteen shelves of curated Goan treasures</span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-content-ondark/90">
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-white/15 shrink-0">
-                  <ShieldCheck className="w-3.5 h-3.5 text-accent" />
+              <div className="flex items-center gap-3 text-xs font-bold text-[#2B1B12]">
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-[#2B1B12]/15 shrink-0 text-[#2B1B12]">
+                  <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <span>80% crafted by women self-help cooperatives</span>
               </div>
