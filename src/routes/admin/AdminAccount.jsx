@@ -192,16 +192,13 @@ export default function AdminAccount() {
                     className="w-full rounded-pill border border-border bg-ground pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium text-content outline-none focus:border-palm transition-colors font-mono"
                   />
                 </div>
-                <p className="mt-1 text-[11px] text-content-subtle">
-                  This email is used to log in directly to the admin dashboard.
-                </p>
               </div>
 
               {/* Mobile Number */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-semibold text-content">
-                    Mobile Number (SMS & WhatsApp Alerts)
+                    Mobile Number
                   </label>
                   <span className="text-[10px] font-medium text-content-subtle">India (+91)</span>
                 </div>
@@ -218,9 +215,6 @@ export default function AdminAccount() {
                     className="w-full rounded-r-pill border border-border bg-ground px-3.5 py-2.5 text-xs sm:text-sm font-mono font-medium text-content outline-none focus:border-palm transition-colors"
                   />
                 </div>
-                <p className="mt-1 text-[11px] text-content-subtle">
-                  Used for instant security notifications, order updates, and contact info.
-                </p>
               </div>
             </form>
           </div>
@@ -284,7 +278,7 @@ export default function AdminAccount() {
               {/* Current Password */}
               <div>
                 <label className="block text-xs font-semibold text-content mb-1">
-                  Current Password (Optional if resetting)
+                  Current Password
                 </label>
                 <div className="relative">
                   <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-content-subtle" />
