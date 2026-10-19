@@ -49,29 +49,29 @@ export default function OrderConfirmationPage() {
       : 'Payment Confirmed';
 
   return (
-    <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen">
+    <main id="main-content" className="pt-24 sm:pt-28 pb-12 sm:pb-16 bg-ground min-h-screen">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 text-center">
         
         {/* Success Icon & Status */}
-        <div className="mx-auto flex flex-col items-center justify-center gap-2 mb-4">
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-palm/15 text-palm ring-8 ring-palm/5">
-            <CheckCircle2 className="w-8 h-8 text-palm stroke-[2.5]" />
+        <div className="mx-auto flex flex-col items-center justify-center gap-1.5 mb-2">
+          <div className="grid h-14 w-14 place-items-center rounded-full bg-palm/15 text-palm ring-6 ring-palm/5">
+            <CheckCircle2 className="w-7 h-7 text-palm stroke-[2.5]" />
           </div>
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-accent mt-2">
+          <span className="font-mono text-xs font-bold uppercase tracking-widest text-accent mt-1">
             Order Confirmed
           </span>
         </div>
 
-        <h1 className="mt-2 font-display text-2xl sm:text-3xl md:text-4xl font-bold text-content tracking-tight whitespace-normal sm:whitespace-nowrap">
+        <h1 className="mt-1 font-display text-2xl sm:text-3xl md:text-4xl font-bold text-content tracking-tight whitespace-normal sm:whitespace-nowrap">
           Dev Borem Korum! (Thank You)
         </h1>
-        <p className="mt-2.5 text-sm sm:text-base text-content-muted max-w-lg mx-auto leading-relaxed">
+        <p className="mt-2 text-sm sm:text-base text-content-muted max-w-lg mx-auto leading-relaxed">
           Your order has been received and is being freshly packed at our Fontainhas store.
         </p>
 
         {/* Order Details Card */}
-        <div className="mt-8 rounded-2xl border border-border/50 bg-surface p-6 sm:p-8 text-left shadow-sm space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/30 pb-4">
+        <div className="mt-6 rounded-2xl border border-border/50 bg-surface p-5 sm:p-7 text-left shadow-sm space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/30 pb-3.5">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-content-muted">Order Reference</p>
               <p className="font-mono text-lg font-bold text-content mt-0.5">{orderNumber}</p>
@@ -81,21 +81,15 @@ export default function OrderConfirmationPage() {
             </span>
           </div>
 
-          <div className="space-y-3.5 text-xs sm:text-sm">
-            <div className="flex items-start gap-3 text-content">
-              <Package className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+          <div className="text-xs sm:text-sm">
+            <div className="flex items-center gap-3 text-content">
+              <Package className="w-4 h-4 text-accent shrink-0" />
               <span>Packaging status: <strong className="text-content font-bold">{statusLabel}</strong></span>
-            </div>
-            <div className="flex items-start gap-3 text-content">
-              <Truck className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-              <span className="text-content-muted">
-                Courier tracking link will be sent to your email & SMS.
-              </span>
             </div>
           </div>
 
           {order && order.items && order.items.length > 0 && (
-            <div className="border-t border-border/30 pt-4 space-y-2">
+            <div className="border-t border-border/30 pt-3.5 space-y-2">
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-content font-medium">
@@ -116,7 +110,7 @@ export default function OrderConfirmationPage() {
           )}
 
           {order?.canCancel && (
-            <div className="border-t border-border/30 pt-4 flex items-center justify-between gap-3">
+            <div className="border-t border-border/30 pt-3 flex items-center justify-between gap-3">
               <span className="text-xs text-content-muted">Payment is still pending. You can cancel this order before payment capture.</span>
               <button
                 type="button"
@@ -134,7 +128,7 @@ export default function OrderConfirmationPage() {
             </div>
           )}
 
-          <div className="border-t border-border/30 pt-4 text-xs text-content-muted leading-relaxed">
+          <div className="border-t border-border/30 pt-3 text-xs text-content-muted leading-relaxed">
             Need to update delivery instructions? Call our store team directly at{' '}
             <a href={siteConfig.contact.phoneHref} className="text-accent font-semibold no-underline hover:text-accent-hover">
               {siteConfig.contact.phoneDisplay}
