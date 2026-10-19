@@ -358,41 +358,39 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* 3. VIDEO FEATURE BANNER: INSIDE THE FONTAINHAS STORE */}
+      {/* 3. STORE LOCATION BANNER: INSIDE THE FONTAINHAS STORE WITH INTERACTIVE GOOGLE MAP */}
       <section className="relative bg-ground px-[clamp(12px,2.5vw,32px)] py-4 sm:py-6">
         <div className="relative isolate overflow-hidden rounded-2xl bg-ink-deep text-content-ondark min-h-[70vh] lg:min-h-[75vh] flex flex-col justify-end shadow-xl">
-          {/* Background Video */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden bg-ink-deep">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              poster="/videos/patio-poster.jpg"
-              className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[1.18] scale-[1.04]"
-            >
-              <source src="/videos/patio.mp4" type="video/mp4" />
-            </video>
+          {/* Background Interactive Google Map */}
+          <div className="absolute inset-0 overflow-hidden bg-ink-deep">
+            <iframe
+              title="Global to Local Store Location, Fontainhas Panaji Goa"
+              src="https://maps.google.com/maps?q=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001&t=m&z=16&output=embed&iwloc=near"
+              className="h-full w-full border-0 brightness-[0.9] contrast-[1.05] saturate-[1.1]"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              aria-label="Google Map showing Global to Local location at Tarcar Mansion, Fontainhas"
+            />
           </div>
 
-          {/* Film Scrim */}
+          {/* Film Scrim (Allows map interaction while ensuring high contrast for white text) */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 film-scrim" />
 
-          {/* Banner Content */}
-          <div className="relative z-10 flex flex-col justify-end px-6 pb-12 pt-24 sm:px-10 sm:pb-16 lg:px-16 lg:pb-20 max-w-2xl">
+          {/* Banner Content (Untouched Text, Layout & Action Button) */}
+          <div className="relative z-10 flex flex-col justify-end px-6 pb-12 pt-24 sm:px-10 sm:pb-16 lg:px-16 lg:pb-20 max-w-2xl pointer-events-none">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
             >
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.02] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.55)]">
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.02] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.7)]">
                 Inside the Fontainhas store
               </h2>
-              <p className="mt-5 text-base sm:text-lg text-content-ondark/90 leading-relaxed [text-shadow:0_1px_14px_rgba(18,38,43,0.5)]">
+              <p className="mt-5 text-base sm:text-lg text-content-ondark/95 leading-relaxed [text-shadow:0_1px_14px_rgba(18,38,43,0.6)]">
                 Tarcar Mansion, Fontainhas, Panaji, Goa 403001. Open all through the week, 10 AM to 9 PM.
               </p>
-              <div className="mt-8">
+              <div className="mt-8 pointer-events-auto">
                 <a
                   href="https://www.google.com/maps/search/?api=1&query=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001"
                   target="_blank"
