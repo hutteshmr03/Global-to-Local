@@ -36,30 +36,30 @@
 }
 
 :root {
-  /* Brand and Semantic Colors: Mustard/Golden Yellow & Dark Chocolate Brown */
+  /* Swapped Roles: Golden Yellow / Mustard as Primary Brand, Dark Chocolate Brown as Accent */
   --color-ground: #F9F5EA;              /* warm light golden cream background */
   --color-ground-alt: #FCF9F0;          /* soft golden off-white */
   --color-surface: #FFFFFF;             /* crisp card background */
-  --color-surface-muted: #F2E8D0;       /* warm honey-golden section tint */
-  --color-surface-tint: #E8D8B6;        /* subtle warm border/tint */
+  --color-surface-muted: #F3E9D0;       /* warm honey-golden section tint */
+  --color-surface-tint: #E8D7B0;        /* subtle warm border/tint */
   
-  --color-palm: #2B1810;                /* rich Dark Chocolate Brown */
-  --color-palm-shade: #1E100A;          /* deep roasted cacao brown */
-  --color-ink-deep: #1A0D07;            /* dark espresso brown */
+  --color-palm: #E5A823;                /* primary: vibrant Mustard / Golden Yellow */
+  --color-palm-shade: #C98E15;          /* deep golden amber shade */
+  --color-ink-deep: #1A0D07;            /* dark espresso brown for video cards */
   
-  --color-accent: #E5A823;              /* vibrant Mustard / Golden Yellow */
-  --color-accent-hover: #C98E15;        /* rich amber gold */
-  --color-accent-soft: rgba(229, 168, 35, 0.16);
+  --color-accent: #2B1810;              /* accent: rich Dark Chocolate Brown */
+  --color-accent-hover: #1E100A;        /* deep roasted cacao brown */
+  --color-accent-soft: rgba(43, 24, 16, 0.12);
   
   --color-content: #22120B;             /* dark chocolate brown text */
   --color-content-muted: #665043;       /* warm cocoa secondary text */
   --color-content-subtle: #8C7567;      /* warm taupe caption text */
-  --color-content-ondark: #FDF9EE;      /* warm golden cream text on dark chocolate */
-  --color-content-ondark-muted: rgba(253, 249, 238, 0.78);
+  --color-content-ondark: #FDF9EE;      /* warm golden cream text on dark banners */
+  --color-content-ondark-muted: rgba(253, 249, 238, 0.85);
   
-  --color-border: #DEC89C;              /* golden sand border */
-  --color-border-subtle: rgba(222, 200, 156, 0.45);
-  --color-border-ondark: rgba(253, 249, 238, 0.22);
+  --color-border: #E2CF9F;              /* golden sand border */
+  --color-border-subtle: rgba(226, 207, 159, 0.5);
+  --color-border-ondark: rgba(253, 249, 238, 0.25);
 
   /* Typography */
   --font-display: 'Fraunces', Georgia, serif;
