@@ -1233,10 +1233,6 @@ export default function AdminProducts() {
                   >
                     Click to browse files
                   </label>
-                  <span className="text-xs text-content-muted"> or drag and drop images here</span>
-                  <p className="text-[11px] text-content-subtle mt-1">
-                    Accepts JPG, PNG, WebP up to 5 MB per image
-                  </p>
 
                   {isUploadingImage && (
                     <div className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-palm">
