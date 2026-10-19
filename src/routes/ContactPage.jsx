@@ -360,42 +360,40 @@ export default function ContactPage() {
 
       {/* 3. STORE LOCATION BANNER: INSIDE THE FONTAINHAS STORE WITH INTERACTIVE GOOGLE MAP */}
       <section className="relative bg-ground px-[clamp(12px,2.5vw,32px)] py-4 sm:py-6">
-        <div className="relative isolate overflow-hidden rounded-2xl bg-ink-deep text-content-ondark min-h-[70vh] lg:min-h-[75vh] flex flex-col justify-end shadow-xl">
-          {/* Background Interactive Google Map */}
-          <div className="absolute inset-0 overflow-hidden bg-ink-deep">
+        <div className="relative isolate overflow-hidden rounded-2xl bg-surface border border-edge/40 text-content min-h-[70vh] lg:min-h-[75vh] flex flex-col justify-end shadow-lg">
+          {/* Background Interactive Google Map - Clean & Bright */}
+          <div className="absolute inset-0 overflow-hidden">
             <iframe
               title="Global to Local Store Location, Fontainhas Panaji Goa"
               src="https://maps.google.com/maps?q=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001&t=m&z=16&output=embed&iwloc=near"
-              className="h-full w-full border-0 brightness-[0.9] contrast-[1.05] saturate-[1.1]"
+              className="h-full w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               aria-label="Google Map showing Global to Local location at Tarcar Mansion, Fontainhas"
             />
           </div>
 
-          {/* Film Scrim (Allows map interaction while ensuring high contrast for white text) */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 film-scrim" />
-
-          {/* Banner Content (Heading in 1 row, Subheading in 1 row, aligned bottom-left) */}
-          <div className="relative z-10 flex flex-col justify-end px-6 pb-8 pt-24 sm:px-10 sm:pb-10 lg:px-12 lg:pb-12 max-w-4xl pointer-events-none">
+          {/* Banner Content (Heading in 1 row, Subheading in 1 row, docked bottom-left in a crisp frosted card) */}
+          <div className="relative z-10 p-4 sm:p-6 lg:p-8 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
+              className="pointer-events-auto inline-block rounded-2xl bg-surface/90 backdrop-blur-md border border-edge/60 p-5 sm:p-6 shadow-xl max-w-full"
             >
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.85)] whitespace-normal sm:whitespace-nowrap">
+              <h2 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-content whitespace-normal sm:whitespace-nowrap">
                 Inside the Fontainhas store
               </h2>
-              <p className="mt-2 text-sm sm:text-base text-content-ondark/95 leading-relaxed [text-shadow:0_1px_14px_rgba(18,38,43,0.8)] whitespace-normal sm:whitespace-nowrap">
+              <p className="mt-2 text-xs sm:text-sm lg:text-base text-content-muted leading-relaxed whitespace-normal sm:whitespace-nowrap">
                 Tarcar Mansion, Fontainhas, Panaji, Goa 403001. Open all through the week, 10 AM to 9 PM.
               </p>
-              <div className="mt-5 pointer-events-auto">
+              <div className="mt-4">
                 <a
                   href="https://www.google.com/maps/search/?api=1&query=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-palm text-content-ondark px-5 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-[-0.01em] hover:bg-palm/90 transition-all duration-200 active:scale-[0.985] shadow-sm"
                 >
                   <MapPin className="h-4 w-4" />
                   <span>Open in Maps</span>
