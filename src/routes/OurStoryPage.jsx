@@ -32,7 +32,7 @@ const stats = [
   { value: '100+', label: 'Goan women made financially independent' },
   { value: '100%', label: 'Local authentic products' },
   { value: '200+', label: 'Products, all Goan in origin' },
-  { value: '10AM to 9PM', label: 'Open every day of the week' }
+  { value: '10 AM to 9 PM', label: 'Open every day of the week' }
 ];
 
 export default function OurStoryPage() {
