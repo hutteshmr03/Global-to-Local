@@ -36,7 +36,7 @@ export default function FilmVideoDuo({ banners }) {
                     src={banner.imageSrc || banner.poster}
                     alt={banner.alt || ''}
                     loading="lazy"
-                    className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[1.18] animate-kenburns transition-transform duration-700"
+                    className="h-full w-full object-cover brightness-[0.82] contrast-[1.08] saturate-[1.18] transition-transform duration-700 group-hover:scale-[1.04]"
                   />
                 )}
               </div>
