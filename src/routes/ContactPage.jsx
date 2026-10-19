@@ -349,12 +349,12 @@ export default function ContactPage() {
       {/* 3. STORE LOCATION BANNER: INSIDE THE FONTAINHAS STORE WITH INTERACTIVE GOOGLE MAP */}
       <section className="relative bg-ground px-[clamp(12px,2.5vw,32px)] py-4 sm:py-6">
         <div className="relative isolate overflow-hidden rounded-2xl bg-surface border border-edge/40 text-content min-h-[70vh] lg:min-h-[75vh] flex flex-col justify-end shadow-lg">
-          {/* Background Interactive Google Map - Clean & Bright */}
-          <div className="absolute inset-0 overflow-hidden">
+          {/* Background Interactive Google Map - Clean & Bright (top overflow trimmed to hide embed UI button) */}
+          <div className="absolute -top-[55px] -bottom-[10px] -left-[10px] -right-[10px] overflow-hidden pointer-events-auto">
             <iframe
               title="Global to Local Store Location, Fontainhas Panaji Goa"
               src="https://maps.google.com/maps?q=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001&t=m&z=16&output=embed&iwloc=near"
-              className="h-full w-full border-0"
+              className="h-[calc(100%+65px)] w-[calc(100%+20px)] border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               aria-label="Google Map showing Global to Local location at Tarcar Mansion, Fontainhas"
