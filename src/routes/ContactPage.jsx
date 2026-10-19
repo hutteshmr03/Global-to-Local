@@ -376,26 +376,26 @@ export default function ContactPage() {
           {/* Film Scrim (Allows map interaction while ensuring high contrast for white text) */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 film-scrim" />
 
-          {/* Banner Content (Untouched Text, Layout & Action Button) */}
-          <div className="relative z-10 flex flex-col justify-end px-6 pb-12 pt-24 sm:px-10 sm:pb-16 lg:px-16 lg:pb-20 max-w-2xl pointer-events-none">
+          {/* Banner Content (Heading in 1 row, Subheading in 1 row, aligned bottom-left) */}
+          <div className="relative z-10 flex flex-col justify-end px-6 pb-8 pt-24 sm:px-10 sm:pb-10 lg:px-12 lg:pb-12 max-w-4xl pointer-events-none">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
             >
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.02] text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.7)]">
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight text-content-ondark [text-shadow:0_2px_24px_rgba(18,38,43,0.85)] whitespace-normal sm:whitespace-nowrap">
                 Inside the Fontainhas store
               </h2>
-              <p className="mt-5 text-base sm:text-lg text-content-ondark/95 leading-relaxed [text-shadow:0_1px_14px_rgba(18,38,43,0.6)]">
+              <p className="mt-2 text-sm sm:text-base text-content-ondark/95 leading-relaxed [text-shadow:0_1px_14px_rgba(18,38,43,0.8)] whitespace-normal sm:whitespace-nowrap">
                 Tarcar Mansion, Fontainhas, Panaji, Goa 403001. Open all through the week, 10 AM to 9 PM.
               </p>
-              <div className="mt-8 pointer-events-auto">
+              <div className="mt-5 pointer-events-auto">
                 <a
                   href="https://www.google.com/maps/search/?api=1&query=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
                 >
                   <MapPin className="h-4 w-4" />
                   <span>Open in Maps</span>
