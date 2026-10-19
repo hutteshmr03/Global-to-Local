@@ -267,8 +267,8 @@ export default function ShopPage() {
             </motion.div>
           ) : (
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {filteredProducts.map((product, idx) => (
+                <ProductCard key={product.id} product={product} priority={idx < 8} />
               ))}
             </div>
           )}

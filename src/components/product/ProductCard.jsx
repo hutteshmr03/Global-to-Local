@@ -5,7 +5,7 @@ import { formatPrice } from '../../lib/data';
 import { useCartStore } from '../../lib/cart-store';
 import { useFlyToCart } from '../cart/FlyToCart';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, priority = false }) {
   const isHidden = !product || product.is_active === false || product.status === 'Hidden' || product.status === 'Draft';
   const addItem = useCartStore(state => state.addItem);
   const updateQty = useCartStore(state => state.updateQty);
@@ -17,6 +17,7 @@ export default function ProductCard({ product }) {
   });
   const flyToCart = useFlyToCart();
   const [isAdded, setIsAdded] = useState(false);
+  const [imgSrc, setImgSrc] = useState(null);
 
   if (isHidden) {
     return null;
@@ -65,7 +66,8 @@ export default function ProductCard({ product }) {
   };
 
   const displayPricePaise = product.price ?? product.price_paise ?? 0;
-  const displayImage = product.imageSrc || product.image_url || (product.images && product.images[0]?.url) || '/images/catalog/goan-themed-blue-mug.jpg';
+  const initialImage = product.imageSrc || product.image_url || (product.images && product.images[0]?.url) || '/images/catalog/goan-themed-blue-mug.jpg';
+  const displayImage = imgSrc || initialImage;
   const displayWeight = product.weight || product.unit_label || 'piece';
   const displayDesc = product.shortDescription || product.short_description || product.description || 'Authentic Goan specialty made with local ingredients.';
 
@@ -77,7 +79,14 @@ export default function ProductCard({ product }) {
           <img
             src={displayImage}
             alt={product.imageAlt || product.name}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            decoding="async"
+            onError={() => {
+              if (displayImage !== '/images/catalog/goan-themed-blue-mug.jpg') {
+                setImgSrc('/images/catalog/goan-themed-blue-mug.jpg');
+              }
+            }}
             className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           />
           {inCartQty > 0 && (

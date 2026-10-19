@@ -59,8 +59,8 @@ export default function CategoryPage() {
 
         {/* Products Grid */}
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 sm:gap-6">
-          {activeProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
+          {activeProducts.map((product, idx) => (
+            <ProductCard key={product.id} product={product} priority={idx < 8} />
           ))}
         </div>
       </div>
