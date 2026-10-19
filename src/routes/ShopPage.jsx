@@ -106,7 +106,7 @@ export default function ShopPage() {
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
               The Complete Goan Catalogue
             </h2>
-            <p className="mt-3 max-w-2xl text-base text-content-muted leading-relaxed">
+            <p className="mt-3 text-base text-content-muted leading-relaxed whitespace-normal sm:whitespace-nowrap">
               Explore 230 authentic Goan products across all 13 shelves, dispatched directly from Fontainhas, Panaji.
             </p>
           </div>
