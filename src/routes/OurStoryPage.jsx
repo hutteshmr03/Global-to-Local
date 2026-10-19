@@ -294,7 +294,7 @@ export default function OurStoryPage() {
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
                     className="flex gap-5 border-t border-white/15 pt-5"
                   >
-                    <span className="font-mono text-sm font-semibold tabular-nums text-accent">
+                    <span className="font-mono text-base font-bold tabular-nums text-[#F0B832] drop-shadow-xs shrink-0 pt-0.5">
                       {pillar.num}
                     </span>
                     <div>
