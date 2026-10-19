@@ -165,8 +165,10 @@ export const useAuthStore = create((set, get) => ({
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
       }
+      const uiUser = mapServerUserToUiUser(res.user);
+      set({ user: uiUser, isInitialized: true, isHydrating: false });
       const hydrated = await get().hydrateSession();
-      return { ok: true, user: hydrated || mapServerUserToUiUser(res.user) };
+      return { ok: true, user: hydrated || uiUser };
     } catch (err) {
       return { ok: false, error: err.detail || err.message || 'Invalid or expired verification code.' };
     }
@@ -192,8 +194,10 @@ export const useAuthStore = create((set, get) => ({
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
       }
+      const uiUser = mapServerUserToUiUser(res.user);
+      set({ user: uiUser, isInitialized: true, isHydrating: false });
       const hydrated = await get().hydrateSession();
-      return { ok: true, user: hydrated || mapServerUserToUiUser(res.user) };
+      return { ok: true, user: hydrated || uiUser };
     } catch (err) {
       return { ok: false, error: err.detail || err.message || 'Unable to create account.' };
     }
@@ -210,16 +214,6 @@ export const useAuthStore = create((set, get) => ({
           guest_items: guestItems,
         },
       });
-      if (res.mfa_required) {
-        return {
-          ok: true,
-          mfa_required: true,
-          mfa_setup_required: Boolean(res.mfa_setup_required),
-          temp_token: res.temp_token,
-          user: res.user,
-          current_totp: res.current_totp,
-        };
-      }
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
@@ -227,8 +221,10 @@ export const useAuthStore = create((set, get) => ({
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
       }
+      const uiUser = mapServerUserToUiUser(res.user);
+      set({ user: uiUser, isInitialized: true, isHydrating: false });
       const hydrated = await get().hydrateSession();
-      return { ok: true, user: hydrated || mapServerUserToUiUser(res.user) };
+      return { ok: true, user: hydrated || uiUser };
     } catch (err) {
       return { ok: false, error: err.detail || err.message || 'Invalid email address or password.' };
     }
