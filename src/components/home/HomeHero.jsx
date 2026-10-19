@@ -6,7 +6,9 @@ import { siteConfig } from '../../lib/data';
 
 export default function HomeHero() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const audioRef = useRef(null);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -20,18 +22,43 @@ export default function HomeHero() {
     }
   }, [isPlayingAudio]);
 
+  const handleVideoCanPlay = () => {
+    // Delay transition slightly for cinematic smooth cross-dissolve
+    setTimeout(() => {
+      setIsVideoReady(true);
+    }, 400);
+  };
+
   return (
     <section className="relative isolate min-h-dvh flex flex-col justify-end overflow-hidden bg-[#7A7366] text-content-ondark">
-      {/* Background Video - Scaled to push black letterbox & watermark offscreen */}
+      {/* Background Media Container */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden bg-ink-deep">
         <div className="absolute -inset-[10%] w-[120%] h-[120%] will-change-transform">
+          {/* 1. Initial High-Res Storefront Image */}
+          <img
+            src="/images/site/storefront-hero.jpg"
+            alt="Global to Local Goan Supermarket Storefront"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className={`absolute inset-0 h-full w-full object-cover brightness-[0.85] contrast-[1.08] saturate-[1.12] transition-opacity duration-1500 ease-in-out ${
+              isVideoReady ? 'opacity-0 scale-[1.04]' : 'opacity-100 scale-100'
+            }`}
+          />
+
+          {/* 2. Video Layer with Extremely Smooth Cross-Fade In */}
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
-            poster="/videos/street-poster.jpg"
-            className="h-full w-full object-cover pointer-events-none brightness-[0.82] contrast-[1.08] saturate-[1.18] scale-[1.06]"
+            onPlaying={() => setIsVideoReady(true)}
+            onCanPlay={handleVideoCanPlay}
+            poster="/images/site/storefront-hero.jpg"
+            className={`absolute inset-0 h-full w-full object-cover pointer-events-none brightness-[0.82] contrast-[1.08] saturate-[1.18] transition-opacity duration-1500 ease-in-out ${
+              isVideoReady ? 'opacity-100' : 'opacity-0'
+            }`}
           >
             <source src="/videos/street.mp4" type="video/mp4" />
           </video>
