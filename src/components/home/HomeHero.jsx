@@ -50,28 +50,19 @@ export default function HomeHero() {
           </video>
         </div>
 
-        {/* 2. Storefront Image Layer (Top) - 100% full uncropped image fit with ambient backdrop */}
+        {/* 2. Storefront Image Layer (Top) - Expanded edge-to-edge left & right */}
         <div
           className={`absolute inset-0 w-full h-full transition-opacity duration-[4500ms] ease-in-out ${
             isVideoReady ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}
         >
-          {/* Ambient Blurred Backdrop to smoothly fill wide/tall viewport edges */}
-          <img
-            src="/images/site/storefront-hero.jpg"
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover blur-2xl scale-110 opacity-70 brightness-[0.75]"
-          />
-
-          {/* Complete 100% Uncropped Storefront Photo (not a single pixel missing) */}
           <img
             src="/images/site/storefront-hero.jpg"
             alt="Global to Local Goan Supermarket Storefront"
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            className="relative z-1 h-full w-full object-contain object-center brightness-[0.92] contrast-[1.04] saturate-[1.1]"
+            className="h-full w-full object-fill brightness-[0.88] contrast-[1.05] saturate-[1.12]"
           />
         </div>
       </div>
