@@ -361,29 +361,29 @@ export default function ContactPage() {
             />
           </div>
 
-          {/* Banner Content (Heading in 1 row, Subheading in 1 row, matching exact reference glass card) */}
-          <div className="relative z-10 p-4 sm:p-6 lg:p-7 pointer-events-none">
+          {/* Banner Content (Heading in 1 row, Subheading in 1 row, compact glass card) */}
+          <div className="relative z-10 p-3 sm:p-4 lg:p-5 pointer-events-none">
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="pointer-events-auto inline-block rounded-2xl bg-white/50 backdrop-blur-md px-5 py-3.5 sm:px-6 sm:py-4 border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] max-w-full"
+              transition={{ duration: 0.5 }}
+              className="pointer-events-auto inline-block rounded-xl bg-white/50 backdrop-blur-md px-4 py-2.5 sm:px-5 sm:py-3 border border-white/60 shadow-[0_4px_20px_rgb(0,0,0,0.06)] max-w-fit"
             >
-              <h2 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-tight text-ink-deep whitespace-normal sm:whitespace-nowrap">
+              <h2 className="font-display text-base sm:text-lg lg:text-xl font-bold leading-snug text-ink-deep whitespace-normal sm:whitespace-nowrap">
                 Inside the Fontainhas store
               </h2>
-              <p className="mt-1.5 text-xs sm:text-sm lg:text-base font-medium text-ink-deep/80 leading-relaxed whitespace-normal sm:whitespace-nowrap">
+              <p className="mt-1 text-xs sm:text-[13px] font-medium text-ink-deep/80 leading-normal whitespace-normal sm:whitespace-nowrap">
                 Tarcar Mansion, Fontainhas, Panaji, Goa 403001. Open all through the week, 10 AM to 9 PM.
               </p>
-              <div className="mt-3.5">
+              <div className="mt-2.5">
                 <a
                   href="https://www.google.com/maps/search/?api=1&query=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-[#E5A823] text-content-ondark px-5 py-2 sm:px-5.5 sm:py-2 text-xs sm:text-sm font-semibold tracking-[-0.01em] hover:brightness-105 transition-all duration-200 active:scale-[0.985] shadow-sm"
+                  className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-pill bg-[#E5A823] text-content-ondark px-3.5 py-1.5 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold tracking-[-0.01em] hover:brightness-105 transition-all duration-200 active:scale-[0.985] shadow-xs"
                 >
-                  <MapPin className="h-3.5 w-3.5" />
+                  <MapPin className="h-3 w-3" />
                   <span>Open in Maps</span>
                 </a>
               </div>
