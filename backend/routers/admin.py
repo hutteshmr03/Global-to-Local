@@ -1235,7 +1235,11 @@ def update_admin_order_status(
     db.commit()
 
     # Dispatch status email to customer
-    email_dest = order.guest_email or (order.user.email if order.user else None)
+    email_dest = order.guest_email
+    if not email_dest and order.user_id:
+        user_record = db.query(User).filter(User.id == order.user_id).first()
+        if user_record:
+            email_dest = user_record.email
     if email_dest:
         send_order_status_email(
             order_number=order.order_number,
