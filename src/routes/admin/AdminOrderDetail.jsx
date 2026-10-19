@@ -311,7 +311,7 @@ export default function AdminOrderDetail() {
                     {isNext && (
                       <button
                         type="button"
-                        onClick={() => handleOpenTransitionModal(step.key)}
+                        onClick={() => handleOpenTransitionModal(nextTransition.next)}
                         className="w-full py-2 px-3 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-xs font-bold text-center transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
                       >
                         <nextTransition.icon className="h-3.5 w-3.5" />
