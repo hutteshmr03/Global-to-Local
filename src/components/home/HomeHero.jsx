@@ -22,41 +22,41 @@ export default function HomeHero() {
     }
   }, [isPlayingAudio]);
 
-  const handleVideoCanPlay = () => {
-    // Delay transition slightly for cinematic smooth cross-dissolve
-    setTimeout(() => {
+  useEffect(() => {
+    // Keep the illuminated storefront photo prominent for 4.5 seconds before transitioning
+    const timer = setTimeout(() => {
       setIsVideoReady(true);
-    }, 400);
-  };
+    }, 4500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <section className="relative isolate min-h-dvh flex flex-col justify-end overflow-hidden bg-[#7A7366] text-content-ondark">
       {/* Background Media Container */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden bg-ink-deep">
         <div className="absolute -inset-[10%] w-[120%] h-[120%] will-change-transform">
-          {/* 1. Initial High-Res Storefront Image */}
+          {/* 1. Initial High-Res Storefront Image - visible for 4.5s then 2s ultra-smooth cross-fade */}
           <img
             src="/images/site/storefront-hero.jpg"
             alt="Global to Local Goan Supermarket Storefront"
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            className={`absolute inset-0 h-full w-full object-cover brightness-[0.85] contrast-[1.08] saturate-[1.12] transition-opacity duration-1500 ease-in-out ${
-              isVideoReady ? 'opacity-0 scale-[1.04]' : 'opacity-100 scale-100'
+            className={`absolute inset-0 h-full w-full object-cover brightness-[0.85] contrast-[1.08] saturate-[1.12] transition-all duration-[2000ms] ease-in-out ${
+              isVideoReady ? 'opacity-0 scale-[1.03]' : 'opacity-100 scale-100'
             }`}
           />
 
-          {/* 2. Video Layer with Extremely Smooth Cross-Fade In */}
+          {/* 2. Video Layer with Extremely Smooth 2s Fade In */}
           <video
             ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
-            onPlaying={() => setIsVideoReady(true)}
-            onCanPlay={handleVideoCanPlay}
             poster="/images/site/storefront-hero.jpg"
-            className={`absolute inset-0 h-full w-full object-cover pointer-events-none brightness-[0.82] contrast-[1.08] saturate-[1.18] transition-opacity duration-1500 ease-in-out ${
+            className={`absolute inset-0 h-full w-full object-cover pointer-events-none brightness-[0.82] contrast-[1.08] saturate-[1.18] transition-opacity duration-[2000ms] ease-in-out ${
               isVideoReady ? 'opacity-100' : 'opacity-0'
             }`}
           >
