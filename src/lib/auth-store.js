@@ -330,6 +330,21 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  updatePassword: async ({ currentPassword, newPassword }) => {
+    try {
+      const res = await apiFetch('/api/v1/me/password', {
+        method: 'POST',
+        body: {
+          current_password: currentPassword || undefined,
+          new_password: newPassword,
+        },
+      });
+      return { ok: true, message: res.message || 'Password updated successfully.' };
+    } catch (err) {
+      return { ok: false, error: err.detail || err.message || 'Failed to update password.' };
+    }
+  },
+
   addAddress: async (addrData) => {
     try {
       await apiFetch('/api/v1/me/addresses', {

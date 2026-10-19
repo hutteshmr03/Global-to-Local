@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Store,
+  UserCog,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/auth-store';
 
@@ -90,6 +91,7 @@ export default function AdminLayout() {
     { to: '/admin/orders', label: 'Orders & Tracking', icon: ShoppingBag },
     { to: '/admin/customers', label: 'Customers', icon: Users },
     { to: '/admin/enquiries', label: 'Enquiries Inbox', icon: MessageSquare },
+    { to: '/admin/account', label: 'My Account', icon: UserCog },
   ];
 
   const handleSignOut = async () => {

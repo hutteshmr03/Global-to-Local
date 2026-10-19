@@ -1295,5 +1295,9 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     return user;
   }
 
+  if (pathname === '/api/v1/me/password' && method === 'POST') {
+    return { status: 'password_updated', message: 'Password updated successfully.' };
+  }
+
   return undefined;
 }
