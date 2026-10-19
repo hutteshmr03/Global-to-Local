@@ -45,8 +45,9 @@ export default function LoginPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  // MFA State
-  const [mfaStep, setMfaStep] = useState('none'); // 'none' | 'setup' | 'verify'
+  // MFA permanently disabled for smooth direct admin login
+  const mfaStep = 'none';
+  const setMfaStep = () => {};
   const [mfaTempToken, setMfaTempToken] = useState('');
   const [mfaSecret, setMfaSecret] = useState('');
   const [mfaQrUri, setMfaQrUri] = useState('');
@@ -173,34 +174,9 @@ export default function LoginPage() {
         setErrorMessage(result.error);
         return;
       }
-      if (result.mfa_required) {
-        setMfaTempToken(result.temp_token);
-        if (result.current_totp) {
-          setDevTotp(result.current_totp);
-        }
-        if (result.mfa_setup_required) {
-          setIsSubmitting(true);
-          const setupRes = await setupMfa(result.temp_token);
-          setIsSubmitting(false);
-          if (setupRes.ok) {
-            setMfaSecret(setupRes.secret);
-            setMfaQrUri(setupRes.qr_uri);
-            setMfaRecoveryCodes(setupRes.recovery_codes || []);
-            if (setupRes.current_totp) {
-              setDevTotp(setupRes.current_totp);
-            }
-            setMfaStep('setup');
-          } else {
-            setErrorMessage(setupRes.error || 'Failed to start 2FA setup');
-          }
-        } else {
-          setMfaStep('verify');
-        }
-        return;
-      }
-      setSuccessMessage(`Welcome back, ${result.user.name}! Signed in successfully.`);
+      setSuccessMessage(`Welcome back, ${result.user?.name || 'Admin'}! Signed in successfully.`);
       const destination = result.user?.role === 'admin' ? '/admin' : redirectTarget;
-      setTimeout(() => navigate(destination), 500);
+      setTimeout(() => navigate(destination), 300);
     }
   };
 

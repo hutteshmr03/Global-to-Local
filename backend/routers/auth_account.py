@@ -564,24 +564,6 @@ def login_with_email(
     reset_rate_limit(f"rl:login:{client_ip}")
     if user.role == UserRole.admin:
         reset_rate_limit(f"rl:admin_login:{clean_email}")
-        temp_token = create_2fa_temp_token(user_id=str(user.id), email=user.email)
-        admin_res = {
-            "mfa_required": True,
-            "mfa_setup_required": not bool(user.totp_enabled),
-            "temp_token": temp_token,
-            "user": {
-                "id": str(user.id),
-                "email": user.email,
-                "role": user.role.value,
-            },
-        }
-        if not is_production() and user.totp_secret_encrypted:
-            try:
-                plain_sec = decrypt_totp_secret(user.totp_secret_encrypted)
-                admin_res["current_totp"] = pyotp.TOTP(plain_sec).now()
-            except Exception:
-                pass
-        return admin_res
 
     return issue_session_and_cookies(
         db=db,
