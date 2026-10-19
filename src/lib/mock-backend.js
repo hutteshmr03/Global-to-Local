@@ -691,8 +691,7 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
 
     if (isAdmin) {
       const storedPw = localStorage.getItem('gtl_admin_password') || 'AdminPass123!';
-      const allowed = [storedPw, 'AdminPass123!', 'Huttesh@2003', 'GoaHeritageAdmin123!'];
-      if (!allowed.includes(body?.password)) {
+      if (body?.password !== storedPw) {
         throw new ApiProblemError(401, {
           title: 'Sign-In Failed',
           detail: 'Invalid email address or password.',
@@ -1312,8 +1311,7 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
       try { body = JSON.parse(body); } catch {}
     }
     const storedPw = localStorage.getItem('gtl_admin_password') || 'AdminPass123!';
-    const allowed = [storedPw, 'AdminPass123!', 'Huttesh@2003', 'GoaHeritageAdmin123!'];
-    if (body?.current_password && !allowed.includes(body.current_password)) {
+    if (body?.current_password && body.current_password !== storedPw) {
       throw new ApiProblemError(400, {
         title: 'Current Password Incorrect',
         detail: 'The current password you entered does not match our records.',

