@@ -1168,6 +1168,14 @@ def update_admin_order_status(
         raise ProblemException(status_code=404, title="Order Not Found", detail="Order does not exist.")
 
     target_status = OrderStatus(payload.new_status)
+    if order.status == target_status:
+        return {
+            "status": "success",
+            "order_id": str(order.id),
+            "order_number": order.order_number,
+            "new_status": target_status.value,
+        }
+
     allowed_next = FORWARD_STATUS_FLOW.get(order.status, [])
 
     if target_status not in allowed_next:
