@@ -5,6 +5,8 @@
 
 import { handleMockBackend } from './mock-backend';
 
+const RENDER_BACKEND_URL = 'https://global-to-local.onrender.com';
+
 let inMemoryCsrfToken = null;
 let inMemoryAccessToken = null;
 
@@ -84,6 +86,27 @@ export async function apiFetch(path, options = {}) {
     res = await fetch(path, fetchOptions);
   } catch (err) {
     networkFailed = true;
+  }
+
+  // Dual-tier failover: If local hosting (MilesWeb Apache) fails to proxy /api requests,
+  // seamlessly fetch directly from the live Render backend
+  if (
+    (networkFailed || (res && [404, 500, 502, 503].includes(res.status))) &&
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1' &&
+    path.startsWith('/api')
+  ) {
+    try {
+      const directUrl = `${RENDER_BACKEND_URL}${path}`;
+      const directRes = await fetch(directUrl, fetchOptions);
+      if (directRes && (directRes.ok || directRes.status < 500)) {
+        res = directRes;
+        networkFailed = false;
+      }
+    } catch {
+      // Fall through to mock/error handling
+    }
   }
 
   // Standalone fallback: Only when backend server is completely unreachable (networkFailed)
