@@ -13,6 +13,7 @@ export default function LoginPage() {
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
+  const loginWithPhone = useAuthStore((state) => state.loginWithPhone);
   const requestOtp = useAuthStore((state) => state.requestOtp);
   const verifyOtp = useAuthStore((state) => state.verifyOtp);
   const registerUser = useAuthStore((state) => state.registerUser);
@@ -58,8 +59,8 @@ export default function LoginPage() {
 
   const [devOtp, setDevOtp] = useState('');
 
-  // Request 6-digit OTP via API
-  const handleRequestOtp = async (e) => {
+  // Direct Phone Auth (Login or Register without OTP)
+  const handlePhoneAuth = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
@@ -75,47 +76,8 @@ export default function LoginPage() {
     }
 
     setIsSubmitting(true);
-    const result = await requestOtp({
+    const result = await loginWithPhone({
       phone: cleanDigits,
-      mode,
-      name: fullName.trim() || undefined,
-    });
-    setIsSubmitting(false);
-
-    if (result.error) {
-      setErrorMessage(result.error);
-      return;
-    }
-
-    if (result.data?.not_registered) {
-      setErrorMessage("No account found with this mobile number. Please click below to register with your name.");
-      return;
-    }
-
-    if (result.data?.dev_otp) {
-      setDevOtp(result.data.dev_otp);
-    } else {
-      setDevOtp('');
-    }
-
-    setOtpSent(true);
-    setOtpCode(['', '', '', '', '', '']);
-  };
-
-  // Verify 6-digit OTP & Complete Auth
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-    const entered = otpCode.join('');
-    if (entered.length < 6) {
-      setErrorMessage('Please enter the 6-digit verification code');
-      return;
-    }
-
-    setIsSubmitting(true);
-    const result = await verifyOtp({
-      phone: phoneNumber.replace(/\D/g, ''),
-      otp: entered,
       mode,
       name: fullName.trim() || undefined,
     });
@@ -132,7 +94,7 @@ export default function LoginPage() {
         : `Welcome back, ${result.user?.name || 'Shopper'}! Signed in successfully.`
     );
     const destination = result.user?.role === 'admin' ? '/admin' : redirectTarget;
-    setTimeout(() => navigate(destination, { replace: true }), 150);
+    setTimeout(() => navigate(destination, { replace: true }), 250);
   };
 
   // Handle Email & Password Submit
@@ -328,7 +290,7 @@ export default function LoginPage() {
                 )}
                 <p className="mt-1 text-xs sm:text-sm text-content-muted">
                   {authMethod === 'phone'
-                    ? 'Enter your mobile number to receive a secure instant OTP.'
+                    ? (mode === 'signin' ? 'Enter your mobile number to sign in instantly.' : 'Enter your name and mobile number to create your account.')
                     : 'Access your saved addresses and order tracking.'}
                 </p>
               </div>
@@ -379,212 +341,83 @@ export default function LoginPage() {
                 </form>
               )}
 
-              {/* 1. PHONE / OTP AUTH FLOW (Flipkart / Blinkit style) */}
+              {/* 1. PHONE AUTH FLOW (Direct Instant Login & Registration without OTP) */}
               {!resetTokenFromUrl && authMethod === 'phone' && (
                 <div className="mt-6">
-                  {!otpSent ? (
-                    <form onSubmit={handleRequestOtp} className="space-y-4">
-                      {mode === 'signup' && (
-                        <div>
-                          <label className="block text-xs font-semibold text-content mb-1">Full Name</label>
-                          <input
-                            type="text"
-                            required
-                            value={fullName}
-                            onChange={(e) => {
-                              if (errorMessage) setErrorMessage('');
-                              setFullName(e.target.value);
-                            }}
-                            placeholder="e.g. Rahul Naik"
-                            className="w-full rounded-pill border border-border bg-ground px-4 py-3 text-sm text-content outline-none focus:border-accent transition-colors shadow-xs"
-                          />
-                        </div>
-                      )}
-
+                  <form onSubmit={handlePhoneAuth} className="space-y-4">
+                    {mode === 'signup' && (
                       <div>
-                        <label className="block text-xs font-semibold text-content mb-1">Mobile Number</label>
-                        <div
-                          className={`flex rounded-pill border transition-all shadow-xs overflow-hidden ${
+                        <label className="block text-xs font-semibold text-content mb-1">Full Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={fullName}
+                          onChange={(e) => {
+                            if (errorMessage) setErrorMessage('');
+                            setFullName(e.target.value);
+                          }}
+                          placeholder="e.g. Rahul Naik"
+                          className="w-full rounded-pill border border-border bg-ground px-4 py-3 text-sm text-content outline-none focus:border-accent transition-colors shadow-xs"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-semibold text-content mb-1">Mobile Number</label>
+                      <div
+                        className={`flex rounded-pill border transition-all shadow-xs overflow-hidden ${
+                          errorMessage
+                            ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
+                            : 'border-border bg-ground focus-within:border-accent'
+                        }`}
+                      >
+                        <span
+                          className={`flex items-center px-4 border-r text-xs font-bold select-none ${
                             errorMessage
-                              ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
-                              : 'border-border bg-ground focus-within:border-accent'
+                              ? 'bg-accent/5 border-accent/30 text-accent'
+                              : 'bg-surface-muted border-border/50 text-content'
                           }`}
                         >
-                          <span
-                            className={`flex items-center px-4 border-r text-xs font-bold select-none ${
-                              errorMessage
-                                ? 'bg-accent/5 border-accent/30 text-accent'
-                                : 'bg-surface-muted border-border/50 text-content'
-                            }`}
-                          >
-                            +91
-                          </span>
-                          <input
-                            type="tel"
-                            maxLength={10}
-                            required
-                            value={phoneNumber}
-                            onChange={(e) => {
-                              if (errorMessage) setErrorMessage('');
-                              setPhoneNumber(e.target.value.replace(/\D/g, ''));
-                            }}
-                            placeholder="Enter 10-digit number"
-                            className="w-full bg-transparent px-4 py-3 text-sm font-medium text-content outline-none"
-                            autoFocus
-                          />
-                        </div>
-                        {errorMessage && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="mt-1.5 px-3 text-xs font-medium text-accent flex flex-wrap items-center gap-1"
-                          >
-                            <span>{errorMessage}</span>
-                            {mode === 'signin' && errorMessage.toLowerCase().includes('no account') && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setErrorMessage('');
-                                  setMode('signup');
-                                  setOtpSent(false);
-                                }}
-                                className="font-bold underline hover:text-accent-hover cursor-pointer ml-1"
-                              >
-                                Create an account
-                              </button>
-                            )}
-                            {mode === 'signup' && errorMessage.toLowerCase().includes('already exists') && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setErrorMessage('');
-                                  setMode('signin');
-                                  setOtpSent(false);
-                                }}
-                                className="font-bold underline hover:text-accent-hover cursor-pointer ml-1"
-                              >
-                                Sign in
-                              </button>
-                            )}
-                          </motion.div>
-                        )}
+                          +91
+                        </span>
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          required
+                          value={phoneNumber}
+                          onChange={(e) => {
+                            if (errorMessage) setErrorMessage('');
+                            setPhoneNumber(e.target.value.replace(/\D/g, ''));
+                          }}
+                          placeholder="Enter 10-digit number"
+                          className="w-full bg-transparent px-4 py-3 text-sm font-medium text-content outline-none"
+                          autoFocus
+                        />
                       </div>
-
-                      <button
-                        type="submit"
-                        disabled={isSubmitting || phoneNumber.length < 10}
-                        className="mt-2 w-full flex items-center justify-center gap-2 rounded-pill bg-palm py-3.5 text-sm font-bold text-white hover:bg-palm-shade transition-all active:scale-[0.985] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                      >
-                        {isSubmitting ? 'Sending OTP...' : 'Request OTP'}
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </form>
-                  ) : (
-                    /* OTP VERIFICATION STEP */
-                    <form onSubmit={handleVerifyOtp} className="space-y-4">
-                      <div className="rounded-xl border border-border/60 bg-surface-muted p-3.5 text-xs text-content flex items-center justify-between">
-                        <span>OTP sent to <strong>+91 {phoneNumber}</strong></span>
-                        <button
-                          type="button"
-                          onClick={() => setOtpSent(false)}
-                          className="font-bold text-accent hover:underline"
+                      {errorMessage && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-1.5 px-3 text-xs font-medium text-accent flex flex-wrap items-center gap-1"
                         >
-                          Change
-                        </button>
-                      </div>
+                          <span>{errorMessage}</span>
+                        </motion.div>
+                      )}
+                    </div>
 
-                      {devOtp ? (
-                        <div className="rounded-xl border border-palm/40 bg-palm/10 p-3 text-xs text-content flex items-center justify-between">
-                          <div>
-                            <span className="font-semibold text-content-subtle">Verification Code: </span>
-                            <span className="font-mono text-sm font-bold tracking-widest text-palm">{devOtp}</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setOtpCode(devOtp.split(''))}
-                            className="rounded-pill bg-palm px-2.5 py-1 text-[11px] font-bold text-white hover:bg-palm-shade transition-colors cursor-pointer"
-                          >
-                            Auto-Fill
-                          </button>
-                        </div>
-                      ) : mode === 'signin' ? (
-                        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:text-amber-200">
-                          <span>If this number is not registered yet, click </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setErrorMessage('');
-                              setMode('signup');
-                              setOtpSent(false);
-                            }}
-                            className="font-bold underline hover:text-amber-950 dark:hover:text-amber-100 cursor-pointer ml-1"
-                          >
-                            Create an account
-                          </button>
-                          <span> to sign up.</span>
-                        </div>
-                      ) : null}
-
-                      <div>
-                        <label className="block text-xs font-semibold text-content mb-1">Enter 6-Digit OTP</label>
-                        <div className="flex gap-2.5 justify-center py-2">
-                          {otpCode.map((digit, idx) => (
-                            <input
-                              key={idx}
-                              id={`otp-digit-${idx}`}
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => {
-                                if (errorMessage) setErrorMessage('');
-                                const val = e.target.value.replace(/\D/g, '');
-                                const copy = [...otpCode];
-                                copy[idx] = val;
-                                setOtpCode(copy);
-                                if (val && idx < 5) {
-                                  const nextEl = document.getElementById(`otp-digit-${idx + 1}`);
-                                  if (nextEl) nextEl.focus();
-                                }
-                              }}
-                              className={`h-12 w-11 rounded-xl border bg-ground text-center text-lg font-bold text-content outline-none transition-all shadow-xs ${
-                                errorMessage
-                                  ? 'border-accent ring-2 ring-accent/20 bg-accent/[0.02]'
-                                  : 'border-border focus:border-accent'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        {errorMessage && (
-                          <motion.p
-                            initial={{ opacity: 0, y: -4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="text-center text-xs font-medium text-accent mt-1"
-                          >
-                            {errorMessage}
-                          </motion.p>
-                        )}
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full flex items-center justify-center gap-2 rounded-pill bg-palm py-3.5 text-sm font-bold text-white hover:bg-palm-shade transition-all active:scale-[0.985] shadow-sm"
-                      >
-                        {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
-                      </button>
-
-                      <div className="text-center">
-                        <button
-                          type="button"
-                          onClick={handleRequestOtp}
-                          className="text-xs font-semibold text-content-muted hover:text-accent"
-                        >
-                          Resend OTP
-                        </button>
-                      </div>
-                    </form>
-                  )}
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || phoneNumber.length < 10}
+                      className="mt-2 w-full flex items-center justify-center gap-2 rounded-pill bg-palm py-3.5 text-sm font-bold text-white hover:bg-palm-shade transition-all active:scale-[0.985] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+                    >
+                      {isSubmitting ? (
+                        <span>{mode === 'signup' ? 'Creating Account...' : 'Signing In...'}</span>
+                      ) : (
+                        <span>{mode === 'signup' ? 'Create Account' : 'Sign In'}</span>
+                      )}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </form>
                 </div>
               )}
 

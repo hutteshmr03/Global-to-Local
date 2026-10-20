@@ -127,6 +127,35 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  loginWithPhone: async ({ phone, mode = 'login', name, email }) => {
+    try {
+      const guestItems = useCartStore.getState().getGuestItemsPayload();
+      const res = await apiFetch('/api/v1/auth/phone/direct', {
+        method: 'POST',
+        body: {
+          phone,
+          mode: mode === 'signup' ? 'register' : 'login',
+          name: name || undefined,
+          email: email || undefined,
+          guest_items: guestItems,
+        },
+      });
+      setClientAuthTokens({
+        csrfToken: res.csrf_token,
+        accessToken: res.access_token,
+      });
+      if (res.cart) {
+        useCartStore.getState().setFromServerCart(res.cart, true);
+      }
+      const uiUser = mapServerUserToUiUser(res.user);
+      set({ user: uiUser, isInitialized: true, isHydrating: false });
+      const hydrated = await get().hydrateSession();
+      return { ok: true, user: hydrated || uiUser };
+    } catch (err) {
+      return { ok: false, error: err.detail || err.message || 'Unable to sign in. Please try again.' };
+    }
+  },
+
   requestOtp: async ({ phone, mode = 'login', name, email }) => {
     try {
       const res = await apiFetch('/api/v1/auth/otp/request', {

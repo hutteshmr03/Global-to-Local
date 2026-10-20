@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Check, AlertCircle, Building2, Copy, CheckCircle2 } from 'lucide-react';
 import { useCartStore } from '../lib/cart-store';
 import { useAuthStore } from '../lib/auth-store';
-import { formatPrice } from '../lib/data';
+import { formatPrice, siteConfig } from '../lib/data';
 import { apiFetch } from '../lib/api-client';
 
 function makeIdempotencyKey() {
@@ -32,6 +32,14 @@ export default function CheckoutPage() {
   // Selected address id: either a saved address ID or 'new'
   const [selectedAddressId, setSelectedAddressId] = useState(defaultAddr ? defaultAddr.id : 'new');
   const [saveToProfile, setSaveToProfile] = useState(true);
+  const [copiedField, setCopiedField] = useState('');
+  const [utrNumber, setUtrNumber] = useState('');
+
+  const handleCopy = (text, field) => {
+    navigator.clipboard?.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(''), 2000);
+  };
 
   // Auto-select default address once loaded
   useEffect(() => {
@@ -400,22 +408,91 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Payment Method */}
+            {/* Payment Method - Direct Bank Transfer */}
             <div className="rounded-2xl border border-border/40 bg-surface p-6 sm:p-8 shadow-xs">
-              <div className="flex items-center gap-2.5 font-display text-xl font-bold text-content mb-4">
-                <CreditCard className="w-5 h-5 text-accent" />
-                <h2>2. Payment (Razorpay Secure)</h2>
+              <div className="flex items-center gap-2.5 font-display text-xl font-bold text-content mb-6">
+                <Building2 className="w-5 h-5 text-accent" />
+                <h2>2. Direct Bank Transfer</h2>
               </div>
-              <p className="text-xs text-content-muted mb-6">
-                Pay securely with UPI (Google Pay, PhonePe, Paytm), Credit/Debit Card, or Net Banking.
-              </p>
 
-              <div className="rounded-xl border border-palm/30 bg-palm/5 p-4 flex items-center gap-3 text-xs text-palm">
-                <Lock className="w-5 h-5 shrink-0 text-palm" />
-                <div>
-                  <span className="font-bold">256-Bit SSL Encrypted Checkout</span>
-                  <p className="text-content-muted">Your payment credentials are never stored on our servers.</p>
+              {/* Bank Account Details Box */}
+              <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 sm:p-5 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                  <span className="text-xs font-bold uppercase tracking-wider text-accent">Bank Transfer Details</span>
+                  <span className="text-[11px] font-semibold text-content-muted">Bank of India</span>
                 </div>
+
+                <div className="space-y-2 text-xs sm:text-sm">
+                  {/* Account Name */}
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-content-muted">Account Name:</span>
+                    <div className="flex items-center gap-1.5 font-semibold text-content">
+                      <span>{siteConfig.contact.bankDetails?.accountName || 'Global To Local'}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountName || 'Global To Local', 'name')}
+                        className="p-1 hover:text-accent cursor-pointer"
+                        title="Copy Account Name"
+                      >
+                        {copiedField === 'name' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Account Number */}
+                  <div className="flex items-center justify-between py-1 border-t border-border/20">
+                    <span className="text-content-muted">Account Number:</span>
+                    <div className="flex items-center gap-1.5 font-mono font-bold text-content text-sm sm:text-base">
+                      <span>{siteConfig.contact.bankDetails?.accountNumber || '102220110000268'}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountNumber || '102220110000268', 'acc')}
+                        className="p-1 hover:text-accent cursor-pointer"
+                        title="Copy Account Number"
+                      >
+                        {copiedField === 'acc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* IFSC Code */}
+                  <div className="flex items-center justify-between py-1 border-t border-border/20">
+                    <span className="text-content-muted">IFSC Code:</span>
+                    <div className="flex items-center gap-1.5 font-mono font-bold text-accent">
+                      <span>{siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022'}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022', 'ifsc')}
+                        className="p-1 hover:text-accent cursor-pointer"
+                        title="Copy IFSC Code"
+                      >
+                        {copiedField === 'ifsc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bank & Branch */}
+                  <div className="flex items-center justify-between py-1 border-t border-border/20">
+                    <span className="text-content-muted">Bank & Branch:</span>
+                    <span className="font-semibold text-content">
+                      {siteConfig.contact.bankDetails?.bankName || 'Bank of India'}, {siteConfig.contact.bankDetails?.branch || 'Miramar'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Optional UTR Reference Input */}
+              <div className="mt-4 pt-3 border-t border-border/40">
+                <label className="block text-xs font-semibold text-content mb-1">
+                  Bank Reference / UTR Number
+                </label>
+                <input
+                  type="text"
+                  value={utrNumber}
+                  onChange={e => setUtrNumber(e.target.value)}
+                  placeholder="e.g. 230910482910 or leave blank to pay after placing"
+                  className="w-full rounded-lg border border-border bg-ground px-4 py-2 text-xs sm:text-sm font-mono text-content outline-none focus:border-palm transition-colors"
+                />
               </div>
             </div>
           </div>
@@ -469,14 +546,14 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={!hasValidAddress || isProcessing}
-                className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent py-4 text-base font-bold text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md"
+                className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent py-4 text-base font-bold text-white hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md cursor-pointer"
               >
                 {isProcessing ? (
-                  <span>Processing Payment...</span>
+                  <span>Placing Your Order...</span>
                 ) : !hasValidAddress ? (
                   <span>Add Delivery Address to Place Order</span>
                 ) : (
-                  <span>Pay <span className="font-sans font-bold tabular-nums">{formatPrice(totalPaise)}</span> via Razorpay</span>
+                  <span>Confirm Order & Pay <span className="font-sans font-bold tabular-nums">{formatPrice(totalPaise)}</span> via Bank Transfer</span>
                 )}
               </button>
 

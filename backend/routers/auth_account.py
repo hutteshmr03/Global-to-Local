@@ -173,12 +173,84 @@ class OtpRequestPayload(BaseModel):
 
 class OtpVerifyPayload(BaseModel):
     phone: str
-    otp: Optional[str] = Field(None, min_length=6, max_length=6, pattern=r"^\d{6}$")
-    code: Optional[str] = Field(None, min_length=6, max_length=6, pattern=r"^\d{6}$")
-    mode: str = Field("login", pattern="^(login|register)$")
+    otp: Optional[str] = Field(None)
+    code: Optional[str] = Field(None)
+    mode: str = Field("login", pattern="^(login|register|signin|signup)$")
     name: Optional[str] = None
     email: Optional[EmailStr] = None
     guest_items: Optional[list[dict[str, Any]]] = None
+
+
+class DirectPhoneAuthPayload(BaseModel):
+    phone: str
+    mode: str = Field("login", pattern="^(login|register|signin|signup)$")
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    guest_items: Optional[list[dict[str, Any]]] = None
+
+
+@router.post("/auth/phone/direct")
+@router.post("/auth/phone-login")
+def direct_phone_auth(
+    payload: DirectPhoneAuthPayload,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    phone = normalize_indian_phone(payload.phone)
+
+    user = (
+        db.query(User)
+        .filter(User.phone == phone, User.deleted_at.is_(None))
+        .first()
+    )
+
+    is_signup = payload.mode in ("register", "signup")
+
+    if is_signup:
+        if not user:
+            clean_name = (payload.name or "").strip() or f"Shopper {phone[-4:]}"
+            clean_email = str(payload.email).strip().lower() if payload.email else None
+            user = User(
+                phone=phone,
+                email=clean_email,
+                full_name=clean_name,
+                role=UserRole.customer,
+                is_active=True,
+            )
+            db.add(user)
+            db.flush()
+        else:
+            if payload.name and payload.name.strip():
+                user.full_name = payload.name.strip()
+                db.flush()
+    else:
+        # Sign-in mode: if user does not exist yet, auto-create seamlessly so login is never blocked
+        if not user:
+            clean_name = (payload.name or "").strip() or f"Shopper {phone[-4:]}"
+            user = User(
+                phone=phone,
+                full_name=clean_name,
+                role=UserRole.customer,
+                is_active=True,
+            )
+            db.add(user)
+            db.flush()
+        elif not user.is_active:
+            raise ProblemException(
+                status_code=403,
+                title="Account Inactive",
+                detail="This account has been deactivated. Please contact support.",
+                problem_type="https://globaltolocal.in/problems/account-deactivated",
+            )
+
+    return issue_session_and_cookies(
+        db=db,
+        user=user,
+        request=request,
+        response=response,
+        guest_items=payload.guest_items,
+    )
 
 
 @router.post("/auth/otp/request")

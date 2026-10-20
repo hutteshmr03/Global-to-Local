@@ -15,7 +15,14 @@ export const siteConfig = {
     phoneHref: "tel:+918010367153",
     supportEmail: "customerservice@globaltolocal.in",
     hours: "Open throughout the week from 10 AM to 9 PM",
-    mapsUrl: "https://maps.google.com/?q=Tarcar+Mansion+Fontainhas+Panaji+Goa"
+    mapsUrl: "https://maps.google.com/?q=Tarcar+Mansion+Fontainhas+Panaji+Goa",
+    bankDetails: {
+      accountName: "Global To Local",
+      accountNumber: "102220110000268",
+      ifscCode: "BKID0001022",
+      bankName: "Bank of India",
+      branch: "Miramar"
+    }
   }
 };
 
