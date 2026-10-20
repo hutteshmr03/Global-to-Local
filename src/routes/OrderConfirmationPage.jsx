@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle2, Package, Truck, ArrowRight, Printer, Building2, Copy } from 'lucide-react';
+import { CheckCircle2, Package, Truck, ArrowRight, Printer } from 'lucide-react';
 import { siteConfig, formatPrice } from '../lib/data';
 import { useAuthStore } from '../lib/auth-store';
 import { apiFetch } from '../lib/api-client';
@@ -12,13 +12,6 @@ export default function OrderConfirmationPage() {
   const existingOrder = (user?.orders || []).find(o => o.orderNumber === orderNumber);
   const [order, setOrder] = useState(existingOrder || null);
   const [cancelMsg, setCancelMsg] = useState('');
-  const [copiedField, setCopiedField] = useState('');
-
-  const handleCopy = (text, field) => {
-    navigator.clipboard?.writeText(text);
-    setCopiedField(field);
-    setTimeout(() => setCopiedField(''), 2000);
-  };
 
   useEffect(() => {
     let cancelled = false;
@@ -126,75 +119,6 @@ export default function OrderConfirmationPage() {
               </div>
             </div>
           )}
-
-          {/* Bank Transfer Payment Instructions Box */}
-          <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 sm:p-5 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-border/40">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-accent" />
-                <span className="text-xs font-bold uppercase tracking-wider text-accent">Bank Transfer Details</span>
-              </div>
-              <span className="text-[11px] font-semibold text-content-muted">Bank of India</span>
-            </div>
-
-            <div className="space-y-2 text-xs sm:text-sm">
-              <div className="flex items-center justify-between py-1">
-                <span className="text-content-muted">Beneficiary:</span>
-                <div className="flex items-center gap-1.5 font-semibold text-content">
-                  <span>{siteConfig.contact.bankDetails?.accountName || 'Global To Local'}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountName || 'Global To Local', 'name')}
-                    className="p-1 hover:text-accent cursor-pointer"
-                    title="Copy Name"
-                  >
-                    {copiedField === 'name' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-t border-border/20">
-                <span className="text-content-muted">Account Number:</span>
-                <div className="flex items-center gap-1.5 font-mono font-bold text-content text-sm sm:text-base">
-                  <span>{siteConfig.contact.bankDetails?.accountNumber || '102220110000268'}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountNumber || '102220110000268', 'acc')}
-                    className="p-1 hover:text-accent cursor-pointer"
-                    title="Copy Account Number"
-                  >
-                    {copiedField === 'acc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-t border-border/20">
-                <span className="text-content-muted">IFSC Code:</span>
-                <div className="flex items-center gap-1.5 font-mono font-bold text-accent">
-                  <span>{siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022'}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022', 'ifsc')}
-                    className="p-1 hover:text-accent cursor-pointer"
-                    title="Copy IFSC Code"
-                  >
-                    {copiedField === 'ifsc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-t border-border/20">
-                <span className="text-content-muted">Bank & Branch:</span>
-                <span className="font-semibold text-content">
-                  {siteConfig.contact.bankDetails?.bankName || 'Bank of India'}, {siteConfig.contact.bankDetails?.branch || 'Miramar'}
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-border/30 text-[11px] text-content-muted leading-relaxed">
-              💡 Please mention Order Reference <strong className="font-mono text-content">{orderNumber}</strong> in your bank transfer remarks/notes for instant payment matching.
-            </div>
-          </div>
 
           {order?.canCancel && (
             <div className="border-t border-border/30 pt-3 flex items-center justify-between gap-3">
