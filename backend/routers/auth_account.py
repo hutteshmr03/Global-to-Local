@@ -208,34 +208,40 @@ def direct_phone_auth(
     is_signup = payload.mode in ("register", "signup")
 
     if is_signup:
-        if not user:
-            clean_name = (payload.name or "").strip() or f"Shopper {phone[-4:]}"
-            clean_email = str(payload.email).strip().lower() if payload.email else None
-            user = User(
-                phone=phone,
-                email=clean_email,
-                full_name=clean_name,
-                role=UserRole.customer,
-                is_active=True,
+        if user:
+            raise ProblemException(
+                status_code=409,
+                title="Account Already Exists",
+                detail="An account with this mobile number already exists. Please sign in.",
+                problem_type="https://globaltolocal.in/problems/account-exists",
             )
-            db.add(user)
-            db.flush()
-        else:
-            if payload.name and payload.name.strip():
-                user.full_name = payload.name.strip()
-                db.flush()
+        clean_name = (payload.name or "").strip()
+        if not clean_name:
+            raise ProblemException(
+                status_code=422,
+                title="Name Required",
+                detail="Please enter your full name to create an account.",
+                problem_type="https://globaltolocal.in/problems/name-required",
+            )
+        clean_email = str(payload.email).strip().lower() if payload.email else None
+        user = User(
+            phone=phone,
+            email=clean_email,
+            full_name=clean_name,
+            role=UserRole.customer,
+            is_active=True,
+        )
+        db.add(user)
+        db.flush()
     else:
-        # Sign-in mode: if user does not exist yet, auto-create seamlessly so login is never blocked
+        # Sign-in mode: ONLY allow login if customer has previously created an account
         if not user:
-            clean_name = (payload.name or "").strip() or f"Shopper {phone[-4:]}"
-            user = User(
-                phone=phone,
-                full_name=clean_name,
-                role=UserRole.customer,
-                is_active=True,
+            raise ProblemException(
+                status_code=404,
+                title="Account Not Found",
+                detail="No account found with this mobile number. Please create an account first.",
+                problem_type="https://globaltolocal.in/problems/account-not-found",
             )
-            db.add(user)
-            db.flush()
         elif not user.is_active:
             raise ProblemException(
                 status_code=403,

@@ -398,9 +398,33 @@ export default function LoginPage() {
                         <motion.div
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="mt-1.5 px-3 text-xs font-medium text-accent flex flex-wrap items-center gap-1"
+                          className="mt-1.5 px-3 text-xs font-medium text-accent flex flex-wrap items-center gap-1.5"
                         >
                           <span>{errorMessage}</span>
+                          {mode === 'signin' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setErrorMessage('');
+                                setMode('signup');
+                              }}
+                              className="font-bold underline hover:text-accent-hover cursor-pointer"
+                            >
+                              Create account
+                            </button>
+                          )}
+                          {mode === 'signup' && errorMessage.toLowerCase().includes('already exists') && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setErrorMessage('');
+                                setMode('signin');
+                              }}
+                              className="font-bold underline hover:text-accent-hover cursor-pointer"
+                            >
+                              Sign in
+                            </button>
+                          )}
                         </motion.div>
                       )}
                     </div>
