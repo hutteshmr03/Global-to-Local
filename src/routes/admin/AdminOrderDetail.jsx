@@ -126,17 +126,21 @@ export default function AdminOrderDetail() {
     setStatusError('');
 
     try {
-      await apiFetch(`/api/v1/admin/orders/${order.id}/status`, {
+      await apiFetch(`/api/v1/admin/orders/${order.id || order.order_number}/status`, {
         method: 'PATCH',
         body: {
           new_status: targetStatus,
+          carrier: targetStatus === 'shipped' ? (carrier || 'Delhivery Express') : undefined,
+          tracking_number: targetStatus === 'shipped' ? (trackingNumber || undefined) : undefined,
+          tracking_url: targetStatus === 'shipped' ? (trackingUrl || undefined) : undefined,
+          note: statusNote || undefined,
         },
       });
 
       setIsTransitionModalOpen(false);
       await fetchOrderDetail();
     } catch (err) {
-      setStatusError(err?.message || 'Failed to update order status.');
+      setStatusError(err?.detail || err?.message || 'Failed to update order status.');
     } finally {
       setSubmittingStatus(false);
     }

@@ -52,6 +52,7 @@ files_to_sync = [
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
+    (f"{RAW_BASE}/dist_live/assets/index-iXfLwrxW.js", os.path.join(PUBLIC_HTML, "assets", "index-iXfLwrxW.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BcsolVHe.js", os.path.join(PUBLIC_HTML, "assets", "index-BcsolVHe.js")),
     (f"{RAW_BASE}/dist_live/assets/index-B0Y-ixBk.js", os.path.join(PUBLIC_HTML, "assets", "index-B0Y-ixBk.js")),
     (f"{RAW_BASE}/dist_live/assets/index-TgqMtV40.js", os.path.join(PUBLIC_HTML, "assets", "index-TgqMtV40.js")),
@@ -321,6 +322,38 @@ try:
             conn.execute(text("ALTER TABLE `price_changes` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
         except Exception:
             pass
+
+        # F1. Ensure shipments table exists
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS `shipments` (
+              `id` VARCHAR(36) NOT NULL,
+              `order_id` VARCHAR(36) NOT NULL,
+              `carrier` VARCHAR(64) NOT NULL DEFAULT 'Delhivery Express',
+              `carrier_shipment_id` VARCHAR(80) DEFAULT NULL,
+              `awb_or_tracking_number` VARCHAR(80) DEFAULT NULL,
+              `tracking_url` TEXT DEFAULT NULL,
+              `status` VARCHAR(32) NOT NULL DEFAULT 'label_created',
+              `weight_grams` INT NOT NULL DEFAULT 500,
+              `dispatched_at` VARCHAR(255) DEFAULT NULL,
+              `delivered_at` VARCHAR(255) DEFAULT NULL,
+              `raw_tracking_events` JSON DEFAULT NULL,
+              `created_at` VARCHAR(255) NOT NULL DEFAULT '',
+              `updated_at` VARCHAR(255) NOT NULL DEFAULT '',
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """))
+
+        # F2. Ensure order_internal_notes table exists
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS `order_internal_notes` (
+              `id` VARCHAR(36) NOT NULL,
+              `order_id` VARCHAR(36) NOT NULL,
+              `admin_user_id` VARCHAR(36) DEFAULT NULL,
+              `note` TEXT NOT NULL,
+              `created_at` VARCHAR(255) NOT NULL DEFAULT '',
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """))
 
         # E. Set all 230 products to published, active, in_stock
         conn.execute(text("""
