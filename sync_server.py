@@ -224,6 +224,11 @@ for attempt in range(1, 4):
             time.sleep(2)
         else:
             print(f"[NOTE] Catalog check (attempt {attempt}): {e}", flush=True)
+            if os.path.exists(log_file):
+                print("\n=== RECENT UVICORN.LOG ===", flush=True)
+                with open(log_file, "r", encoding="utf-8", errors="ignore") as lf:
+                    lines = lf.readlines()
+                    print("".join(lines[-25:]), flush=True)
 
 # Check Enquiries API
 for attempt in range(1, 4):
