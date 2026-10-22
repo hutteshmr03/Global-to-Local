@@ -120,6 +120,33 @@ try:
                 except Exception:
                     pass
     print("[OK] All other website directories restored to original state cleanly.", flush=True)
+# Locate the EXACT directory where globaltolocal.in is being served from
+print("\n[*] Searching for live globaltolocal.in web root...", flush=True)
+found_gtl_roots = set()
+for r, dirs, files in os.walk("/home/nrlnxfke"):
+    if any(skip in r for skip in ["virtualenv", ".git", "gtl_backend", "mail", "etc", "logs", "ssl"]):
+        continue
+    if "index-CPq8Ofw5.js" in files or ("assets" in dirs and os.path.exists(os.path.join(r, "assets", "index-CPq8Ofw5.js"))):
+        # Found the exact folder where the live website is reading assets from!
+        web_dir = r if "index-CPq8Ofw5.js" not in files else os.path.dirname(r)
+        found_gtl_roots.add(web_dir)
+        print(f"[FOUND LIVE GTL ROOT]: {web_dir}", flush=True)
+
+for gtl_root in found_gtl_roots:
+    try:
+        # Copy index.html
+        shutil.copy2(os.path.join(PUBLIC_HTML, "index.html"), os.path.join(gtl_root, "index.html"))
+        # Copy .htaccess
+        shutil.copy2(os.path.join(PUBLIC_HTML, ".htaccess"), os.path.join(gtl_root, ".htaccess"))
+        # Copy all assets
+        target_assets = os.path.join(gtl_root, "assets")
+        os.makedirs(target_assets, exist_ok=True)
+        for af in os.listdir(os.path.join(PUBLIC_HTML, "assets")):
+            shutil.copy2(os.path.join(PUBLIC_HTML, "assets", af), os.path.join(target_assets, af))
+        print(f"[OK] Deployed latest build directly into live root: {gtl_root}", flush=True)
+    except Exception as deploy_err:
+        print(f"[!] Deploy error in {gtl_root}: {deploy_err}", flush=True)
+
 except Exception as clean_err:
     print(f"[*] Note during cleanup: {clean_err}", flush=True)
 
