@@ -5,9 +5,9 @@ import subprocess
 import urllib.request
 from sqlalchemy import text
 
-print("=" * 60)
-print(" GLOBAL TO LOCAL — LIVE SYSTEM REPAIR & SYNC")
-print("=" * 60)
+print("=" * 60, flush=True)
+print(" GLOBAL TO LOCAL — LIVE SYSTEM REPAIR & SYNC", flush=True)
+print("=" * 60, flush=True)
 
 BASE_DIR = "/home/nrlnxfke/gtl_backend"
 PUBLIC_HTML = "/home/nrlnxfke/public_html"
@@ -20,8 +20,8 @@ if not os.path.exists(BASE_DIR):
     PUBLIC_HTML = os.path.abspath("./dist")
     PYTHON_BIN = sys.executable
 
-print(f"[*] Base Directory: {BASE_DIR}")
-print(f"[*] Public HTML:    {PUBLIC_HTML}")
+print(f"[*] Base Directory: {BASE_DIR}", flush=True)
+print(f"[*] Public HTML:    {PUBLIC_HTML}", flush=True)
 
 # 1. Download updated backend & frontend files directly from GitHub
 RAW_BASE = "https://raw.githubusercontent.com/hutteshmr03/Global-to-Local/main"
@@ -39,7 +39,7 @@ files_to_sync = [
     (f"{RAW_BASE}/dist_live/assets/index-S4lbc6Eb.css", os.path.join(PUBLIC_HTML, "assets", "index-S4lbc6Eb.css")),
 ]
 
-print("\n--- STEP 1: Syncing Latest Code & Frontend from Repository ---")
+print("\n--- STEP 1: Syncing Latest Code & Frontend from Repository ---", flush=True)
 for url, dest in files_to_sync:
     try:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -48,12 +48,12 @@ for url, dest in files_to_sync:
             data = resp.read()
             with open(dest, "wb") as f:
                 f.write(data)
-        print(f"[OK] Synced {os.path.basename(dest)} ({len(data)} bytes)")
+        print(f"[OK] Synced {os.path.basename(dest)} ({len(data)} bytes)", flush=True)
     except Exception as e:
-        print(f"[FAIL] Error syncing {os.path.basename(dest)}: {e}")
+        print(f"[FAIL] Error syncing {os.path.basename(dest)}: {e}", flush=True)
 
 # 2. Database update: Set all 230 products to 100 units & active, fix image associations
-print("\n--- STEP 2: Updating Database (All 230 Products -> 100 Units & In Stock) ---")
+print("\n--- STEP 2: Updating Database (All 230 Products -> 100 Units & In Stock) ---", flush=True)
 try:
     sys.path.insert(0, BASE_DIR)
     from backend.database import engine
@@ -89,12 +89,12 @@ try:
         """))
 
         conn.commit()
-    print("[OK] Database updated successfully: All products set to 100 pieces and catalog images aligned.")
+    print("[OK] Database updated successfully: All products set to 100 pieces and catalog images aligned.", flush=True)
 except Exception as e:
-    print(f"[FAIL] Database update error: {e}")
+    print(f"[FAIL] Database update error: {e}", flush=True)
 
 # 3. Patch any existing legacy JS assets in public_html to prevent client cache sold out badges
-print("\n--- STEP 3: Sanitizing Client-side Frontend Assets ---")
+print("\n--- STEP 3: Sanitizing Client-side Frontend Assets ---", flush=True)
 try:
     import glob
     for js_path in glob.glob(os.path.join(PUBLIC_HTML, "assets", "*.js")):
@@ -109,14 +109,14 @@ try:
                 code = code.replace("disabled:n.inStock===!1", "disabled:!1")
                 with open(js_path, "w", encoding="utf-8") as f:
                     f.write(code)
-                print(f"[OK] Sanitized fallback cache in: {os.path.basename(js_path)}")
+                print(f"[OK] Sanitized fallback cache in: {os.path.basename(js_path)}", flush=True)
         except Exception as err:
             pass
 except Exception as e:
-    print(f"[NOTE] Frontend assets sanitize note: {e}")
+    print(f"[NOTE] Frontend assets sanitize note: {e}", flush=True)
 
 # 4. Restart Uvicorn Daemon cleanly on port 8008
-print("\n--- STEP 4: Restarting Uvicorn Backend Service ---")
+print("\n--- STEP 4: Restarting Uvicorn Backend Service ---", flush=True)
 if os.path.exists("/home/nrlnxfke/gtl_backend"):
     # Terminate old processes on port 8008 or uvicorn
     try:
@@ -124,17 +124,17 @@ if os.path.exists("/home/nrlnxfke/gtl_backend"):
         subprocess.run(["fuser", "-k", "8008/tcp"], check=False)
         time.sleep(2)
     except Exception as e:
-        print(f"[NOTE] Process kill notice: {e}")
+        print(f"[NOTE] Process kill notice: {e}", flush=True)
 
     # Launch daemon
     log_file = os.path.join(BASE_DIR, "uvicorn.log")
     cmd = f"nohup {PYTHON_BIN} -m uvicorn backend.main:app --host 127.0.0.1 --port 8008 --workers 1 > {log_file} 2>&1 &"
     os.system(cmd)
     time.sleep(3)
-    print("[OK] Uvicorn service restarted in background.")
+    print("[OK] Uvicorn service restarted in background.", flush=True)
 
 # 5. Comprehensive Verification
-print("\n--- STEP 5: Verification & Health Check ---")
+print("\n--- STEP 5: Verification & Health Check ---", flush=True)
 try:
     verify_url = "http://127.0.0.1:8008/api/v1/products?category=papads-pickles&page_size=50"
     req = urllib.request.Request(verify_url, headers={"User-Agent": "HealthCheck/1.0"})
@@ -142,24 +142,24 @@ try:
         import json
         data = json.loads(resp.read().decode("utf-8"))
         items = data.get("items", [])
-        print(f"[OK] API returned HTTP 200 with {len(items)} products in papads-pickles.")
+        print(f"[OK] API returned HTTP 200 with {len(items)} products in papads-pickles.", flush=True)
 
         sold_out_count = sum(1 for p in items if not p.get("inStock"))
-        print(f"[*] Sold out products in category: {sold_out_count} (Must be 0)")
+        print(f"[*] Sold out products in category: {sold_out_count} (Must be 0)", flush=True)
         
         onion = next((p for p in items if "onion-vaddiyo" in p.get("slug", "")), None)
         if onion:
-            print(f"[OK] Onion Vaddiyo -> inStock: {onion.get('inStock')}, available_quantity: {onion.get('available_quantity')}, image: {onion.get('imageSrc')}")
+            print(f"[OK] Onion Vaddiyo -> inStock: {onion.get('inStock')}, available_quantity: {onion.get('available_quantity')}, image: {onion.get('imageSrc')}", flush=True)
         
         kuwaale = next((p for p in items if "kuwaale-vaddiyo" in p.get("slug", "")), None)
         if kuwaale:
-            print(f"[OK] Kuwaale Vaddiyo -> inStock: {kuwaale.get('inStock')}, available_quantity: {kuwaale.get('available_quantity')}, image: {kuwaale.get('imageSrc')}")
+            print(f"[OK] Kuwaale Vaddiyo -> inStock: {kuwaale.get('inStock')}, available_quantity: {kuwaale.get('available_quantity')}, image: {kuwaale.get('imageSrc')}", flush=True)
 
         if sold_out_count == 0:
-            print("\n>>> ALL CHECKS PASSED PERFECTLY! 100% OPERATIONAL. <<<")
+            print("\n>>> ALL CHECKS PASSED PERFECTLY! 100% OPERATIONAL. <<<", flush=True)
         else:
-            print(f"\n[WARNING] Found {sold_out_count} products still reporting out of stock.")
+            print(f"\n[WARNING] Found {sold_out_count} products still reporting out of stock.", flush=True)
 except Exception as e:
-    print(f"[NOTE] Live API check: {e} (Backend will serve requests on next incoming call)")
+    print(f"[NOTE] Live API check: {e} (Backend will serve requests on next incoming call)", flush=True)
 
-print("=" * 60)
+print("=" * 60, flush=True)
