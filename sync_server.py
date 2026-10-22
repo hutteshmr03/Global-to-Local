@@ -15,7 +15,6 @@ PYTHON_BIN = "/home/nrlnxfke/virtualenv/gtl_backend/3.11/bin/python"
 
 # Verify environment
 if not os.path.exists(BASE_DIR):
-    # Fallback to current directory if running in local test
     BASE_DIR = os.path.abspath(".")
     PUBLIC_HTML = os.path.abspath("./dist")
     PYTHON_BIN = sys.executable
@@ -40,22 +39,25 @@ files_to_sync = [
 ]
 
 print("\n--- STEP 1: Syncing Latest Code & Frontend from Repository ---", flush=True)
-for url, dest in files_to_sync:
+for i, (url, dest) in enumerate(files_to_sync, 1):
+    fname = os.path.basename(dest)
+    print(f"[{i}/{len(files_to_sync)}] Fetching {fname}...", end="", flush=True)
     try:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             data = resp.read()
             with open(dest, "wb") as f:
                 f.write(data)
-        print(f"[OK] Synced {os.path.basename(dest)} ({len(data)} bytes)", flush=True)
+        print(f" [OK] ({len(data)} bytes)", flush=True)
     except Exception as e:
-        print(f"[FAIL] Error syncing {os.path.basename(dest)}: {e}", flush=True)
+        print(f" [FAIL: {e}]", flush=True)
 
 # 2. Database update: Set all 230 products to 100 units & active, fix image associations
 print("\n--- STEP 2: Updating Database (All 230 Products -> 100 Units & In Stock) ---", flush=True)
 try:
-    sys.path.insert(0, BASE_DIR)
+    if BASE_DIR not in sys.path:
+        sys.path.insert(0, BASE_DIR)
     from backend.database import engine
 
     with engine.connect() as conn:
@@ -117,18 +119,16 @@ except Exception as e:
 
 # 4. Restart Uvicorn Daemon cleanly on port 8008
 print("\n--- STEP 4: Restarting Uvicorn Backend Service ---", flush=True)
-if os.path.exists("/home/nrlnxfke/gtl_backend"):
-    # Terminate old processes on port 8008 or uvicorn
+if os.path.exists(BASE_DIR):
     try:
-        subprocess.run(["pkill", "-f", "uvicorn backend.main:app"], check=False)
-        subprocess.run(["fuser", "-k", "8008/tcp"], check=False)
-        time.sleep(2)
+        subprocess.run(["pkill", "-9", "-f", "uvicorn.*8008"], check=False)
+        time.sleep(1)
     except Exception as e:
         print(f"[NOTE] Process kill notice: {e}", flush=True)
 
-    # Launch daemon
+    # Launch daemon strictly from BASE_DIR
     log_file = os.path.join(BASE_DIR, "uvicorn.log")
-    cmd = f"nohup {PYTHON_BIN} -m uvicorn backend.main:app --host 127.0.0.1 --port 8008 --workers 1 > {log_file} 2>&1 &"
+    cmd = f"cd {BASE_DIR} && nohup {PYTHON_BIN} -m uvicorn backend.main:app --host 127.0.0.1 --port 8008 --workers 1 > {log_file} 2>&1 &"
     os.system(cmd)
     time.sleep(3)
     print("[OK] Uvicorn service restarted in background.", flush=True)
