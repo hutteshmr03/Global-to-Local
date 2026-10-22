@@ -51,6 +51,7 @@ files_to_sync = [
     (f"{RAW_BASE}/backend/routers/checkout_orders.py", os.path.join(BASE_DIR, "backend", "routers", "checkout_orders.py")),
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
     (f"{RAW_BASE}/dist_live/assets/index-B6az3yA0.js", os.path.join(PUBLIC_HTML, "assets", "index-B6az3yA0.js")),
     (f"{RAW_BASE}/dist_live/assets/index-CYCmzclN.css", os.path.join(PUBLIC_HTML, "assets", "index-CYCmzclN.css")),
     # Missing / Aliased catalog images

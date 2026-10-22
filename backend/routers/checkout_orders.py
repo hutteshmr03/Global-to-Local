@@ -528,16 +528,9 @@ def create_order(
             )
         return existing_idem.response_body
 
-    # Enforce mandatory UTR number for Bank Transfer orders
+    # Format and save customer note / UTR for Bank Transfer
     user_note = (payload.customer_note or "").strip()
-    utr_val = user_note.replace("Bank Transfer UTR:", "").strip()
-    if not utr_val or len(utr_val) < 4:
-        raise ProblemException(
-            status_code=422,
-            title="UTR Number Required",
-            detail="Please transfer the total amount to our bank account and enter your Bank Reference / UTR Number before confirming.",
-            problem_type="https://globaltolocal.in/problems/utr-required",
-        )
+    saved_note = user_note if user_note else "Bank Transfer (Direct Payment)"
 
     # Release any expired reservations first
     release_expired_reservations(db)
@@ -755,7 +748,7 @@ def create_order(
         shipping_address_snapshot=address_snapshot,
         billing_address_snapshot=address_snapshot,
         shipping_method=ship_info["shipping_method"],
-        customer_note=payload.customer_note,
+        customer_note=saved_note,
         idempotency_key=idem_key,
         reservation_expires_at=now + timedelta(minutes=30),
         placed_at=now,
