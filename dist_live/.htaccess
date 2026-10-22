@@ -1,4 +1,8 @@
-# Global to Local - Apache / cPanel Configuration
+# Global to Local - Apache / cPanel / LiteSpeed Configuration
+<IfModule LiteSpeed>
+  CacheDisable
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
@@ -35,6 +39,6 @@
   ExpiresByType image/png "access plus 1 month"
   ExpiresByType image/webp "access plus 1 month"
   ExpiresByType image/svg+xml "access plus 1 month"
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
 </IfModule>

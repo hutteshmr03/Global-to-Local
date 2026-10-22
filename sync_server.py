@@ -54,6 +54,7 @@ files_to_sync = [
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
     (f"{RAW_BASE}/dist_live/assets/index-TgqMtV40.js", os.path.join(PUBLIC_HTML, "assets", "index-TgqMtV40.js")),
     (f"{RAW_BASE}/dist_live/assets/index-B6az3yA0.js", os.path.join(PUBLIC_HTML, "assets", "index-B6az3yA0.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-CPq8Ofw5.js", os.path.join(PUBLIC_HTML, "assets", "index-CPq8Ofw5.js")),
     (f"{RAW_BASE}/dist_live/assets/index-CYCmzclN.css", os.path.join(PUBLIC_HTML, "assets", "index-CYCmzclN.css")),
     # Missing / Aliased catalog images
     (f"{RAW_BASE}/public/images/catalog/agarbatti-lavender-80-grams.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "agarbatti-lavender-80-grams.jpg")),
@@ -81,6 +82,67 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
         print(f" [OK] ({len(data)} bytes)", flush=True)
     except Exception as e:
         print(f" [FAIL: {e}]", flush=True)
+
+import shutil
+
+# --- STEP 1B: Multi-Webroot Discovery & LiteSpeed Cache Purge ---
+print("\n--- STEP 1B: Discovering All Web Roots & Purging Stale Cache ---", flush=True)
+candidate_roots = set([PUBLIC_HTML])
+
+for direct_cand in [
+    "/home/nrlnxfke/public_html",
+    "/home/nrlnxfke/globaltolocal.in",
+    "/home/nrlnxfke/public_html/globaltolocal.in",
+    "/home/nrlnxfke/domains/globaltolocal.in/public_html",
+]:
+    if os.path.exists(direct_cand) and os.path.isdir(direct_cand):
+        candidate_roots.add(direct_cand)
+
+try:
+    for r, dirs, files in os.walk("/home/nrlnxfke"):
+        if any(skip in r for skip in ["virtualenv", ".git", "gtl_backend", "mail", "etc", "logs", "ssl", "cpanel3-skel"]):
+            continue
+        if "index.html" in files or "assets" in dirs:
+            candidate_roots.add(r)
+except Exception as scan_err:
+    print(f"[*] Note during directory scan: {scan_err}", flush=True)
+
+print(f"[*] Total Web Roots detected: {len(candidate_roots)}", flush=True)
+for wroot in candidate_roots:
+    try:
+        # Replicate index.html
+        src_idx = os.path.join(PUBLIC_HTML, "index.html")
+        dst_idx = os.path.join(wroot, "index.html")
+        if os.path.exists(src_idx):
+            shutil.copy2(src_idx, dst_idx)
+            print(f"    [OK] Updated index.html in: {wroot}", flush=True)
+        # Replicate .htaccess
+        src_ht = os.path.join(PUBLIC_HTML, ".htaccess")
+        dst_ht = os.path.join(wroot, ".htaccess")
+        if os.path.exists(src_ht):
+            shutil.copy2(src_ht, dst_ht)
+        # Replicate assets/
+        src_assets = os.path.join(PUBLIC_HTML, "assets")
+        dst_assets = os.path.join(wroot, "assets")
+        if os.path.exists(src_assets):
+            os.makedirs(dst_assets, exist_ok=True)
+            for af in os.listdir(src_assets):
+                sa = os.path.join(src_assets, af)
+                da = os.path.join(dst_assets, af)
+                if os.path.isfile(sa):
+                    shutil.copy2(sa, da)
+            print(f"    [OK] Synced {len(os.listdir(src_assets))} bundle files to: {dst_assets}", flush=True)
+    except Exception as w_err:
+        print(f"    [!] Notice for {wroot}: {w_err}", flush=True)
+
+# Purge LiteSpeed & tmp cache directories
+for cdir in ["/home/nrlnxfke/lscache", "/home/nrlnxfke/public_html/.lscache", "/tmp/lshttpd", "/tmp/lscache"]:
+    if os.path.exists(cdir):
+        try:
+            shutil.rmtree(cdir, ignore_errors=True)
+            print(f"[*] Cleared LiteSpeed cache directory: {cdir}", flush=True)
+        except Exception:
+            pass
 
 # 2. Database update & schema hardening
 print("\n--- STEP 2: Database Hardening & Stock Update ---", flush=True)
