@@ -253,7 +253,7 @@ def generate_next_order_number(db: Session) -> str:
         return f"GTL-{year}-{secrets.token_hex(4).upper()}"
 
 STATUS_LABELS: dict[OrderStatus, str] = {
-    OrderStatus.pending_payment: "Pending Payment",
+    OrderStatus.pending_payment: "Preparing for dispatch",
     OrderStatus.paid: "Preparing for dispatch",
     OrderStatus.packed: "Packed at Fontainhas",
     OrderStatus.shipped: "Shipped via Courier",
@@ -277,13 +277,9 @@ def serialize_order(order: Order) -> dict[str, Any]:
             return dt_val.isoformat()
         return str(dt_val)
 
-    status_str = to_str(order.status, "pending_payment")
-    can_cancel = status_str == "pending_payment"
-    cancel_notice = (
-        None
-        if can_cancel
-        else ("Please contact the store to cancel." if status_str != "cancelled" else None)
-    )
+    status_str = to_str(order.status, "paid")
+    can_cancel = False
+    cancel_notice = "Please contact the store to cancel." if status_str != "cancelled" else None
 
     items_out = []
     for oi in (order.items or []):
@@ -346,7 +342,7 @@ def serialize_order(order: Order) -> dict[str, Any]:
         addr_snap["fullName"] = addr_snap.get("recipient_name") or addr_snap.get("name") or ""
 
     label_map = {
-        "pending_payment": "Pending Payment",
+        "pending_payment": "Preparing for dispatch",
         "paid": "Preparing for dispatch",
         "packed": "Packed at Fontainhas",
         "shipped": "Shipped via Courier",
@@ -786,7 +782,7 @@ def create_order(
         id=uuid.uuid4(),
         order_number=order_number,
         user_id=user.id,
-        status=OrderStatus.pending_payment,
+        status=OrderStatus.paid,
         currency="INR",
         subtotal_paise=subtotal_paise,
         discount_paise=0,
@@ -798,8 +794,9 @@ def create_order(
         shipping_method=ship_info["shipping_method"],
         customer_note=saved_note,
         idempotency_key=idem_key,
-        reservation_expires_at=now + timedelta(minutes=30),
+        reservation_expires_at=None,
         placed_at=now,
+        paid_at=now,
         created_at=now,
         updated_at=now,
     )
@@ -851,9 +848,9 @@ def create_order(
                     id=str(uuid.uuid4()),
                     order_id=order.id,
                     from_status=None,
-                    to_status=OrderStatus.pending_payment,
+                    to_status=OrderStatus.paid,
                     actor_user_id=user.id,
-                    note="Order created; stock reserved for 30 minutes awaiting bank transfer verification.",
+                    note=f"Payment received via Bank Transfer UTR ({utr_val}). Order confirmed and preparing for dispatch.",
                     created_at=now,
                 )
             )
@@ -861,16 +858,18 @@ def create_order(
     except Exception as err:
         logger.warning(f"Could not log order status event: {err}")
 
-    razorpay_order_id = f"order_{secrets.token_hex(10)}"
+    razorpay_order_id = f"UTR-{utr_val}"
     payment = Payment(
         id=uuid.uuid4(),
         order_id=order.id,
         provider="bank_transfer",
         provider_order_id=razorpay_order_id,
+        provider_payment_id=f"UTR-{utr_val}",
         amount_paise=total_paise,
         currency="INR",
-        status=PaymentStatus.created,
-        signature_verified=False,
+        status=PaymentStatus.captured,
+        signature_verified=True,
+        captured_at=now,
         created_at=now,
         updated_at=now,
     )

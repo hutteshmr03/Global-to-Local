@@ -291,7 +291,7 @@ export default function AccountPage() {
                           </div>
                           <div className="inline-flex items-center gap-1.5 rounded-pill bg-palm/15 border border-palm/25 text-palm px-3 py-1 text-xs font-bold">
                             <Package className="w-3.5 h-3.5" />
-                            <span>{order.statusLabel || order.status || 'Preparing for dispatch'}</span>
+                            <span>{(!order.statusLabel || order.statusLabel === 'Pending Payment') ? 'Preparing for dispatch' : order.statusLabel}</span>
                           </div>
                         </div>
 

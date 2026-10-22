@@ -40,11 +40,13 @@ export default function OrderConfirmationPage() {
     }
   };
 
-  const statusLabel = order?.statusLabel || 'Preparing for dispatch';
+  const statusLabel =
+    !order?.statusLabel || order.statusLabel === 'Pending Payment'
+      ? 'Preparing for dispatch'
+      : order.statusLabel;
+
   const badgeLabel =
-    order?.status === 'pending_payment'
-      ? 'Pending Payment'
-      : order?.status === 'cancelled'
+    order?.status === 'cancelled'
       ? 'Order Cancelled'
       : 'Payment Confirmed';
 
@@ -120,18 +122,10 @@ export default function OrderConfirmationPage() {
             </div>
           )}
 
-          {order?.canCancel && (
-            <div className="border-t border-border/30 pt-3 flex items-center justify-between gap-3">
-              <span className="text-xs text-content-muted">Payment is still pending. You can cancel this order before payment capture.</span>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="rounded-pill border border-red-500/40 bg-red-500/10 px-4 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-500/20 cursor-pointer"
-              >
-                Cancel Order
-              </button>
-            </div>
-          )}
+          <div className="border-t border-border/30 pt-3 flex items-center gap-2 text-xs text-palm font-medium">
+            <CheckCircle2 className="w-4 h-4 text-palm shrink-0 stroke-[2.5]" />
+            <span>Payment received via Bank Transfer. Your order is confirmed and being prepared for dispatch.</span>
+          </div>
 
           {(cancelMsg || order?.cancelNotice) && (
             <div className="text-xs font-medium text-content-muted">

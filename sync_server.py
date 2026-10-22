@@ -52,6 +52,7 @@ files_to_sync = [
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
+    (f"{RAW_BASE}/dist_live/assets/index-BcsolVHe.js", os.path.join(PUBLIC_HTML, "assets", "index-BcsolVHe.js")),
     (f"{RAW_BASE}/dist_live/assets/index-B0Y-ixBk.js", os.path.join(PUBLIC_HTML, "assets", "index-B0Y-ixBk.js")),
     (f"{RAW_BASE}/dist_live/assets/index-TgqMtV40.js", os.path.join(PUBLIC_HTML, "assets", "index-TgqMtV40.js")),
     (f"{RAW_BASE}/dist_live/assets/index-B6az3yA0.js", os.path.join(PUBLIC_HTML, "assets", "index-B6az3yA0.js")),
@@ -325,6 +326,13 @@ try:
         conn.execute(text("""
             UPDATE products 
             SET is_active = 1, status = 'published', availability = 'in_stock', deleted_at = NULL;
+        """))
+
+        # E2. Update orders with UTR to paid status
+        conn.execute(text("""
+            UPDATE orders 
+            SET status = 'paid', paid_at = NOW(), reservation_expires_at = NULL 
+            WHERE status = 'pending_payment' AND (customer_note LIKE '%UTR%' OR customer_note LIKE '%Bank Transfer%');
         """))
 
         # F. Set inventory for all products to exactly 100 units on_hand, 0 reserved
