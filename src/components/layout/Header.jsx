@@ -228,27 +228,41 @@ export default function Header() {
 
           {/* Right Action Icons: Bag & Customer Symbol Button (Flipkart Style) */}
           <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
-            {/* Bag Button */}
-            <motion.button
-              id="header-bag-btn"
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                openCart();
-              }}
-              animate={isBumping ? {
-                scale: [1, 1.35, 0.88, 1.15, 1],
-                rotate: [0, -10, 10, -5, 0],
-              } : { scale: 1, rotate: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className={`relative grid h-10 w-10 sm:h-11 sm:w-11 cursor-pointer place-items-center rounded-pill border transition-colors ${
-                isTransparentOnVideo
-                  ? 'border-content-ondark/30 text-content-ondark hover:bg-content-ondark/10'
-                  : 'border-border/60 bg-surface text-content hover:bg-surface-muted shadow-xs'
-              }`}
-              aria-label={`Open bag with ${totalItems} items`}
-            >
-              <ShoppingBag className="w-4 h-4" />
-              {totalItems > 0 && (
+            {/* When cart is empty (0 items): Show "Shop Now" button redirecting to /shop.
+                When cart has 1+ items: Show Shopping Cart button opening the cart drawer */}
+            {totalItems === 0 ? (
+              <Link
+                to="/shop"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`inline-flex items-center justify-center gap-1.5 h-10 sm:h-11 px-3.5 sm:px-5 rounded-pill border text-xs sm:text-[13px] font-bold tracking-wide uppercase transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer shadow-xs ${
+                  isTransparentOnVideo
+                    ? 'border-content-ondark/40 bg-content-ondark/15 text-content-ondark hover:bg-content-ondark/25 backdrop-blur-sm'
+                    : 'border-accent/30 bg-accent text-white hover:bg-accent-hover'
+                }`}
+                aria-label="Shop Now — Explore our Goan catalog"
+              >
+                <span>Shop Now</span>
+              </Link>
+            ) : (
+              <motion.button
+                id="header-bag-btn"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  openCart();
+                }}
+                animate={isBumping ? {
+                  scale: [1, 1.35, 0.88, 1.15, 1],
+                  rotate: [0, -10, 10, -5, 0],
+                } : { scale: 1, rotate: 0 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className={`relative grid h-10 w-10 sm:h-11 sm:w-11 cursor-pointer place-items-center rounded-pill border transition-colors ${
+                  isTransparentOnVideo
+                    ? 'border-content-ondark/30 text-content-ondark hover:bg-content-ondark/10'
+                    : 'border-border/60 bg-surface text-content hover:bg-surface-muted shadow-xs'
+                }`}
+                aria-label={`Open shopping cart with ${totalItems} items`}
+              >
+                <ShoppingBag className="w-4 h-4" />
                 <motion.span
                   key={totalItems}
                   initial={{ scale: 0.6, y: -4 }}
@@ -258,8 +272,8 @@ export default function Header() {
                 >
                   {totalItems}
                 </motion.span>
-              )}
-            </motion.button>
+              </motion.button>
+            )}
 
             {/* Customer / Admin Symbol Button */}
             <Link
