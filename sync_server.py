@@ -201,37 +201,51 @@ if os.path.exists(BASE_DIR):
     log_file = os.path.join(BASE_DIR, "uvicorn.log")
     cmd = f"cd {BASE_DIR} && nohup {PYTHON_BIN} -m uvicorn backend.main:app --host 127.0.0.1 --port 8008 --workers 1 > {log_file} 2>&1 &"
     os.system(cmd)
-    time.sleep(3)
+    time.sleep(4)
     print("[OK] Uvicorn service restarted in background on port 8008.", flush=True)
 
-# 4. Comprehensive Live Health Checks
+# 4. Comprehensive Live Health Checks (with retry)
 print("\n--- STEP 4: System Verification ---", flush=True)
-# A. Catalog API
-try:
-    verify_url = "http://127.0.0.1:8008/api/v1/products?category=papads-pickles&page_size=50"
-    req = urllib.request.Request(verify_url, headers={"User-Agent": "HealthCheck/1.0"})
-    with urllib.request.urlopen(req, timeout=5) as resp:
-        import json
-        data = json.loads(resp.read().decode("utf-8"))
-        items = data.get("items", [])
-        sold_out = sum(1 for p in items if not p.get("inStock"))
-        print(f"[OK] Catalog API: HTTP 200 ({len(items)} items, {sold_out} sold out).", flush=True)
-except Exception as e:
-    print(f"[NOTE] Catalog check: {e}", flush=True)
+import json
 
-# B. Enquiries API
-try:
-    enq_url = "http://127.0.0.1:8008/api/v1/admin/enquiries"
-    # Even if unauthenticated, verify it returns 401/403 (service alive) instead of 500
+# Check Catalog API with up to 3 retries
+for attempt in range(1, 4):
     try:
-        urllib.request.urlopen(enq_url, timeout=5)
-    except urllib.error.HTTPError as he:
-        if he.code in (401, 403):
-            print("[OK] Enquiries API: Service active and secured with Admin Auth.", flush=True)
+        verify_url = "http://127.0.0.1:8008/api/v1/products?category=papads-pickles&page_size=50"
+        req = urllib.request.Request(verify_url, headers={"User-Agent": "HealthCheck/1.0"})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            items = data.get("items", [])
+            sold_out = sum(1 for p in items if not p.get("inStock"))
+            print(f"[OK] Catalog API: HTTP 200 ({len(items)} items, {sold_out} sold out).", flush=True)
+            break
+    except Exception as e:
+        if attempt < 3:
+            time.sleep(2)
         else:
-            print(f"[NOTE] Enquiries API HTTP status: {he.code}", flush=True)
-except Exception as e:
-    print(f"[NOTE] Enquiries check: {e}", flush=True)
+            print(f"[NOTE] Catalog check (attempt {attempt}): {e}", flush=True)
+
+# Check Enquiries API
+for attempt in range(1, 4):
+    try:
+        enq_url = "http://127.0.0.1:8008/api/v1/admin/enquiries"
+        req = urllib.request.Request(enq_url, headers={"User-Agent": "HealthCheck/1.0"})
+        try:
+            urllib.request.urlopen(req, timeout=5)
+            print("[OK] Enquiries API: HTTP 200.", flush=True)
+            break
+        except urllib.error.HTTPError as he:
+            if he.code in (401, 403):
+                print("[OK] Enquiries API: Service active and secured with Admin Auth.", flush=True)
+                break
+            else:
+                print(f"[NOTE] Enquiries API HTTP status: {he.code}", flush=True)
+                break
+    except Exception as e:
+        if attempt < 3:
+            time.sleep(2)
+        else:
+            print(f"[NOTE] Enquiries check (attempt {attempt}): {e}", flush=True)
 
 print("\n>>> ALL SYSTEMS VERIFIED & REPAIRED SUCCESSFULLY! 100% OPERATIONAL. <<<", flush=True)
 print("=" * 65, flush=True)
