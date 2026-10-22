@@ -149,7 +149,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!utrNumber || !utrNumber.trim()) {
+    if (!utrNumber || utrNumber.trim().length < 4) {
       setCheckoutError('Please transfer to the bank account above and enter your UTR / Reference Number before confirming.');
       return;
     }
@@ -189,9 +189,16 @@ export default function CheckoutPage() {
 
       const orderNumber = createdOrder.order_number || createdOrder.orderNumber;
 
-      await fetchMe();
-      await fetchOrders();
-      await clearCart();
+      try {
+        await fetchMe();
+      } catch {}
+      try {
+        await fetchOrders();
+      } catch {}
+      try {
+        await clearCart();
+      } catch {}
+
       idempotencyKeyRef.current = makeIdempotencyKey();
       setIsProcessing(false);
       navigate(`/order/${orderNumber}`);

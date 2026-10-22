@@ -246,13 +246,11 @@ def calculate_checkout_quote(
 def generate_next_order_number(db: Session) -> str:
     year = datetime.now(timezone.utc).year
     try:
-        seq_val = db.execute(text("SELECT nextval('order_number_seq')")).scalar()
-        return f"GTL-{year}-{int(seq_val):04d}"
+        count = db.query(func.count(Order.id)).scalar() or 0
+        rand_suffix = secrets.token_hex(2).upper()
+        return f"GTL-{year}-{(count + 1):04d}-{rand_suffix}"
     except Exception:
-        db.rollback()
-        count = db.query(Order).count()
-        return f"GTL-{year}-{(count + 1):04d}"
-
+        return f"GTL-{year}-{secrets.token_hex(4).upper()}"
 
 STATUS_LABELS: dict[OrderStatus, str] = {
     OrderStatus.pending_payment: "Pending Payment",
@@ -265,62 +263,101 @@ STATUS_LABELS: dict[OrderStatus, str] = {
 
 
 def serialize_order(order: Order) -> dict[str, Any]:
-    can_cancel = order.status == OrderStatus.pending_payment
+    def to_str(val, default=""):
+        if val is None:
+            return default
+        if hasattr(val, "value"):
+            return str(val.value)
+        return str(val)
+
+    def to_iso(dt_val):
+        if not dt_val:
+            return None
+        if hasattr(dt_val, "isoformat"):
+            return dt_val.isoformat()
+        return str(dt_val)
+
+    status_str = to_str(order.status, "pending_payment")
+    can_cancel = status_str == "pending_payment"
     cancel_notice = (
         None
         if can_cancel
-        else ("Please contact the store to cancel." if order.status != OrderStatus.cancelled else None)
+        else ("Please contact the store to cancel." if status_str != "cancelled" else None)
     )
-    items_out = [
-        {
+
+    items_out = []
+    for oi in (order.items or []):
+        unit_p = int(oi.unit_price_paise or 0)
+        q = int(oi.quantity or 1)
+        tot_p = int(oi.line_total_paise or (unit_p * q))
+        items_out.append({
             "id": str(oi.id),
             "product_id": str(oi.product_id),
-            "sku": oi.sku_snapshot,
-            "name": oi.name_snapshot,
-            "slug": oi.slug_snapshot,
-            "unit_label": oi.unit_label_snapshot,
-            "weight": oi.unit_label_snapshot,
-            "image_url": oi.image_url_snapshot,
-            "imageSrc": oi.image_url_snapshot,
-            "unit_price_paise": oi.unit_price_paise,
-            "price": oi.unit_price_paise,
-            "quantity": oi.quantity,
-            "qty": oi.quantity,
-            "line_total_paise": oi.line_total_paise,
-        }
-        for oi in order.items
-    ]
-    events_out = [
-        {
-            "id": ev.id,
-            "from_status": ev.from_status.value if ev.from_status else None,
-            "to_status": ev.to_status.value,
-            "note": ev.note,
-            "created_at": ev.created_at.isoformat() if ev.created_at else None,
-        }
-        for ev in order.status_events
-    ]
-    shipments_out = [
-        {
+            "sku": oi.sku_snapshot or "",
+            "name": oi.name_snapshot or "Product",
+            "slug": oi.slug_snapshot or "",
+            "unit_label": oi.unit_label_snapshot or "",
+            "weight": oi.unit_label_snapshot or "",
+            "image_url": oi.image_url_snapshot or "/images/site/placeholder-product.svg",
+            "imageSrc": oi.image_url_snapshot or "/images/site/placeholder-product.svg",
+            "unit_price_paise": unit_p,
+            "price": unit_p,
+            "quantity": q,
+            "qty": q,
+            "line_total_paise": tot_p,
+        })
+
+    events_out = []
+    for ev in (order.status_events or []):
+        from_st = to_str(ev.from_status) if ev.from_status else None
+        to_st = to_str(ev.to_status, "pending_payment")
+        events_out.append({
+            "id": str(ev.id),
+            "from_status": from_st,
+            "to_status": to_st,
+            "note": ev.note or "",
+            "created_at": to_iso(ev.created_at),
+        })
+
+    shipments_out = []
+    for sh in (order.shipments or []):
+        shipments_out.append({
             "id": str(sh.id),
-            "carrier": sh.carrier,
-            "awb_or_tracking_number": sh.awb_or_tracking_number,
-            "tracking_url": sh.tracking_url,
-            "status": sh.status.value,
-            "dispatched_at": sh.dispatched_at.isoformat() if sh.dispatched_at else None,
-            "delivered_at": sh.delivered_at.isoformat() if sh.delivered_at else None,
-        }
-        for sh in order.shipments
-    ]
-    payment = order.payments[0] if order.payments else None
-    date_display = (
-        order.placed_at.strftime("%d %b %Y")
-        if order.placed_at
-        else datetime.now(timezone.utc).strftime("%d %b %Y")
-    )
+            "carrier": sh.carrier or "",
+            "awb_or_tracking_number": sh.awb_or_tracking_number or "",
+            "tracking_url": sh.tracking_url or "",
+            "status": to_str(sh.status, "label_created"),
+            "dispatched_at": to_iso(sh.dispatched_at),
+            "delivered_at": to_iso(sh.delivered_at),
+        })
+
+    payment = order.payments[0] if (order.payments and len(order.payments) > 0) else None
+    payment_status_str = to_str(payment.status, "created") if payment else "created"
+
+    if hasattr(order.placed_at, "strftime"):
+        date_display = order.placed_at.strftime("%d %b %Y")
+    elif order.placed_at:
+        date_display = str(order.placed_at)[:10]
+    else:
+        date_display = datetime.now(timezone.utc).strftime("%d %b %Y")
+
     addr_snap = dict(order.shipping_address_snapshot or {})
     if "fullName" not in addr_snap:
         addr_snap["fullName"] = addr_snap.get("recipient_name") or addr_snap.get("name") or ""
+
+    label_map = {
+        "pending_payment": "Pending Payment",
+        "paid": "Preparing for dispatch",
+        "packed": "Packed at Fontainhas",
+        "shipped": "Shipped via Courier",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+    }
+    status_label = label_map.get(status_str, STATUS_LABELS.get(order.status, "Preparing for dispatch"))
+
+    subtotal = int(order.subtotal_paise or 0)
+    shipping = int(order.shipping_paise or 0)
+    total = int(order.total_paise or (subtotal + shipping))
 
     return {
         "id": order.order_number,
@@ -328,52 +365,55 @@ def serialize_order(order: Order) -> dict[str, Any]:
         "order_number": order.order_number,
         "orderNumber": order.order_number,
         "date": date_display,
-        "status": order.status.value,
-        "statusLabel": STATUS_LABELS.get(order.status, "Preparing for dispatch"),
+        "status": status_str,
+        "statusLabel": status_label,
         "can_cancel": can_cancel,
         "canCancel": can_cancel,
         "cancel_notice": cancel_notice,
         "cancelNotice": cancel_notice,
-        "currency": order.currency,
-        "subtotal_paise": order.subtotal_paise,
-        "subtotalPaise": order.subtotal_paise,
-        "discount_paise": order.discount_paise,
-        "shipping_paise": order.shipping_paise,
-        "shippingCostPaise": order.shipping_paise,
-        "tax_paise": order.tax_paise,
-        "total_paise": order.total_paise,
-        "totalPaise": order.total_paise,
+        "currency": order.currency or "INR",
+        "subtotal_paise": subtotal,
+        "subtotalPaise": subtotal,
+        "discount_paise": int(order.discount_paise or 0),
+        "shipping_paise": shipping,
+        "shippingCostPaise": shipping,
+        "tax_paise": int(order.tax_paise or 0),
+        "total_paise": total,
+        "totalPaise": total,
         "shipping_method": order.shipping_method or "Standard Delivery",
         "shipping_address": addr_snap,
         "customer_note": order.customer_note,
-        "reservation_expires_at": order.reservation_expires_at.isoformat() if order.reservation_expires_at else None,
-        "placed_at": order.placed_at.isoformat() if order.placed_at else None,
-        "paid_at": order.paid_at.isoformat() if order.paid_at else None,
-        "cancelled_at": order.cancelled_at.isoformat() if order.cancelled_at else None,
+        "reservation_expires_at": to_iso(order.reservation_expires_at),
+        "placed_at": to_iso(order.placed_at),
+        "paid_at": to_iso(order.paid_at),
+        "cancelled_at": to_iso(order.cancelled_at),
         "cancel_reason": order.cancel_reason,
-        "createdAt": order.placed_at.isoformat() if order.placed_at else None,
+        "createdAt": to_iso(order.placed_at),
         "items": items_out,
         "status_events": events_out,
         "shipments": shipments_out,
         "payment": {
-            "provider": payment.provider,
-            "razorpay_order_id": payment.provider_order_id,
-            "razorpay_payment_id": payment.provider_payment_id,
-            "status": payment.status.value,
-            "amount_paise": payment.amount_paise,
-            "key_id": settings.RAZORPAY_KEY_ID,
-        }
-        if payment
-        else None,
+            "provider": payment.provider if payment else "bank_transfer",
+            "razorpay_order_id": payment.provider_order_id if payment else None,
+            "razorpay_payment_id": payment.provider_payment_id if payment else None,
+            "status": payment_status_str,
+            "amount_paise": payment.amount_paise if payment else total,
+            "key_id": getattr(settings, "RAZORPAY_KEY_ID", ""),
+        } if payment else {
+            "provider": "bank_transfer",
+            "razorpay_order_id": None,
+            "razorpay_payment_id": None,
+            "status": "created",
+            "amount_paise": total,
+            "key_id": getattr(settings, "RAZORPAY_KEY_ID", ""),
+        },
         "razorpay_order_id": payment.provider_order_id if payment else None,
-        # Frontend compatibility fields for CheckoutPage / OrderConfirmationPage / AccountPage
-        "subtotal": order.subtotal_paise,
-        "shipping": order.shipping_paise,
-        "total": order.total_paise,
+        "subtotal": subtotal,
+        "shipping": shipping,
+        "total": total,
         "shippingLabel": order.shipping_method or "Standard Delivery",
         "address": addr_snap,
     }
-
 
 def transition_order_status(
     db: Session,
@@ -528,9 +568,17 @@ def create_order(
             )
         return existing_idem.response_body
 
-    # Format and save customer note / UTR for Bank Transfer
+    # Enforce mandatory UTR number for Bank Transfer orders
     user_note = (payload.customer_note or "").strip()
-    saved_note = user_note if user_note else "Bank Transfer (Direct Payment)"
+    utr_val = user_note.replace("Bank Transfer UTR:", "").replace("Bank Transfer", "").replace("UTR:", "").strip()
+    if not utr_val or len(utr_val) < 4:
+        raise ProblemException(
+            status_code=422,
+            title="UTR Number Required",
+            detail="Please transfer the total amount to our bank account and enter your Bank Reference / UTR Number before confirming.",
+            problem_type="https://globaltolocal.in/problems/utr-required",
+        )
+    saved_note = user_note if "Bank Transfer UTR:" in user_note else f"Bank Transfer UTR: {utr_val}"
 
     # Release any expired reservations first
     release_expired_reservations(db)
@@ -778,36 +826,38 @@ def create_order(
             )
         )
         try:
-            db.add(
-                StockMovement(
-                    id=str(uuid.uuid4()),
-                    product_id=prod.id,
-                    delta=-qty,
-                    reason=StockMovementReason.order_reserved,
-                    reference_type="order",
-                    reference_id=order.id,
-                    note=f"Reserved {qty} units for order {order.order_number}",
-                    actor_user_id=user.id,
-                    created_at=now,
+            with db.begin_nested():
+                db.add(
+                    StockMovement(
+                        id=str(uuid.uuid4()),
+                        product_id=prod.id,
+                        delta=-qty,
+                        reason=StockMovementReason.order_reserved,
+                        reference_type="order",
+                        reference_id=order.id,
+                        note=f"Reserved {qty} units for order {order.order_number}",
+                        actor_user_id=user.id,
+                        created_at=now,
+                    )
                 )
-            )
-            db.flush()
+                db.flush()
         except Exception as err:
             logger.warning(f"Could not log stock movement: {err}")
 
     try:
-        db.add(
-            OrderStatusEvent(
-                id=str(uuid.uuid4()),
-                order_id=order.id,
-                from_status=None,
-                to_status=OrderStatus.pending_payment,
-                actor_user_id=user.id,
-                note="Order created; stock reserved for 30 minutes awaiting bank transfer verification.",
-                created_at=now,
+        with db.begin_nested():
+            db.add(
+                OrderStatusEvent(
+                    id=str(uuid.uuid4()),
+                    order_id=order.id,
+                    from_status=None,
+                    to_status=OrderStatus.pending_payment,
+                    actor_user_id=user.id,
+                    note="Order created; stock reserved for 30 minutes awaiting bank transfer verification.",
+                    created_at=now,
+                )
             )
-        )
-        db.flush()
+            db.flush()
     except Exception as err:
         logger.warning(f"Could not log order status event: {err}")
 
