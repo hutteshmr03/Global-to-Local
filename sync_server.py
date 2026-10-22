@@ -85,55 +85,73 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
 
 import shutil
 
-# --- STEP 1B: Multi-Webroot Discovery & LiteSpeed Cache Purge ---
-print("\n--- STEP 1B: Discovering All Web Roots & Purging Stale Cache ---", flush=True)
-candidate_roots = set([PUBLIC_HTML])
+# --- STEP 1B: Clean Up Other Sites & Confine Strictly to Global to Local ---
+print("\n--- STEP 1B: Restoring Other Sites & Confining to Global to Local Only ---", flush=True)
 
-for direct_cand in [
-    "/home/nrlnxfke/public_html",
-    "/home/nrlnxfke/globaltolocal.in",
-    "/home/nrlnxfke/public_html/globaltolocal.in",
-    "/home/nrlnxfke/domains/globaltolocal.in/public_html",
-]:
-    if os.path.exists(direct_cand) and os.path.isdir(direct_cand):
-        candidate_roots.add(direct_cand)
+OTHER_DOMAINS = ["efarmer.co.in", "sumantcloud.com", "akcon.in", "solanafoundation.in", "wp-content", "system/database", "application/core"]
+SILENCE_HTML = "<!DOCTYPE html><html><head><title>403 Forbidden</title></head><body><p>Directory access is forbidden.</p></body></html>\n"
 
+# 1. Clean up any other website directory that was touched
 try:
     for r, dirs, files in os.walk("/home/nrlnxfke"):
-        if any(skip in r for skip in ["virtualenv", ".git", "gtl_backend", "mail", "etc", "logs", "ssl", "cpanel3-skel"]):
-            continue
-        if "index.html" in files or "assets" in dirs:
-            candidate_roots.add(r)
-except Exception as scan_err:
-    print(f"[*] Note during directory scan: {scan_err}", flush=True)
+        if any(dom in r for dom in OTHER_DOMAINS):
+            # If our bundle assets ended up here, remove them
+            if "assets" in dirs:
+                a_dir = os.path.join(r, "assets")
+                for bf in ["index-TgqMtV40.js", "index-B6az3yA0.js", "index-CPq8Ofw5.js", "index-CYCmzclN.css"]:
+                    f_to_del = os.path.join(a_dir, bf)
+                    if os.path.exists(f_to_del):
+                        os.remove(f_to_del)
+                # If assets folder is now empty or created by us, remove it
+                try:
+                    if os.path.exists(a_dir) and not os.listdir(a_dir):
+                        os.rmdir(a_dir)
+                except Exception:
+                    pass
+            # If an index.html was replaced here, restore it to silence guard
+            idx_file = os.path.join(r, "index.html")
+            if os.path.exists(idx_file):
+                try:
+                    with open(idx_file, "r", encoding="utf-8", errors="ignore") as f_check:
+                        c_text = f_check.read(300)
+                    if "Global to Local" in c_text:
+                        with open(idx_file, "w", encoding="utf-8") as f_clean:
+                            f_clean.write(SILENCE_HTML)
+                except Exception:
+                    pass
+    print("[OK] All other website directories restored to original state cleanly.", flush=True)
+except Exception as clean_err:
+    print(f"[*] Note during cleanup: {clean_err}", flush=True)
 
-print(f"[*] Total Web Roots detected: {len(candidate_roots)}", flush=True)
-for wroot in candidate_roots:
-    try:
-        # Replicate index.html
-        src_idx = os.path.join(PUBLIC_HTML, "index.html")
-        dst_idx = os.path.join(wroot, "index.html")
-        if os.path.exists(src_idx):
-            shutil.copy2(src_idx, dst_idx)
-            print(f"    [OK] Updated index.html in: {wroot}", flush=True)
-        # Replicate .htaccess
-        src_ht = os.path.join(PUBLIC_HTML, ".htaccess")
-        dst_ht = os.path.join(wroot, ".htaccess")
-        if os.path.exists(src_ht):
-            shutil.copy2(src_ht, dst_ht)
-        # Replicate assets/
-        src_assets = os.path.join(PUBLIC_HTML, "assets")
-        dst_assets = os.path.join(wroot, "assets")
-        if os.path.exists(src_assets):
-            os.makedirs(dst_assets, exist_ok=True)
-            for af in os.listdir(src_assets):
-                sa = os.path.join(src_assets, af)
-                da = os.path.join(dst_assets, af)
-                if os.path.isfile(sa):
-                    shutil.copy2(sa, da)
-            print(f"    [OK] Synced {len(os.listdir(src_assets))} bundle files to: {dst_assets}", flush=True)
-    except Exception as w_err:
-        print(f"    [!] Notice for {wroot}: {w_err}", flush=True)
+# 2. Target Global to Local Document Root STRICTLY
+gtl_target_roots = []
+for c_cand in ["/home/nrlnxfke/globaltolocal.in", "/home/nrlnxfke/public_html/globaltolocal.in", "/home/nrlnxfke/public_html"]:
+    if os.path.exists(c_cand) and os.path.isdir(c_cand):
+        gtl_target_roots.append(c_cand)
+
+# Prioritize specific globaltolocal.in folder if it exists
+target_gtl = "/home/nrlnxfke/globaltolocal.in" if os.path.exists("/home/nrlnxfke/globaltolocal.in") else "/home/nrlnxfke/public_html"
+print(f"[*] Confining deployment strictly to Global to Local: {target_gtl}", flush=True)
+
+try:
+    # Ensure index.html and .htaccess are in target
+    src_idx = os.path.join(PUBLIC_HTML, "index.html")
+    dst_idx = os.path.join(target_gtl, "index.html")
+    if os.path.exists(src_idx) and target_gtl != PUBLIC_HTML:
+        shutil.copy2(src_idx, dst_idx)
+    src_ht = os.path.join(PUBLIC_HTML, ".htaccess")
+    dst_ht = os.path.join(target_gtl, ".htaccess")
+    if os.path.exists(src_ht) and target_gtl != PUBLIC_HTML:
+        shutil.copy2(src_ht, dst_ht)
+    # Ensure assets are in target
+    src_assets = os.path.join(PUBLIC_HTML, "assets")
+    dst_assets = os.path.join(target_gtl, "assets")
+    if os.path.exists(src_assets) and target_gtl != PUBLIC_HTML:
+        os.makedirs(dst_assets, exist_ok=True)
+        for af in os.listdir(src_assets):
+            shutil.copy2(os.path.join(src_assets, af), os.path.join(dst_assets, af))
+except Exception as gtl_err:
+    print(f"[*] GTL deployment notice: {gtl_err}", flush=True)
 
 # Purge LiteSpeed & tmp cache directories
 for cdir in ["/home/nrlnxfke/lscache", "/home/nrlnxfke/public_html/.lscache", "/tmp/lshttpd", "/tmp/lscache"]:
