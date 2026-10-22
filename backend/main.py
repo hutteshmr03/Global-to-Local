@@ -25,13 +25,16 @@ def _scheduled_reservation_cleanup() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(_scheduled_reservation_cleanup, "interval", seconds=60, id="release_expired_reservations")
-    scheduler.start()
-    try:
+    if os.environ.get("WSGI_ENV") != "1":
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(_scheduled_reservation_cleanup, "interval", seconds=60, id="release_expired_reservations")
+        scheduler.start()
+        try:
+            yield
+        finally:
+            scheduler.shutdown(wait=False)
+    else:
         yield
-    finally:
-        scheduler.shutdown(wait=False)
 
 
 app = FastAPI(
@@ -39,7 +42,7 @@ app = FastAPI(
     version="1.0.0",
     openapi_url="/api/v1/openapi.json",
     docs_url="/api/v1/docs",
-    lifespan=lifespan,
+    lifespan=None if os.environ.get("WSGI_ENV") == "1" else lifespan,
 )
 
 allowed_origins = list(

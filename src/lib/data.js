@@ -640,7 +640,7 @@ export const products = [
     "gallery": [
       "/images/catalog/dried-sungta-150-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 6214,
@@ -656,7 +656,7 @@ export const products = [
     "gallery": [
       "/images/catalog/dried-khaapi-150-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 6213,
@@ -672,7 +672,7 @@ export const products = [
     "gallery": [
       "/images/catalog/dried-gaalmo-150-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 6212,
@@ -688,7 +688,7 @@ export const products = [
     "gallery": [
       "/images/catalog/dried-bombil-fish-100-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 6211,
@@ -704,7 +704,7 @@ export const products = [
     "gallery": [
       "/images/catalog/dried-bangda-fish-200-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 6205,
@@ -1693,9 +1693,9 @@ export const products = [
     "description": "A Charcoal based natural soap made without chemicals and synthetics, it moisturizes your hands better and longer with its glycerine content.",
     "weight": "One piece",
     "imageAlt": "Handmade Soap- Charcoal",
-    "imageSrc": "/images/catalog/handmade-soap--besan.jpg",
+    "imageSrc": "/images/catalog/handmade-soap--charcoal.jpg",
     "gallery": [
-      "/images/catalog/handmade-soap--besan.jpg"
+      "/images/catalog/handmade-soap--charcoal.jpg"
     ],
     "inStock": true
   },
@@ -1985,7 +1985,7 @@ export const products = [
     "gallery": [
       "/images/catalog/crop-fish-fry-masala-powder-100-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 6044,
@@ -2001,7 +2001,7 @@ export const products = [
     "gallery": [
       "/images/catalog/crop-fish-curry-masala-powder-100-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 6043,
@@ -2401,7 +2401,7 @@ export const products = [
     "gallery": [
       "/images/catalog/onion-vaddiyo-100-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5983,
@@ -2417,7 +2417,7 @@ export const products = [
     "gallery": [
       "/images/catalog/kuwaale-vaddiyo-100-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5982,
@@ -2625,7 +2625,7 @@ export const products = [
     "gallery": [
       "/images/catalog/starfruit-pickle-200-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5969,
@@ -2721,7 +2721,7 @@ export const products = [
     "gallery": [
       "/images/catalog/jackfruit-pickle-200-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5941,
@@ -2801,7 +2801,7 @@ export const products = [
     "gallery": [
       "/images/catalog/bimbli-pickle-200-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5930,
@@ -2849,7 +2849,7 @@ export const products = [
     "gallery": [
       "/images/catalog/stuffed-curd-chilli.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5924,
@@ -2929,7 +2929,7 @@ export const products = [
     "gallery": [
       "/images/catalog/cold-pressed-virgin-coconut-oil-200-ml.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5913,
@@ -2945,7 +2945,7 @@ export const products = [
     "gallery": [
       "/images/catalog/curd-chilli.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5914,
@@ -2961,7 +2961,7 @@ export const products = [
     "gallery": [
       "/images/catalog/narla-cold-pressed-virgin-coconut-oil-500ml.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5911,
@@ -2977,7 +2977,7 @@ export const products = [
     "gallery": [
       "/images/catalog/old-goa-cold-pressed-coconut-oil-500ml.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5909,
@@ -3217,7 +3217,7 @@ export const products = [
     "gallery": [
       "/images/catalog/cashew-vinegar-700-ml.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5773,
@@ -3745,7 +3745,7 @@ export const products = [
     "gallery": [
       "/images/catalog/moong-chakli-250-grams.jpg"
     ],
-    "inStock": false
+    "inStock": true
   },
   {
     "id": 5700,

@@ -66,10 +66,15 @@ export default function ProductCard({ product, priority = false }) {
   };
 
   const displayPricePaise = product.price ?? product.price_paise ?? 0;
-  const initialImage = product.imageSrc || product.image_url || (product.images && product.images[0]?.url) || '/images/catalog/goan-themed-blue-mug.jpg';
+  const initialImage = (product.imageSrc && !product.imageSrc.endsWith('goan-themed-blue-mug.jpg'))
+    ? product.imageSrc
+    : (product.slug ? `/images/catalog/${product.slug}.jpg` : (product.image_url || '/images/catalog/goan-themed-blue-mug.jpg'));
   const displayImage = imgSrc || initialImage;
   const displayWeight = product.weight || product.unit_label || 'piece';
   const displayDesc = product.shortDescription || product.short_description || product.description || 'Authentic Goan specialty made with local ingredients.';
+
+  const availableQty = product.available_quantity ?? product.availableQuantity ?? 100;
+  const isSoldOut = availableQty <= 0;
 
   return (
     <div className="group relative flex flex-col justify-between rounded-xl bg-surface border border-border/40 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -95,7 +100,7 @@ export default function ProductCard({ product, priority = false }) {
               <span>{inCartQty} in Bag</span>
             </span>
           )}
-          {product.inStock === false && (
+          {isSoldOut && (
             <span className="absolute top-2 right-2 rounded bg-ink-deep/80 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-xs">
               Sold Out
             </span>
@@ -154,7 +159,7 @@ export default function ProductCard({ product, priority = false }) {
         <button
           type="button"
           onClick={handleQuickAdd}
-          disabled={product.inStock === false}
+          disabled={isSoldOut}
           className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2 text-xs font-semibold disabled:opacity-40 transition-all border cursor-pointer ${
             isAdded
               ? 'bg-palm text-white border-palm scale-[1.02] shadow-sm'

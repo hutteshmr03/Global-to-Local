@@ -149,6 +149,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!utrNumber || !utrNumber.trim()) {
+      setCheckoutError('Please transfer to the bank account above and enter your UTR / Reference Number before confirming.');
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
@@ -167,6 +172,7 @@ export default function CheckoutPage() {
               }
             : undefined,
         save_address: selectedAddressId === 'new' && (saveToProfile || savedAddresses.length === 0),
+        customer_note: `Bank Transfer UTR: ${utrNumber.trim()}`,
         items: items.map(item => ({
           product_id: item.product.uuid || item.product.id,
           quantity: item.qty,
@@ -182,19 +188,6 @@ export default function CheckoutPage() {
       });
 
       const orderNumber = createdOrder.order_number || createdOrder.orderNumber;
-      const rzpOrderId = createdOrder.payment?.razorpay_order_id;
-
-      if (rzpOrderId) {
-        await apiFetch('/api/v1/payments/razorpay/verify', {
-          method: 'POST',
-          body: {
-            order_number: orderNumber,
-            razorpay_order_id: rzpOrderId,
-            razorpay_payment_id: `pay_test_${Date.now()}`,
-            test_mode_auto_sign: true,
-          },
-        });
-      }
 
       await fetchMe();
       await fetchOrders();
@@ -481,17 +474,27 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Optional UTR Reference Input */}
-              <div className="mt-4 pt-3 border-t border-border/40">
-                <label className="block text-xs font-semibold text-content mb-1">
-                  Bank Reference / UTR Number
-                </label>
+              {/* Bank Reference / UTR Number Input */}
+              <div className="mt-5 pt-4 border-t border-border/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="utr-input" className="block text-xs sm:text-sm font-bold text-content">
+                    Bank Reference / UTR Number <span className="text-red-500">*</span>
+                  </label>
+                  <span className="text-[11px] font-semibold text-accent uppercase tracking-wider">Required</span>
+                </div>
+                <p className="text-xs text-content-muted leading-relaxed">
+                  Transfer via UPI / NEFT / IMPS to our account above, then enter the 12-digit UTR or Reference number before confirming:
+                </p>
                 <input
+                  id="utr-input"
                   type="text"
                   value={utrNumber}
-                  onChange={e => setUtrNumber(e.target.value)}
-                  placeholder="e.g. 230910482910 or leave blank to pay after placing"
-                  className="w-full rounded-lg border border-border bg-ground px-4 py-2 text-xs sm:text-sm font-mono text-content outline-none focus:border-palm transition-colors"
+                  onChange={e => {
+                    setUtrNumber(e.target.value);
+                    if (checkoutError) setCheckoutError('');
+                  }}
+                  placeholder="e.g. 230910482910 or UPI transaction ID"
+                  className="w-full rounded-lg border-2 border-border/60 bg-ground px-4 py-2.5 text-xs sm:text-sm font-mono text-content outline-none focus:border-accent transition-colors"
                 />
               </div>
             </div>
@@ -508,7 +511,9 @@ export default function CheckoutPage() {
               <div className="max-h-60 overflow-y-auto divide-y divide-border/20 pr-1">
                 {items.map(({ product, qty }) => {
                   const itemPrice = product.price ?? product.price_paise ?? 0;
-                  const itemImg = product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg';
+                  const itemImg = (product.imageSrc && !product.imageSrc.endsWith('goan-themed-blue-mug.jpg'))
+                    ? product.imageSrc
+                    : (product.slug ? `/images/catalog/${product.slug}.jpg` : (product.image_url || '/images/catalog/goan-themed-blue-mug.jpg'));
                   return (
                     <div key={product.id} className="py-3 flex justify-between items-center text-sm">
                       <div className="flex items-center gap-3">

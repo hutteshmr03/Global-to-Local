@@ -3,8 +3,8 @@
   RewriteEngine On
   RewriteBase /
 
-  # 1. Forward all API requests to the live Render backend
-  RewriteRule ^api/(.*)$ https://global-to-local.onrender.com/api/$1 [P,L]
+  # 1. Pass API requests directly to the local Python cPanel backend
+  RewriteRule ^api - [L]
 
   # 2. Redirect all other routes to React index.html for Single Page Application (SPA) routing
   RewriteCond %{REQUEST_FILENAME} !-f

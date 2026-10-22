@@ -17,6 +17,8 @@ router = APIRouter(prefix="/api/v1/cart", tags=["Cart & Bag"])
 MAX_LINE_QUANTITY = 20
 
 
+LEGACY_MAP = {6471: 'goan-themed-blue-mug', 6346: 'wine-biscuits-200-grams', 6344: 'coconut-macaroons-250-grams', 6342: 'batika', 6336: 'unpeeled-cashew-nuts-500-grams', 6334: 'garlic-sticks', 6332: 'cones', 6330: 'canapes', 6324: 'kunbi-shawl', 6323: 'kunbi-saree-7', 6322: 'kunbi-saree-6', 6321: 'kunbi-saree-5', 6320: 'kunbi-saree-4', 6314: 'kunbi-saree-3', 6312: 'kunbi-saree-2', 6310: 'kunbi-saree-1', 6268: 'mitti-vases-8211-medium', 6267: 'mitti-vases-8211-small', 6266: 'mitti-suraahi', 6265: 'mitti-plate', 6264: 'mitti-mug', 6263: 'mitti-kullad', 6262: 'mitti-candle-holder', 6260: 'mitti-foot-scrubber', 6259: 'mitti-fish-ashtray', 6258: 'mitti-dhoop-holder', 6257: 'mitti-curd-pot', 6256: 'mitti-cup', 6255: 'mitti-cooking-pot', 6253: 'mitti-bottle-1-litre', 6252: 'goan-themed-cloth-bags', 6215: 'dried-sungta-150-grams', 6214: 'dried-khaapi-150-grams', 6213: 'dried-gaalmo-150-grams', 6212: 'dried-bombil-fish-100-grams', 6211: 'dried-bangda-fish-200-grams', 6205: 'pineapple-jam-250-grams', 6204: 'raw-mango-jam-250-grams', 6203: 'coconut-garlic-chutney-100-grams', 6202: 'coconut-cashew-chutney-100-grams', 6197: 'white-chawli-200-grams', 6196: 'ukda-taandul-1-kg', 6195: 'raagi-millet-500-grams', 6194: 'raagi-atta-500-grams', 6192: 'pohe-250-grams', 6191: 'kulith-200-grams', 6190: 'brown-taandul-1-kg', 6189: 'alsaande-200-grams', 6180: 'coconut-shell-spoon-8211-large', 6179: 'wooden-lotus-candle-holder', 6178: 'wooden-flower-candle-holder', 6177: 'whelks-shells', 6176: 'shell-tortoise--large', 6175: 'shell-tortoise--medium', 6174: 'shell-tortoise--small', 6173: 'shell-toothpicks', 6172: 'shell-skewers', 6171: 'shell-rooster', 6169: 'shell-rabbit', 6168: 'shell-peacock', 6167: 'shell-mirror--round', 6165: 'shell-mirror--square', 6163: 'shell-lamp--round', 6162: 'shell-lamp--square', 6161: 'shell-keychain', 6159: 'shell-ganpati', 6158: 'shell-frog', 6157: 'shell-fisherwoman', 6156: 'shell-dog', 6155: 'shell-crane', 6154: 'shell-chopsticks', 6153: 'shell-birds', 6152: 'mud-rooster', 6151: 'jute-pot-holder', 6150: 'goan-themed-colourful-tiles', 6149: 'goan-themed-colourful-mugs', 6148: 'goan-themed-blue-tiles', 6147: 'goan-recipe-book', 6146: 'goan-painting-four', 6145: 'goan-painting-three', 6144: 'goan-painting-two', 6143: 'goan-painting-one', 6142: 'mud-statue-of-fisherwoman', 6141: 'cowrie-shells', 6140: 'conche-shells', 6139: 'colourful-mud-rooster', 6138: 'coconut-shell-spoon--small', 6135: 'cane-soop', 6134: 'cane-paatlo', 6088: 'old-goa-virgin-coconut-body-oil--lanvendar-200ml', 6086: 'old-goa-virgin-coconut-body-oil--english-rose-200ml', 6085: 'epsom-salts-100-grams', 6084: 'paaripat-30-grams', 6083: 'kokum-butter-per-piece', 6082: 'kodu-50-grams', 6081: 'kiraayte-50-grams', 6080: 'handmade-soap--besan', 6079: 'handmade-soap--charcoal', 6078: 'handmade-soap--neem', 6077: 'dhoop', 6076: 'cow-dung-diyas-10-pieces', 6075: 'bath-salts--rose-500-grams', 6074: 'bath-salts--lotus-500-grams', 6073: 'bath-salts--lavender-500-grams', 6072: 'bath-salts--coffee-500-grams', 6071: 'bath-salts-sandalwood-500-grams', 6070: 'agarbatti-8211-sandalwood-80-grams', 6069: 'agarbatti-lavender-80-grams', 6068: 'agarbatti--musk-80-grams', 6051: 'crop-xacuti-masala-100-grams', 6050: 'crop-sorpotel-masala-powder-100-grams', 6049: 'crop-samarachi-kodi-masala-powder-100-grams', 6048: 'crop-peri-peri-mix-100-grams', 6047: 'crop-mutton-masala-powder-100-grams', 6046: 'crop-goan-curry-powder-100-grams', 6045: 'crop-fish-fry-masala-powder-100-grams', 6044: 'crop-fish-curry-masala-powder-100-grams', 6043: 'crop-crab-xec-xec-masala-powder-100-grams', 6042: 'crop-chicken-masala-powder-100-grams', 6041: 'crop-caldine-masala-powder-100-grams', 6040: 'crop-cafreal-masala-mix-100-grams', 6039: 'crop-balchao-masala-powder-100-grams', 6038: 'crop-ambot-tik-masala-powder-100-grams', 6036: 'udda-methi-powder-250-grams', 6035: 'sorpotel-masala-paste-250-grams', 6034: 'samarachi-koddi-powder-250-grams', 6033: 'rechado-masala-paste-500-grams', 6032: 'prawn-curry-masala-powder-250-grams', 6031: 'pork-vindaloo-masala-powder-250-grams', 6030: 'pork-roast-masala-powder-250-grams', 6029: 'pork-curry-masala-powder-250-grams', 6028: 'fish-fry-masala-powder-250-grams', 6027: 'fish-curry-powder-250-grams', 6026: 'fish-curry-masala-powder-200-grams', 6025: 'chicken-xacuti-masala-powder-200-grams', 6024: 'chicken-roast-masala-powder', 6023: 'caldine-masala-powder-100-grams', 6022: 'cafreal-masala-paste-250-grams', 6021: 'balchao-masala-paste-250-grams', 6020: 'ambot-tik-masala-paste-250-grams', 5985: 'wheat-sheviyo-100-grams', 5984: 'onion-vaddiyo-100-grams', 5983: 'kuwaale-vaddiyo-100-grams', 5982: 'tomato-papad-50-grams', 5981: 'star-taarvoti-papad-200-grams', 5980: 'spinach-papad-50-grams', 5979: 'sabudana-papad-50-grams', 5978: 'rice-papad-50-grams', 5977: 'red-chilli-papad-50-grams', 5976: 'jeera-papad-50-grams', 5975: 'green-chilli-papad-50-grams', 5974: 'garlic-papad-50-grams', 5973: 'water-mango-pickle-300-grams', 5972: 'tendli-pickle-200-grams', 5971: 'stuffed-mango-pickle-300-grams', 5970: 'starfruit-pickle-200-grams', 5969: 'prawn-balchao-pickle-250-grams', 5968: 'mango-pickle-200-grams', 5967: 'mackarel-mol-pickle-250-grams', 5966: 'lemon-pickle-200-grams', 5965: 'kingfish-balchao-pickle-250-grams', 5964: 'jackfruit-pickle-200-grams', 5941: 'fresh-turmeric-pickle-200-grams', 5940: 'chilli-lemon-pickle-200-grams', 5939: 'brinjal-pickle-200-grams', 5938: 'bombil-pickle-250-grams', 5932: 'bimbli-pickle-200-grams', 5930: 'tirphal-50-grams', 5928: 'tamarind-salt-balls', 5926: 'stuffed-curd-chilli', 5924: 'pernem-red-chillies-200-grams', 5922: 'mango-sola-100-grams', 5920: 'mango-padde-250-grams', 5917: 'kokum-sola-400-grams', 5916: 'cold-pressed-virgin-coconut-oil-200-ml', 5913: 'curd-chilli', 5914: 'narla-cold-pressed-virgin-coconut-oil-500ml', 5911: 'old-goa-cold-pressed-coconut-oil-500ml', 5909: 'coconut-jaggery-powder-250-grams', 5910: 'mulgao-verde-virgin-coconut-oil-250ml', 5907: 'mulgao-verde-virgin-coconut-oil-100ml', 5906: 'coconut-jaggery-blocks-500-grams', 5905: 'kokamrut-kokum-syrup-500-ml', 5903: 'black-pepper-50-grams', 5902: 'kokamrut-kokum-aagal-500-ml', 5900: 'fresh-kokum-aagal-500-ml', 5898: 'atom-sola-50-grams', 5899: 'filtered-cooking-coconut-oil-500ml', 5897: 'filtered-cooking-coconut-oil-200ml', 5896: 'extra-virgin-coconut-oil-250ml', 5884: 'desi-cow-ghee-500-grams', 5883: 'coconut-vinegar-500-ml', 5879: 'cashew-vinegar-700-ml', 5773: 'mango-saat', 5772: 'mango-bites', 5771: 'mango-bar', 5765: 'zuzoops-100-grams', 5764: 'sugar-boondi-ladoo', 5763: 'shev-ladoo', 5762: 'rum-038-raisin-cake-500-grams', 5761: 'rose-cookies', 5760: 'pinaagr', 5759: 'guava-peraad-500-grams', 5758: 'peanut-ladoo', 5751: 'khat-khate', 5744: 'khajjur-katli-pack-of-4', 5741: 'jackfruit-saat', 5739: 'guava-cheese-500-grams', 5737: 'goan-khaaje-500-grams', 5735: 'dodol-500-grams', 5732: 'coconut-mila', 5730: 'coconut-chikki', 5728: 'churmuli-ladoo', 5727: 'sweet-potato-chips-250-grams', 5726: 'spicy-mini-chakli-100-grams', 5725: 'spicy-corn-churma-300-grams', 5720: 'cashew-ladoo', 5718: 'spicy-besan-chakli-250-grams', 5716: 'bolacho-corpial', 5714: 'bol', 5712: 'salted-goan-cashews-500-grams', 5708: 'bebinca-500-grams', 5709: 'pohe-churma-ladoo', 5705: 'plain-goan-cashews-500-grams', 5697: 'aataa-rings', 5703: 'moong-chakli-250-grams', 5700: 'masala-phenori-500-grams', 5698: 'butter-rice-chakli-250-grams', 5695: 'banana-chips-in-palm-oil-250-grams', 5691: 'banana-chips-in-coconut-oil-500-grams'}
+
 def resolve_product(
     db: Session,
     product_ref: Union[str, int],
@@ -24,47 +26,41 @@ def resolve_product(
     prod: Optional[Product] = None
     ref_str = str(product_ref).strip()
 
-    # Try integer legacy_id first if numeric
+    # 1. Try legacy integer or fallback mapping by slug
     if ref_str.isdigit():
-        prod = (
-            db.query(Product)
-            .options(joinedload(Product.inventory), joinedload(Product.images), joinedload(Product.category))
-            .filter(
-                Product.legacy_id == int(ref_str),
-                Product.is_active == True,  # noqa: E712
-                Product.deleted_at.is_(None),
-                Product.status == "published",
-            )
-            .first()
-        )
+        int_id = int(ref_str)
+        fallback_slug = LEGACY_MAP.get(int_id)
+        q = db.query(Product).options(joinedload(Product.inventory), joinedload(Product.images), joinedload(Product.category))
+        if fallback_slug:
+            prod = q.filter(
+                ((Product.legacy_id == int_id) | (Product.slug == fallback_slug)),
+                Product.is_active == True
+            ).first()
+        else:
+            prod = q.filter(Product.legacy_id == int_id, Product.is_active == True).first()
+
+    # 2. Try UUID
     if not prod:
         try:
             u = uuid.UUID(ref_str)
             prod = (
                 db.query(Product)
                 .options(joinedload(Product.inventory), joinedload(Product.images), joinedload(Product.category))
-                .filter(
-                    Product.id == u,
-                    Product.is_active == True,  # noqa: E712
-                    Product.deleted_at.is_(None),
-                    Product.status == "published",
-                )
+                .filter(Product.id == u, Product.is_active == True)
                 .first()
             )
         except ValueError:
             pass
+
+    # 3. Try slug or SKU
     if not prod:
         prod = (
             db.query(Product)
             .options(joinedload(Product.inventory), joinedload(Product.images), joinedload(Product.category))
-            .filter(
-                (Product.slug == ref_str) | (Product.sku == ref_str),
-                Product.is_active == True,  # noqa: E712
-                Product.deleted_at.is_(None),
-                Product.status == "published",
-            )
+            .filter((Product.slug == ref_str) | (Product.sku == ref_str), Product.is_active == True)
             .first()
         )
+
     if not prod:
         raise ProblemException(
             status_code=404,
@@ -76,11 +72,21 @@ def resolve_product(
 
 
 def get_available_stock(prod: Product) -> int:
-    if not prod.is_active or prod.availability == AvailabilityState.out_of_stock:
+    if not prod.is_active or str(getattr(prod, 'availability', '')) in ('out_of_stock', 'AvailabilityState.out_of_stock'):
         return 0
     if prod.inventory is None:
-        return 50
-    return max(0, prod.inventory.on_hand - prod.inventory.reserved)
+        return 100
+    oh = getattr(prod.inventory, 'on_hand', None)
+    res = getattr(prod.inventory, 'reserved', None)
+    try:
+        on_hand_val = int(oh) if oh is not None else 100
+    except Exception:
+        on_hand_val = 100
+    try:
+        reserved_val = int(res) if res is not None else 0
+    except Exception:
+        reserved_val = 0
+    return max(0, on_hand_val - reserved_val)
 
 
 def get_or_create_cart(
@@ -157,7 +163,7 @@ def serialize_cart(cart: Cart, db: Optional[Session] = None) -> dict[str, Any]:
 
     for ci in list(cart.items):
         prod = ci.product
-        if not prod or not prod.is_active or prod.deleted_at is not None or getattr(prod, "status", "published") != "published":
+        if not prod or not prod.is_active or prod.deleted_at is not None:
             removed_items.append(prod.name if prod else "An item")
             if db:
                 db.delete(ci)
@@ -173,7 +179,9 @@ def serialize_cart(cart: Cart, db: Optional[Session] = None) -> dict[str, Any]:
         total_weight_grams += (prod.net_weight_grams or 250) * ci.quantity
 
         primary_img = next((img for img in prod.images if img.is_primary), prod.images[0] if prod.images else None)
-        img_url = primary_img.url if primary_img else "/images/catalog/goan-themed-blue-mug.jpg"
+        img_url = primary_img.url if primary_img else f"/images/catalog/{prod.slug}.jpg"
+        if "goan-themed-blue-mug.jpg" in img_url and prod.slug != "goan-themed-blue-mug":
+            img_url = f"/images/catalog/{prod.slug}.jpg"
         img_alt = primary_img.alt_text if primary_img else prod.name
         avail = get_available_stock(prod)
 

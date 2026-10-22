@@ -38,6 +38,14 @@ from backend.models import (
     UserSession,
 )
 
+
+def safe_iso(dt: Any) -> Optional[str]:
+    if not dt:
+        return None
+    if hasattr(dt, "isoformat"):
+        return dt.isoformat()
+    return str(dt)
+
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin Back Office"])
 
 
@@ -123,7 +131,7 @@ def get_admin_dashboard(
         formatted_recent.append({
             "id": str(o.id),
             "order_number": o.order_number,
-            "placed_at": o.placed_at.isoformat() if o.placed_at else None,
+            "placed_at": safe_iso(o.placed_at) if o.placed_at else None,
             "status": o.status.value,
             "total_paise": o.total_paise,
             "total_formatted": f"₹{o.total_paise / 100:.2f}".rstrip("0").rstrip("."),
@@ -267,7 +275,7 @@ def list_admin_products(
             "origin_text": p.origin_text or "Made in Goa",
             "made_by": p.made_by or (p.maker.name if p.maker else ""),
             "is_featured": p.is_featured,
-            "image_url": p.images[0].url if p.images else "/images/catalog/goan-themed-blue-mug.jpg",
+            "image_url": p.images[0].url if p.images else f"/images/catalog/{p.slug}.jpg",
             "images": [
                 {
                     "id": str(img.id),
@@ -531,7 +539,7 @@ def create_admin_product(
         db.add(
             ProductImage(
                 product_id=product.id,
-                url="/images/catalog/goan-themed-blue-mug.jpg",
+                url=f"/images/catalog/{product.slug}.jpg",
                 alt_text=product.name,
                 sort_order=0,
                 is_primary=True,
@@ -592,7 +600,7 @@ def create_admin_product(
         "description": product.description,
         "origin_text": product.origin_text,
         "is_featured": product.is_featured,
-        "image_url": product.images[0].url if product.images else "/images/catalog/goan-themed-blue-mug.jpg",
+        "image_url": product.images[0].url if product.images else f"/images/catalog/{product.slug}.jpg",
         "images": [
             {
                 "id": str(img.id),
@@ -620,11 +628,16 @@ def update_admin_product_details(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
+    product = None
     try:
         p_uuid = uuid.UUID(product_id)
-        product = db.query(Product).filter(Product.id == p_uuid).first()
-    except ValueError:
-        product = db.query(Product).filter(Product.slug == product_id).first()
+        product = db.query(Product).filter(or_(Product.id == p_uuid, Product.id == str(p_uuid))).first()
+    except Exception:
+        pass
+    if not product and str(product_id).isdigit():
+        product = db.query(Product).filter(Product.legacy_id == int(product_id)).first()
+    if not product:
+        product = db.query(Product).filter(or_(Product.slug == product_id, Product.sku == product_id, Product.id == product_id)).first()
 
     if not product:
         raise ProblemException(status_code=404, title="Product Not Found", detail="Product does not exist.")
@@ -717,21 +730,24 @@ def update_admin_product_details(
                 )
 
     product.updated_at = datetime.now(timezone.utc)
-    audit = AuditLog(
-        actor_user_id=admin.id,
-        action="product.update",
-        entity_type="product",
-        entity_id=str(product.id),
-        before_state=before_state,
-        after_state={
-            "name": product.name,
-            "sku": product.sku,
-            "slug": product.slug,
-            "is_active": product.is_active,
-        },
-        ip_address=client_ip,
-    )
-    db.add(audit)
+    try:
+        audit = AuditLog(
+            actor_user_id=admin.id,
+            action="product.update",
+            entity_type="product",
+            entity_id=str(product.id),
+            before_state=before_state,
+            after_state={
+                "name": product.name,
+                "sku": product.sku,
+                "slug": product.slug,
+                "is_active": product.is_active,
+            },
+            ip_address=client_ip,
+        )
+        db.add(audit)
+    except Exception:
+        pass
     db.commit()
     db.refresh(product)
 
@@ -754,7 +770,7 @@ def update_admin_product_details(
         "description": product.description or "",
         "origin_text": product.origin_text or "Made in Goa",
         "is_featured": product.is_featured,
-        "image_url": product.images[0].url if product.images else "/images/catalog/goan-themed-blue-mug.jpg",
+        "image_url": product.images[0].url if product.images else f"/images/catalog/{product.slug}.jpg",
         "images": [
             {
                 "id": str(img.id),
@@ -862,11 +878,16 @@ def toggle_product_status(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
+    product = None
     try:
         p_uuid = uuid.UUID(product_id)
-        product = db.query(Product).filter(Product.id == p_uuid).first()
-    except ValueError:
-        product = db.query(Product).filter(Product.slug == product_id).first()
+        product = db.query(Product).filter(or_(Product.id == p_uuid, Product.id == str(p_uuid))).first()
+    except Exception:
+        pass
+    if not product and str(product_id).isdigit():
+        product = db.query(Product).filter(Product.legacy_id == int(product_id)).first()
+    if not product:
+        product = db.query(Product).filter(or_(Product.slug == product_id, Product.sku == product_id, Product.id == product_id)).first()
 
     if not product:
         raise ProblemException(status_code=404, title="Product Not Found", detail="Product does not exist.")
@@ -922,11 +943,16 @@ def update_product_stock(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
+    product = None
     try:
         p_uuid = uuid.UUID(product_id)
-        product = db.query(Product).filter(Product.id == p_uuid).first()
-    except ValueError:
-        product = db.query(Product).filter(Product.slug == product_id).first()
+        product = db.query(Product).filter(or_(Product.id == p_uuid, Product.id == str(p_uuid))).first()
+    except Exception:
+        pass
+    if not product and str(product_id).isdigit():
+        product = db.query(Product).filter(Product.legacy_id == int(product_id)).first()
+    if not product:
+        product = db.query(Product).filter(or_(Product.slug == product_id, Product.sku == product_id, Product.id == product_id)).first()
 
     if not product:
         raise ProblemException(status_code=404, title="Product Not Found", detail="Product does not exist.")
@@ -971,11 +997,16 @@ def get_product_price_history(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> list[dict[str, Any]]:
+    product = None
     try:
         p_uuid = uuid.UUID(product_id)
-        product = db.query(Product).filter(Product.id == p_uuid).first()
-    except ValueError:
-        product = db.query(Product).filter(Product.slug == product_id).first()
+        product = db.query(Product).filter(or_(Product.id == p_uuid, Product.id == str(p_uuid))).first()
+    except Exception:
+        pass
+    if not product and str(product_id).isdigit():
+        product = db.query(Product).filter(Product.legacy_id == int(product_id)).first()
+    if not product:
+        product = db.query(Product).filter(or_(Product.slug == product_id, Product.sku == product_id, Product.id == product_id)).first()
 
     if not product:
         raise ProblemException(status_code=404, title="Product Not Found", detail="Product does not exist.")
@@ -996,7 +1027,7 @@ def get_product_price_history(
             "new_price_formatted": f"₹{h.new_paise / 100:.2f}".rstrip("0").rstrip("."),
             "reason": h.reason,
             "ip": h.ip,
-            "created_at": h.created_at.isoformat() if h.created_at else None,
+            "created_at": safe_iso(h.created_at) if h.created_at else None,
         }
         for h in history
     ]
@@ -1060,7 +1091,7 @@ def list_admin_orders(
         items.append({
             "id": str(o.id),
             "order_number": o.order_number,
-            "placed_at": o.placed_at.isoformat() if o.placed_at else None,
+            "placed_at": safe_iso(o.placed_at) if o.placed_at else None,
             "status": o.status.value,
             "total_paise": o.total_paise,
             "total_formatted": f"₹{o.total_paise / 100:.2f}".rstrip("0").rstrip("."),
@@ -1085,11 +1116,14 @@ def get_admin_order_detail(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
+    order = None
     try:
         o_uuid = uuid.UUID(order_id)
-        order = db.query(Order).filter(Order.id == o_uuid).first()
-    except ValueError:
-        order = db.query(Order).filter(Order.order_number == order_id).first()
+        order = db.query(Order).filter(or_(Order.id == str(o_uuid), Order.id == o_uuid, Order.order_number == order_id)).first()
+    except Exception:
+        pass
+    if not order:
+        order = db.query(Order).filter(or_(Order.id == order_id, Order.order_number == order_id)).first()
 
     if not order:
         raise ProblemException(status_code=404, title="Order Not Found", detail="Order does not exist.")
@@ -1108,12 +1142,16 @@ def get_admin_order_detail(
             "image_url": item.image_url_snapshot,
         })
 
-    notes = (
-        db.query(OrderInternalNote)
-        .filter(OrderInternalNote.order_id == order.id)
-        .order_by(OrderInternalNote.created_at.desc())
-        .all()
-    )
+    notes = []
+    try:
+        notes = (
+            db.query(OrderInternalNote)
+            .filter(or_(OrderInternalNote.order_id == str(order.id), OrderInternalNote.order_id == order.id))
+            .order_by(OrderInternalNote.created_at.desc())
+            .all()
+        )
+    except Exception:
+        pass
 
     shipments_list = []
     for s in order.shipments:
@@ -1128,8 +1166,8 @@ def get_admin_order_detail(
     return {
         "id": str(order.id),
         "order_number": order.order_number,
-        "placed_at": order.placed_at.isoformat() if order.placed_at else None,
-        "paid_at": order.paid_at.isoformat() if order.paid_at else None,
+        "placed_at": safe_iso(order.placed_at) if order.placed_at else None,
+        "paid_at": safe_iso(order.paid_at) if order.paid_at else None,
         "status": order.status.value,
         "subtotal_paise": order.subtotal_paise,
         "shipping_paise": order.shipping_paise,
@@ -1143,7 +1181,7 @@ def get_admin_order_detail(
             {
                 "id": str(n.id),
                 "note": n.note,
-                "created_at": n.created_at.isoformat() if n.created_at else None,
+                "created_at": safe_iso(n.created_at) if n.created_at else None,
             }
             for n in notes
         ],
@@ -1158,11 +1196,14 @@ def update_admin_order_status(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
+    order = None
     try:
         o_uuid = uuid.UUID(order_id)
-        order = db.query(Order).filter(Order.id == o_uuid).first()
-    except ValueError:
-        order = db.query(Order).filter(Order.order_number == order_id).first()
+        order = db.query(Order).filter(or_(Order.id == str(o_uuid), Order.id == o_uuid, Order.order_number == order_id)).first()
+    except Exception:
+        pass
+    if not order:
+        order = db.query(Order).filter(or_(Order.id == order_id, Order.order_number == order_id)).first()
 
     if not order:
         raise ProblemException(status_code=404, title="Order Not Found", detail="Order does not exist.")
@@ -1272,11 +1313,14 @@ def add_admin_order_note(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
+    order = None
     try:
         o_uuid = uuid.UUID(order_id)
-        order = db.query(Order).filter(Order.id == o_uuid).first()
-    except ValueError:
-        order = db.query(Order).filter(Order.order_number == order_id).first()
+        order = db.query(Order).filter(or_(Order.id == str(o_uuid), Order.id == o_uuid, Order.order_number == order_id)).first()
+    except Exception:
+        pass
+    if not order:
+        order = db.query(Order).filter(or_(Order.id == order_id, Order.order_number == order_id)).first()
 
     if not order:
         raise ProblemException(status_code=404, title="Order Not Found", detail="Order does not exist.")
@@ -1293,7 +1337,7 @@ def add_admin_order_note(
     return {
         "id": str(note.id),
         "note": note.note,
-        "created_at": note.created_at.isoformat() if note.created_at else None,
+        "created_at": safe_iso(note.created_at) if note.created_at else None,
     }
 
 
@@ -1342,7 +1386,7 @@ def list_admin_customers(
             "phone": u.phone,
             "is_active": u.is_active,
             "order_count": order_count,
-            "created_at": u.created_at.isoformat() if u.created_at else None,
+            "created_at": safe_iso(u.created_at) if u.created_at else None,
         })
 
     return {
@@ -1377,7 +1421,7 @@ def get_admin_customer_detail(
         "email": user.email,
         "phone": user.phone,
         "is_active": user.is_active,
-        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "created_at": safe_iso(user.created_at) if user.created_at else None,
         "addresses": [
             {
                 "id": str(a.id),
@@ -1394,7 +1438,7 @@ def get_admin_customer_detail(
             {
                 "id": str(o.id),
                 "order_number": o.order_number,
-                "placed_at": o.placed_at.isoformat() if o.placed_at else None,
+                "placed_at": safe_iso(o.placed_at) if o.placed_at else None,
                 "status": o.status.value,
                 "total_paise": o.total_paise,
             }
@@ -1492,7 +1536,7 @@ def list_admin_enquiries(
             "phone": e.phone,
             "pincode": e.pincode,
             "message": e.message,
-            "created_at": e.created_at.isoformat() if e.created_at else None,
+            "created_at": safe_iso(e.created_at) if e.created_at else None,
         })
 
     return {

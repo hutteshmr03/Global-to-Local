@@ -100,7 +100,9 @@ export default function BagDrawer() {
               ) : (
                 items.map(({ product, qty }) => {
                   const itemPrice = product.price ?? product.price_paise ?? 0;
-                  const itemImg = product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg';
+                  const itemImg = (product.imageSrc && !product.imageSrc.endsWith('goan-themed-blue-mug.jpg'))
+                    ? product.imageSrc
+                    : (product.slug ? `/images/catalog/${product.slug}.jpg` : (product.image_url || '/images/catalog/goan-themed-blue-mug.jpg'));
                   const itemWeight = product.weight || product.unit_label || '';
                   return (
                       <div key={product.id} className="py-4 flex gap-4">

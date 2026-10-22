@@ -69,7 +69,9 @@ export default function BagPage() {
             <div className="lg:col-span-8 rounded-2xl border border-border/40 bg-surface p-6 sm:p-8 divide-y divide-border/20">
               {items.map(({ product, qty }) => {
                 const itemPrice = product.price ?? product.price_paise ?? 0;
-                const itemImg = product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg';
+                const itemImg = (product.imageSrc && !product.imageSrc.endsWith('goan-themed-blue-mug.jpg'))
+                  ? product.imageSrc
+                  : (product.slug ? `/images/catalog/${product.slug}.jpg` : (product.image_url || '/images/catalog/goan-themed-blue-mug.jpg'));
                 const itemWeight = product.weight || product.unit_label || '';
                 return (
                   <div key={product.id} className="py-6 first:pt-0 last:pb-0 flex flex-col sm:flex-row gap-6">

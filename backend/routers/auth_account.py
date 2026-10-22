@@ -85,7 +85,7 @@ def serialize_user(user: User) -> dict[str, Any]:
         "role": user.role.value,
         "is_active": user.is_active,
         "totp_enabled": bool(user.totp_enabled),
-        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "created_at": user.created_at.isoformat() if hasattr(user.created_at, "isoformat") else (str(user.created_at) if user.created_at else None),
     }
 
 

@@ -147,10 +147,9 @@ def list_products(
         clean_q = q.strip()
         query = query.filter(
             or_(
-                Product.search_tsv.op("@@")(func.websearch_to_tsquery("english", clean_q)),
                 Product.name.ilike(f"%{clean_q}%"),
                 Product.short_description.ilike(f"%{clean_q}%"),
-                func.similarity(Product.name, clean_q) > 0.2,
+                Product.slug.ilike(f"%{clean_q}%"),
             )
         )
 
@@ -165,7 +164,7 @@ def list_products(
     elif sort == "name_asc":
         query = query.order_by(Product.name.asc(), Product.id.asc())
     else:
-        query = query.order_by(Product.is_featured.desc(), Product.legacy_id.desc().nullslast(), Product.name.asc())
+        query = query.order_by(Product.is_featured.desc(), Product.legacy_id.desc(), Product.name.asc())
 
     offset = (page - 1) * page_size
     products = query.offset(offset).limit(page_size).all()
@@ -291,7 +290,6 @@ def search_suggestions(
     db: Session = Depends(get_db),
 ):
     clean_q = q.strip()
-    sim = func.similarity(Product.name, clean_q)
     products = (
         db.query(Product)
         .options(
@@ -306,10 +304,10 @@ def search_suggestions(
             or_(
                 Product.name.ilike(f"%{clean_q}%"),
                 Product.short_description.ilike(f"%{clean_q}%"),
-                sim > 0.18,
+                Product.slug.ilike(f"%{clean_q}%"),
             ),
         )
-        .order_by(sim.desc(), Product.is_featured.desc(), Product.name.asc())
+        .order_by(Product.is_featured.desc(), Product.name.asc())
         .limit(limit)
         .all()
     )

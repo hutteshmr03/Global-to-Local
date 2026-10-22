@@ -99,13 +99,26 @@ def serialize_product(prod: Product) -> dict[str, Any]:
         if img.is_primary or primary_img is None:
             primary_img = img_dict
 
-    image_src = primary_img["url"] if primary_img else "/images/catalog/goan-themed-blue-mug.jpg"
+    image_src = primary_img["url"] if primary_img else f"/images/catalog/{prod.slug}.jpg"
+    if "goan-themed-blue-mug.jpg" in image_src and prod.slug != "goan-themed-blue-mug":
+        image_src = f"/images/catalog/{prod.slug}.jpg"
     image_alt = primary_img["alt_text"] if primary_img else prod.name
     if not gallery_urls:
         gallery_urls = [image_src]
+    else:
+        gallery_urls = [
+            f"/images/catalog/{prod.slug}.jpg" if ("goan-themed-blue-mug.jpg" in u and prod.slug != "goan-themed-blue-mug") else u
+            for u in gallery_urls
+        ]
 
-    available_qty = prod.inventory.available if prod.inventory else 50
-    in_stock = prod.is_active and prod.availability.value in ("in_stock", "low_stock") and available_qty > 0
+    avail_str = prod.availability.value if hasattr(prod.availability, "value") else str(prod.availability or "in_stock")
+    available_qty = 100
+    if prod.inventory:
+        try:
+            available_qty = max(0, int(prod.inventory.on_hand) - int(prod.inventory.reserved))
+        except Exception:
+            available_qty = 100
+    in_stock = available_qty > 0
 
     return {
         # Backend canonical fields
@@ -123,7 +136,7 @@ def serialize_product(prod: Product) -> dict[str, Any]:
         "short_description": prod.short_description or "",
         "description": prod.description or "",
         "origin_text": prod.origin_text or "Made in Goa",
-        "availability": prod.availability.value if in_stock else "out_of_stock",
+        "availability": (prod.availability.value if hasattr(prod.availability, "value") else str(prod.availability or "in_stock")) if in_stock else "out_of_stock",
         "available_quantity": available_qty,
         "is_featured": prod.is_featured,
         "is_new": prod.is_new,
