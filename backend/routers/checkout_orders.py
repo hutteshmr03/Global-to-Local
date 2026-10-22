@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger("gtl.checkout")
 import hashlib
 import hmac
 import json
@@ -526,6 +528,17 @@ def create_order(
             )
         return existing_idem.response_body
 
+    # Enforce mandatory UTR number for Bank Transfer orders
+    user_note = (payload.customer_note or "").strip()
+    utr_val = user_note.replace("Bank Transfer UTR:", "").strip()
+    if not utr_val or len(utr_val) < 4:
+        raise ProblemException(
+            status_code=422,
+            title="UTR Number Required",
+            detail="Please transfer the total amount to our bank account and enter your Bank Reference / UTR Number before confirming.",
+            problem_type="https://globaltolocal.in/problems/utr-required",
+        )
+
     # Release any expired reservations first
     release_expired_reservations(db)
 
@@ -729,6 +742,7 @@ def create_order(
     order_number = generate_next_order_number(db)
 
     order = Order(
+        id=uuid.uuid4(),
         order_number=order_number,
         user_id=user.id,
         status=OrderStatus.pending_payment,
@@ -745,6 +759,8 @@ def create_order(
         idempotency_key=idem_key,
         reservation_expires_at=now + timedelta(minutes=30),
         placed_at=now,
+        created_at=now,
+        updated_at=now,
     )
     db.add(order)
     db.flush()
@@ -754,6 +770,7 @@ def create_order(
         qty = item_entry["quantity"]
         db.add(
             OrderItem(
+                id=uuid.uuid4(),
                 order_id=order.id,
                 product_id=prod.id,
                 sku_snapshot=prod.sku,
@@ -767,54 +784,74 @@ def create_order(
                 line_total_paise=item_entry["line_total_paise"],
             )
         )
+        try:
+            db.add(
+                StockMovement(
+                    id=str(uuid.uuid4()),
+                    product_id=prod.id,
+                    delta=-qty,
+                    reason=StockMovementReason.order_reserved,
+                    reference_type="order",
+                    reference_id=order.id,
+                    note=f"Reserved {qty} units for order {order.order_number}",
+                    actor_user_id=user.id,
+                    created_at=now,
+                )
+            )
+            db.flush()
+        except Exception as err:
+            logger.warning(f"Could not log stock movement: {err}")
+
+    try:
         db.add(
-            StockMovement(
-                product_id=prod.id,
-                delta=-qty,
-                reason=StockMovementReason.order_reserved,
-                reference_type="order",
-                reference_id=order.id,
-                note=f"Reserved {qty} units for order {order.order_number}",
+            OrderStatusEvent(
+                id=str(uuid.uuid4()),
+                order_id=order.id,
+                from_status=None,
+                to_status=OrderStatus.pending_payment,
                 actor_user_id=user.id,
+                note="Order created; stock reserved for 30 minutes awaiting bank transfer verification.",
+                created_at=now,
             )
         )
-
-    db.add(
-        OrderStatusEvent(
-            order_id=order.id,
-            from_status=None,
-            to_status=OrderStatus.pending_payment,
-            actor_user_id=user.id,
-            note="Order created; stock reserved for 30 minutes awaiting payment.",
-        )
-    )
+        db.flush()
+    except Exception as err:
+        logger.warning(f"Could not log order status event: {err}")
 
     razorpay_order_id = f"order_{secrets.token_hex(10)}"
     payment = Payment(
+        id=uuid.uuid4(),
         order_id=order.id,
-        provider="razorpay",
+        provider="bank_transfer",
         provider_order_id=razorpay_order_id,
         amount_paise=total_paise,
         currency="INR",
         status=PaymentStatus.created,
         signature_verified=False,
+        created_at=now,
+        updated_at=now,
     )
     db.add(payment)
     db.flush()
     db.refresh(order)
 
     response_payload = serialize_order(order)
-    db.add(
-        IdempotencyRecord(
-            key=idem_key,
-            user_id=user.id,
-            endpoint="POST /api/v1/orders",
-            request_hash=req_hash,
-            status_code=201,
-            response_body=response_payload,
-            expires_at=now + timedelta(hours=24),
+    try:
+        db.add(
+            IdempotencyRecord(
+                id=uuid.uuid4(),
+                key=idem_key,
+                user_id=user.id,
+                endpoint="POST /api/v1/orders",
+                request_hash=req_hash,
+                status_code=201,
+                response_body=response_payload,
+                expires_at=now + timedelta(hours=24),
+                created_at=now,
+            )
         )
-    )
+    except Exception as err:
+        logger.warning(f"Could not record idempotency: {err}")
     db.commit()
 
     return response_payload

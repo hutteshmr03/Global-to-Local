@@ -138,7 +138,62 @@ try:
         except Exception:
             pass
 
-        # D. Ensure price_changes table exists and has safe column defaults
+        # D. Ensure stock_movements table exists and has safe column defaults
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS `stock_movements` (
+              `id` VARCHAR(255) NOT NULL DEFAULT '',
+              `product_id` VARCHAR(36) NOT NULL,
+              `delta` VARCHAR(255) NOT NULL,
+              `reason` VARCHAR(32) NOT NULL,
+              `reference_type` VARCHAR(40) DEFAULT NULL,
+              `reference_id` VARCHAR(36) DEFAULT NULL,
+              `note` VARCHAR(255) DEFAULT NULL,
+              `actor_user_id` VARCHAR(36) DEFAULT NULL,
+              `created_at` VARCHAR(255) NOT NULL DEFAULT '',
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """))
+        try:
+            conn.execute(text("ALTER TABLE `stock_movements` MODIFY `id` VARCHAR(255) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `stock_movements` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
+        except Exception:
+            pass
+
+        # E. Ensure payments table exists and has safe column defaults
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS `payments` (
+              `id` VARCHAR(36) NOT NULL DEFAULT '',
+              `order_id` VARCHAR(36) NOT NULL,
+              `provider` VARCHAR(32) NOT NULL,
+              `provider_order_id` VARCHAR(80) NOT NULL,
+              `provider_payment_id` VARCHAR(80) DEFAULT NULL,
+              `method` VARCHAR(32) DEFAULT NULL,
+              `amount_paise` VARCHAR(255) NOT NULL,
+              `currency` VARCHAR(3) NOT NULL,
+              `status` VARCHAR(18) NOT NULL,
+              `signature_verified` VARCHAR(255) NOT NULL DEFAULT '0',
+              `failure_code` VARCHAR(80) DEFAULT NULL,
+              `failure_description` VARCHAR(255) DEFAULT NULL,
+              `raw_webhook_payload` JSON DEFAULT NULL,
+              `captured_at` VARCHAR(255) DEFAULT NULL,
+              `created_at` VARCHAR(255) NOT NULL DEFAULT '',
+              `updated_at` VARCHAR(255) NOT NULL DEFAULT '',
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """))
+        try:
+            conn.execute(text("ALTER TABLE `payments` MODIFY `id` VARCHAR(36) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `payments` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `payments` MODIFY `updated_at` VARCHAR(255) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `orders` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `orders` MODIFY `updated_at` VARCHAR(255) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `order_items` MODIFY `id` VARCHAR(36) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `idempotency_records` MODIFY `id` VARCHAR(36) NOT NULL DEFAULT '';"))
+            conn.execute(text("ALTER TABLE `idempotency_records` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
+        except Exception:
+            pass
+
+        # F. Ensure price_changes table exists and has safe column defaults
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS `price_changes` (
               `id` VARCHAR(36) NOT NULL,
