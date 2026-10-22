@@ -52,6 +52,8 @@ files_to_sync = [
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
+    (f"{RAW_BASE}/dist_live/assets/index-DMUcV2ny.js", os.path.join(PUBLIC_HTML, "assets", "index-DMUcV2ny.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BFySxgXY.css", os.path.join(PUBLIC_HTML, "assets", "index-BFySxgXY.css")),
     (f"{RAW_BASE}/dist_live/assets/index-iXfLwrxW.js", os.path.join(PUBLIC_HTML, "assets", "index-iXfLwrxW.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BcsolVHe.js", os.path.join(PUBLIC_HTML, "assets", "index-BcsolVHe.js")),
     (f"{RAW_BASE}/dist_live/assets/index-B0Y-ixBk.js", os.path.join(PUBLIC_HTML, "assets", "index-B0Y-ixBk.js")),
@@ -68,6 +70,8 @@ files_to_sync = [
     (f"{RAW_BASE}/public/images/catalog/handmade-soap--charcoal.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "handmade-soap--charcoal.jpg")),
     (f"{RAW_BASE}/public/images/catalog/handmade-soap-neem.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "handmade-soap-neem.jpg")),
     (f"{RAW_BASE}/public/images/catalog/handmade-soap--neem.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "handmade-soap--neem.jpg")),
+    # UPI QR Code Standee
+    (f"{RAW_BASE}/public/images/site/upi-qr-scanner.jpg", os.path.join(PUBLIC_HTML, "images", "site", "upi-qr-scanner.jpg")),
 ]
 
 print("\n--- STEP 1: Syncing Latest Backend, Frontend & Catalog Images ---", flush=True)
@@ -162,6 +166,13 @@ for g_root in gtl_targets:
                 da = os.path.join(g_assets, af)
                 if os.path.isfile(sa):
                     shutil.copy2(sa, da)
+        # Ensure images/site are synced to g_root
+        src_site = os.path.join(PUBLIC_HTML, "images", "site")
+        dst_site = os.path.join(g_root, "images", "site")
+        if os.path.exists(src_site):
+            os.makedirs(dst_site, exist_ok=True)
+            for sf in os.listdir(src_site):
+                shutil.copy2(os.path.join(src_site, sf), os.path.join(dst_site, sf))
         print(f"[OK] Successfully deployed build & reverse proxy to: {g_root}", flush=True)
     except Exception as g_err:
         print(f"[!] Notice on {g_root}: {g_err}", flush=True)

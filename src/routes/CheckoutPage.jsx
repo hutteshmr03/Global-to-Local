@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Check, AlertCircle, Building2, Copy, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Check, AlertCircle, Building2, Copy, CheckCircle2, QrCode, Smartphone } from 'lucide-react';
 import { useCartStore } from '../lib/cart-store';
 import { useAuthStore } from '../lib/auth-store';
 import { formatPrice, siteConfig } from '../lib/data';
@@ -408,81 +408,142 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Payment Method - Direct Bank Transfer */}
-            <div className="rounded-2xl border border-border/40 bg-surface p-6 sm:p-8 shadow-xs">
-              <div className="flex items-center gap-2.5 font-display text-xl font-bold text-content mb-6">
-                <Building2 className="w-5 h-5 text-accent" />
-                <h2>2. Direct Bank Transfer</h2>
+            {/* Payment Method - Split into 2 Cards: Direct Bank Transfer & UPI QR Scanner */}
+            <div className="rounded-2xl border border-border/40 bg-surface p-6 sm:p-8 shadow-xs space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2.5 font-display text-xl font-bold text-content">
+                  <Building2 className="w-5 h-5 text-accent" />
+                  <h2>2. Payment Options (Bank Transfer & UPI QR)</h2>
+                </div>
+                <span className="text-xs font-semibold text-palm bg-palm/10 border border-palm/20 px-2.5 py-1 rounded-pill">
+                  Secure Offline Payment
+                </span>
               </div>
 
-              {/* Bank Account Details Box */}
-              <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 sm:p-5 space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-border/40">
-                  <span className="text-xs font-bold uppercase tracking-wider text-accent">Bank Transfer Details</span>
-                  <span className="text-[11px] font-semibold text-content-muted">Bank of India</span>
+              {/* Two Payment Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+
+                {/* CARD 1: Direct Bank Transfer Details */}
+                <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 sm:p-5 flex flex-col justify-between space-y-3 shadow-2xs">
+                  <div>
+                    <div className="flex items-center justify-between pb-2.5 border-b border-border/40">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-accent" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-accent">Bank Transfer Details</span>
+                      </div>
+                      <span className="text-[11px] font-semibold text-content-muted">Bank of India</span>
+                    </div>
+
+                    <div className="space-y-2 text-xs sm:text-sm mt-3">
+                      {/* Account Name */}
+                      <div className="flex items-center justify-between py-1">
+                        <span className="text-content-muted">Account Name:</span>
+                        <div className="flex items-center gap-1.5 font-semibold text-content">
+                          <span>{siteConfig.contact.bankDetails?.accountName || 'Global To Local'}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountName || 'Global To Local', 'name')}
+                            className="p-1 hover:text-accent cursor-pointer"
+                            title="Copy Account Name"
+                          >
+                            {copiedField === 'name' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Account Number */}
+                      <div className="flex items-center justify-between py-1 border-t border-border/20">
+                        <span className="text-content-muted">Account Number:</span>
+                        <div className="flex items-center gap-1.5 font-mono font-bold text-content text-sm sm:text-base">
+                          <span>{siteConfig.contact.bankDetails?.accountNumber || '102220110000268'}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountNumber || '102220110000268', 'acc')}
+                            className="p-1 hover:text-accent cursor-pointer"
+                            title="Copy Account Number"
+                          >
+                            {copiedField === 'acc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* IFSC Code */}
+                      <div className="flex items-center justify-between py-1 border-t border-border/20">
+                        <span className="text-content-muted">IFSC Code:</span>
+                        <div className="flex items-center gap-1.5 font-mono font-bold text-accent">
+                          <span>{siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022'}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022', 'ifsc')}
+                            className="p-1 hover:text-accent cursor-pointer"
+                            title="Copy IFSC Code"
+                          >
+                            {copiedField === 'ifsc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Bank & Branch */}
+                      <div className="flex items-center justify-between py-1 border-t border-border/20">
+                        <span className="text-content-muted">Bank & Branch:</span>
+                        <span className="font-semibold text-content text-right">
+                          {siteConfig.contact.bankDetails?.bankName || 'Bank of India'}, {siteConfig.contact.bankDetails?.branch || 'Miramar'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-border/30 text-[11px] text-content-muted leading-relaxed">
+                    Transfer via NEFT, RTGS, or IMPS from your netbanking app.
+                  </div>
                 </div>
 
-                <div className="space-y-2 text-xs sm:text-sm">
-                  {/* Account Name */}
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-content-muted">Account Name:</span>
-                    <div className="flex items-center gap-1.5 font-semibold text-content">
-                      <span>{siteConfig.contact.bankDetails?.accountName || 'Global To Local'}</span>
+                {/* CARD 2: QR SCANNER (Google Pay / PhonePe / Paytm / BHIM UPI) */}
+                <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 sm:p-5 flex flex-col items-center justify-between space-y-3 shadow-2xs">
+                  <div className="w-full flex flex-col items-center">
+                    <div className="flex items-center justify-between pb-2.5 border-b border-border/40 w-full">
+                      <div className="flex items-center gap-2">
+                        <QrCode className="w-4 h-4 text-accent" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-accent">QR Scanner (Scan & Pay)</span>
+                      </div>
+                      <span className="text-[11px] font-semibold text-palm flex items-center gap-1">
+                        <Smartphone className="w-3 h-3" /> GPay / PhonePe / Paytm
+                      </span>
+                    </div>
+
+                    {/* QR Code Standee Image */}
+                    <div className="mt-3 relative rounded-xl overflow-hidden border border-border/50 bg-white p-1.5 shadow-sm max-w-[170px] sm:max-w-[190px]">
+                      <img
+                        src="/images/site/upi-qr-scanner.jpg"
+                        alt="Global To Local Google Pay QR Scanner"
+                        className="w-full h-auto object-contain rounded-lg"
+                      />
+                    </div>
+
+                    {/* Copyable UPI ID */}
+                    <div className="mt-3 flex items-center justify-between gap-1.5 w-full bg-surface border border-border/40 rounded-lg px-2.5 py-1.5 text-xs">
+                      <span className="text-[11px] text-content-muted font-medium">UPI ID:</span>
+                      <span className="font-mono font-bold text-accent text-[11px] sm:text-xs truncate">gpay-11174829274@okbizaxis</span>
                       <button
                         type="button"
-                        onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountName || 'Global To Local', 'name')}
-                        className="p-1 hover:text-accent cursor-pointer"
-                        title="Copy Account Name"
+                        onClick={() => handleCopy('gpay-11174829274@okbizaxis', 'upi')}
+                        className="p-1 hover:text-accent cursor-pointer text-content-muted"
+                        title="Copy UPI ID"
                       >
-                        {copiedField === 'name' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedField === 'upi' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>
 
-                  {/* Account Number */}
-                  <div className="flex items-center justify-between py-1 border-t border-border/20">
-                    <span className="text-content-muted">Account Number:</span>
-                    <div className="flex items-center gap-1.5 font-mono font-bold text-content text-sm sm:text-base">
-                      <span>{siteConfig.contact.bankDetails?.accountNumber || '102220110000268'}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(siteConfig.contact.bankDetails?.accountNumber || '102220110000268', 'acc')}
-                        className="p-1 hover:text-accent cursor-pointer"
-                        title="Copy Account Number"
-                      >
-                        {copiedField === 'acc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* IFSC Code */}
-                  <div className="flex items-center justify-between py-1 border-t border-border/20">
-                    <span className="text-content-muted">IFSC Code:</span>
-                    <div className="flex items-center gap-1.5 font-mono font-bold text-accent">
-                      <span>{siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022'}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(siteConfig.contact.bankDetails?.ifscCode || 'BKID0001022', 'ifsc')}
-                        className="p-1 hover:text-accent cursor-pointer"
-                        title="Copy IFSC Code"
-                      >
-                        {copiedField === 'ifsc' ? <CheckCircle2 className="w-3.5 h-3.5 text-palm" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Bank & Branch */}
-                  <div className="flex items-center justify-between py-1 border-t border-border/20">
-                    <span className="text-content-muted">Bank & Branch:</span>
-                    <span className="font-semibold text-content">
-                      {siteConfig.contact.bankDetails?.bankName || 'Bank of India'}, {siteConfig.contact.bankDetails?.branch || 'Miramar'}
-                    </span>
+                  <div className="pt-2 border-t border-border/30 text-[11px] text-content-muted text-center w-full leading-relaxed">
+                    Open any UPI app, scan this QR code, and pay the total amount.
                   </div>
                 </div>
+
               </div>
 
-              {/* Bank Reference / UTR Number Input */}
-              <div className="mt-5 pt-4 border-t border-border/40 space-y-2">
+              {/* Bank Reference / UTR Number Input (Unchanged function, unified for both options) */}
+              <div className="pt-4 border-t border-border/40 space-y-2">
                 <div className="flex items-center justify-between">
                   <label htmlFor="utr-input" className="block text-xs sm:text-sm font-bold text-content">
                     Bank Reference / UTR Number <span className="text-red-500">*</span>
@@ -490,7 +551,7 @@ export default function CheckoutPage() {
                   <span className="text-[11px] font-semibold text-accent uppercase tracking-wider">Required</span>
                 </div>
                 <p className="text-xs text-content-muted leading-relaxed">
-                  Transfer via UPI / NEFT / IMPS to our account above, then enter the 12-digit UTR or Reference number before confirming:
+                  Transfer via UPI QR scanner or bank transfer above, then enter the 12-digit UTR or Reference number before confirming:
                 </p>
                 <input
                   id="utr-input"
