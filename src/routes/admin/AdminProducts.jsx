@@ -780,6 +780,10 @@ export default function AdminProducts() {
                           <img
                             src={p.image_url}
                             alt={p.name}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = p.slug ? `/images/catalog/${p.slug}.jpg` : '/images/catalog/goan-themed-blue-mug.jpg';
+                            }}
                             className="h-10 w-10 rounded-lg object-cover bg-surface-sunken shrink-0 border border-border/40"
                           />
                           <div className="min-w-0">
@@ -874,6 +878,10 @@ export default function AdminProducts() {
                     <img
                       src={p.image_url}
                       alt={p.name}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = p.slug ? `/images/catalog/${p.slug}.jpg` : '/images/catalog/goan-themed-blue-mug.jpg';
+                      }}
                       className="h-14 w-14 rounded-lg object-cover bg-surface-sunken shrink-0 border border-border/40"
                     />
                     <div className="min-w-0 flex-1">
