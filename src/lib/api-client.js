@@ -5,12 +5,35 @@
 
 import { handleMockBackend } from './mock-backend';
 
-let inMemoryCsrfToken = null;
-let inMemoryAccessToken = null;
+const RENDER_BACKEND_URL = 'https://global-to-local.onrender.com';
+
+let inMemoryCsrfToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_csrf_token') : null;
+let inMemoryAccessToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_access_token') : null;
 
 export function setClientAuthTokens({ csrfToken, accessToken } = {}) {
-  if (csrfToken !== undefined) inMemoryCsrfToken = csrfToken;
-  if (accessToken !== undefined) inMemoryAccessToken = accessToken;
+  if (csrfToken !== undefined) {
+    inMemoryCsrfToken = csrfToken;
+    try {
+      if (csrfToken) localStorage.setItem('gtl_csrf_token', csrfToken);
+      else localStorage.removeItem('gtl_csrf_token');
+    } catch {}
+  }
+  if (accessToken !== undefined) {
+    inMemoryAccessToken = accessToken;
+    try {
+      if (accessToken) localStorage.setItem('gtl_access_token', accessToken);
+      else localStorage.removeItem('gtl_access_token');
+    } catch {}
+  }
+}
+
+export function clearClientAuthTokens() {
+  inMemoryCsrfToken = null;
+  inMemoryAccessToken = null;
+  try {
+    localStorage.removeItem('gtl_csrf_token');
+    localStorage.removeItem('gtl_access_token');
+  } catch {}
 }
 
 export function getCookieValue(name) {
@@ -84,6 +107,27 @@ export async function apiFetch(path, options = {}) {
     res = await fetch(path, fetchOptions);
   } catch (err) {
     networkFailed = true;
+  }
+
+  // Dual-tier failover: If local web server proxy fails (404, 500, 502, 503, 504) or network fails,
+  // automatically call the live backend directly
+  if (
+    (networkFailed || (res && [404, 500, 502, 503, 504].includes(res.status))) &&
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1' &&
+    path.startsWith('/api')
+  ) {
+    try {
+      const directUrl = `${RENDER_BACKEND_URL}${path}`;
+      const directRes = await fetch(directUrl, fetchOptions);
+      if (directRes && (directRes.ok || directRes.status < 500)) {
+        res = directRes;
+        networkFailed = false;
+      }
+    } catch {
+      // Fall through to mock/error handling
+    }
   }
 
   // Standalone fallback: Only when backend server is completely unreachable (networkFailed)

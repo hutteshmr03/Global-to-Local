@@ -48,6 +48,11 @@ app = FastAPI(
 allowed_origins = list(
     {
         settings.FRONTEND_ORIGIN,
+        "https://globaltolocal.in",
+        "https://www.globaltolocal.in",
+        "http://globaltolocal.in",
+        "http://www.globaltolocal.in",
+        "https://global-to-local.onrender.com",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:4173",

@@ -1,0 +1,1616 @@
+[
+  {
+    "file": "goan-themed-blue-mug.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-themed-blue-mug.jpg",
+    "used_by": "Product: Goan-themed Blue Mug (/product/goan-themed-blue-mug)",
+    "alt": "Goan-themed Blue Mug"
+  },
+  {
+    "file": "wine-biscuits-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/wine-biscuits-200-grams.jpg",
+    "used_by": "Product: Wine Biscuits 200 grams (/product/wine-biscuits-200-grams)",
+    "alt": "Wine Biscuits 200 grams"
+  },
+  {
+    "file": "coconut-macaroons-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-macaroons-250-grams.jpg",
+    "used_by": "Product: Coconut Macaroons 250 grams (/product/coconut-macaroons-250-grams)",
+    "alt": "Coconut Macaroons 250 grams"
+  },
+  {
+    "file": "batika.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/batika.jpg",
+    "used_by": "Product: Batika (/product/batika)",
+    "alt": "Batika"
+  },
+  {
+    "file": "unpeeled-cashew-nuts-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/unpeeled-cashew-nuts-500-grams.jpg",
+    "used_by": "Product: Unpeeled Cashew Nuts 500 grams (/product/unpeeled-cashew-nuts-500-grams)",
+    "alt": "Unpeeled Cashew Nuts 500 grams"
+  },
+  {
+    "file": "garlic-sticks.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/garlic-sticks.jpg",
+    "used_by": "Product: Garlic Sticks (/product/garlic-sticks)",
+    "alt": "Garlic Sticks"
+  },
+  {
+    "file": "cones.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cones.jpg",
+    "used_by": "Product: Cones (/product/cones)",
+    "alt": "Cones"
+  },
+  {
+    "file": "canapes.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/canapes.jpg",
+    "used_by": "Product: Canapes (/product/canapes)",
+    "alt": "Canapes"
+  },
+  {
+    "file": "kunbi-shawl.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-shawl.jpg",
+    "used_by": "Product: Kunbi Shawl (/product/kunbi-shawl)",
+    "alt": "Kunbi Shawl"
+  },
+  {
+    "file": "kunbi-saree-7.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-saree-7.jpg",
+    "used_by": "Product: Kunbi Saree 7 (/product/kunbi-saree-7)",
+    "alt": "Kunbi Saree 7"
+  },
+  {
+    "file": "kunbi-saree-6.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-saree-6.jpg",
+    "used_by": "Product: Kunbi Saree 6 (/product/kunbi-saree-6)",
+    "alt": "Kunbi Saree 6"
+  },
+  {
+    "file": "kunbi-saree-5.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-saree-5.jpg",
+    "used_by": "Product: Kunbi Saree 5 (/product/kunbi-saree-5)",
+    "alt": "Kunbi Saree 5"
+  },
+  {
+    "file": "kunbi-saree-4.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-saree-4.jpg",
+    "used_by": "Product: Kunbi Saree 4 (/product/kunbi-saree-4)",
+    "alt": "Kunbi Saree 4"
+  },
+  {
+    "file": "kunbi-saree-3.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-saree-3.jpg",
+    "used_by": "Product: Kunbi Saree 3 (/product/kunbi-saree-3)",
+    "alt": "Kunbi Saree 3"
+  },
+  {
+    "file": "kunbi-saree-2.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-saree-2.jpg",
+    "used_by": "Product: Kunbi Saree 2 (/product/kunbi-saree-2)",
+    "alt": "Kunbi Saree 2"
+  },
+  {
+    "file": "kunbi-saree-1.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-saree-1.jpg",
+    "used_by": "Product: Kunbi Saree 1 (/product/kunbi-saree-1)",
+    "alt": "Kunbi Saree 1"
+  },
+  {
+    "file": "mitti-vases-8211-medium.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-vases-8211-medium.jpg",
+    "used_by": "Product: Mitti Vases &#8211; Medium (/product/mitti-vases-8211-medium)",
+    "alt": "Mitti Vases &#8211; Medium"
+  },
+  {
+    "file": "mitti-vases-8211-small.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-vases-8211-small.jpg",
+    "used_by": "Product: Mitti Vases &#8211; Small (/product/mitti-vases-8211-small)",
+    "alt": "Mitti Vases &#8211; Small"
+  },
+  {
+    "file": "mitti-suraahi.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-suraahi.jpg",
+    "used_by": "Product: Mitti Suraahi (/product/mitti-suraahi)",
+    "alt": "Mitti Suraahi"
+  },
+  {
+    "file": "mitti-plate.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-plate.jpg",
+    "used_by": "Product: Mitti Plate (/product/mitti-plate)",
+    "alt": "Mitti Plate"
+  },
+  {
+    "file": "mitti-mug.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-mug.jpg",
+    "used_by": "Product: Mitti Mug (/product/mitti-mug)",
+    "alt": "Mitti Mug"
+  },
+  {
+    "file": "mitti-kullad.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-kullad.jpg",
+    "used_by": "Product: Mitti Kullad (/product/mitti-kullad)",
+    "alt": "Mitti Kullad"
+  },
+  {
+    "file": "mitti-candle-holder.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-candle-holder.jpg",
+    "used_by": "Product: Mitti Candle Holder (/product/mitti-candle-holder)",
+    "alt": "Mitti Candle Holder"
+  },
+  {
+    "file": "mitti-foot-scrubber.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-foot-scrubber.jpg",
+    "used_by": "Product: Mitti Foot Scrubber (/product/mitti-foot-scrubber)",
+    "alt": "Mitti Foot Scrubber"
+  },
+  {
+    "file": "mitti-fish-ashtray.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-fish-ashtray.jpg",
+    "used_by": "Product: Mitti Fish Ashtray (/product/mitti-fish-ashtray)",
+    "alt": "Mitti Fish Ashtray"
+  },
+  {
+    "file": "mitti-dhoop-holder.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-dhoop-holder.jpg",
+    "used_by": "Product: Mitti Dhoop Holder (/product/mitti-dhoop-holder)",
+    "alt": "Mitti Dhoop Holder"
+  },
+  {
+    "file": "mitti-curd-pot.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-curd-pot.jpg",
+    "used_by": "Product: Mitti Curd Pot (/product/mitti-curd-pot)",
+    "alt": "Mitti Curd Pot"
+  },
+  {
+    "file": "mitti-cup.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-cup.jpg",
+    "used_by": "Product: Mitti Cup (/product/mitti-cup)",
+    "alt": "Mitti Cup"
+  },
+  {
+    "file": "mitti-cooking-pot.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-cooking-pot.jpg",
+    "used_by": "Product: Mitti Cooking Pot (/product/mitti-cooking-pot)",
+    "alt": "Mitti Cooking Pot"
+  },
+  {
+    "file": "mitti-bottle-1-litre.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-bottle-1-litre.jpg",
+    "used_by": "Product: Mitti Bottle 1 litre (/product/mitti-bottle-1-litre)",
+    "alt": "Mitti Bottle 1 litre"
+  },
+  {
+    "file": "goan-themed-cloth-bags.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-themed-cloth-bags.jpg",
+    "used_by": "Product: Goan-themed Cloth Bags (/product/goan-themed-cloth-bags)",
+    "alt": "Goan-themed Cloth Bags"
+  },
+  {
+    "file": "dried-sungta-150-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dried-sungta-150-grams.jpg",
+    "used_by": "Product: Dried Sungta 150 grams (/product/dried-sungta-150-grams)",
+    "alt": "Dried Sungta 150 grams"
+  },
+  {
+    "file": "dried-khaapi-150-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dried-khaapi-150-grams.jpg",
+    "used_by": "Product: Dried Khaapi 150 grams (/product/dried-khaapi-150-grams)",
+    "alt": "Dried Khaapi 150 grams"
+  },
+  {
+    "file": "dried-gaalmo-150-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dried-gaalmo-150-grams.jpg",
+    "used_by": "Product: Dried Gaalmo 150 grams (/product/dried-gaalmo-150-grams)",
+    "alt": "Dried Gaalmo 150 grams"
+  },
+  {
+    "file": "dried-bombil-fish-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dried-bombil-fish-100-grams.jpg",
+    "used_by": "Product: Dried Bombil Fish 100 grams (/product/dried-bombil-fish-100-grams)",
+    "alt": "Dried Bombil Fish 100 grams"
+  },
+  {
+    "file": "dried-bangda-fish-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dried-bangda-fish-200-grams.jpg",
+    "used_by": "Product: Dried Bangda Fish 200 grams (/product/dried-bangda-fish-200-grams)",
+    "alt": "Dried Bangda Fish 200 grams"
+  },
+  {
+    "file": "pineapple-jam-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pineapple-jam-250-grams.jpg",
+    "used_by": "Product: Pineapple Jam 250 grams (/product/pineapple-jam-250-grams)",
+    "alt": "Pineapple Jam 250 grams"
+  },
+  {
+    "file": "raw-mango-jam-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/raw-mango-jam-250-grams.jpg",
+    "used_by": "Product: Raw Mango Jam 250 grams (/product/raw-mango-jam-250-grams)",
+    "alt": "Raw Mango Jam 250 grams"
+  },
+  {
+    "file": "coconut-garlic-chutney-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-garlic-chutney-100-grams.jpg",
+    "used_by": "Product: Coconut Garlic Chutney 100 grams (/product/coconut-garlic-chutney-100-grams)",
+    "alt": "Coconut Garlic Chutney 100 grams"
+  },
+  {
+    "file": "coconut-cashew-chutney-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-cashew-chutney-100-grams.jpg",
+    "used_by": "Product: Coconut Cashew Chutney 100 grams (/product/coconut-cashew-chutney-100-grams)",
+    "alt": "Coconut Cashew Chutney 100 grams"
+  },
+  {
+    "file": "white-chawli-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/white-chawli-200-grams.jpg",
+    "used_by": "Product: White Chawli 200 grams (/product/white-chawli-200-grams)",
+    "alt": "White Chawli 200 grams"
+  },
+  {
+    "file": "ukda-taandul-1-kg.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/ukda-taandul-1-kg.jpg",
+    "used_by": "Product: Ukda Taandul 1 kg (/product/ukda-taandul-1-kg)",
+    "alt": "Ukda Taandul 1 kg"
+  },
+  {
+    "file": "raagi-millet-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/raagi-millet-500-grams.jpg",
+    "used_by": "Product: Raagi Millet 500 grams (/product/raagi-millet-500-grams)",
+    "alt": "Raagi Millet 500 grams"
+  },
+  {
+    "file": "raagi-atta-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/raagi-atta-500-grams.jpg",
+    "used_by": "Product: Raagi Atta 500 grams (/product/raagi-atta-500-grams)",
+    "alt": "Raagi Atta 500 grams"
+  },
+  {
+    "file": "pohe-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pohe-250-grams.jpg",
+    "used_by": "Product: Pohe 250 grams (/product/pohe-250-grams)",
+    "alt": "Pohe 250 grams"
+  },
+  {
+    "file": "kulith-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kulith-200-grams.jpg",
+    "used_by": "Product: Kulith 200 grams (/product/kulith-200-grams)",
+    "alt": "Kulith 200 grams"
+  },
+  {
+    "file": "brown-taandul-1-kg.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/brown-taandul-1-kg.jpg",
+    "used_by": "Product: Brown Taandul 1 Kg (/product/brown-taandul-1-kg)",
+    "alt": "Brown Taandul 1 Kg"
+  },
+  {
+    "file": "alsaande-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/alsaande-200-grams.jpg",
+    "used_by": "Product: Alsaande 200 grams (/product/alsaande-200-grams)",
+    "alt": "Alsaande 200 grams"
+  },
+  {
+    "file": "coconut-shell-spoon-8211-large.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-shell-spoon-8211-large.jpg",
+    "used_by": "Product: Coconut Shell Spoon &#8211; Large (/product/coconut-shell-spoon-8211-large)",
+    "alt": "Coconut Shell Spoon &#8211; Large"
+  },
+  {
+    "file": "wooden-lotus-candle-holder.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/wooden-lotus-candle-holder.jpg",
+    "used_by": "Product: Wooden Lotus Candle Holder (/product/wooden-lotus-candle-holder)",
+    "alt": "Wooden Lotus Candle Holder"
+  },
+  {
+    "file": "wooden-flower-candle-holder.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/wooden-flower-candle-holder.jpg",
+    "used_by": "Product: Wooden Flower Candle Holder (/product/wooden-flower-candle-holder)",
+    "alt": "Wooden Flower Candle Holder"
+  },
+  {
+    "file": "whelks-shells.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/whelks-shells.jpg",
+    "used_by": "Product: Whelks Shells (/product/whelks-shells)",
+    "alt": "Whelks Shells"
+  },
+  {
+    "file": "shell-tortoise--large.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-tortoise--large.jpg",
+    "used_by": "Product: Shell Tortoise- Large (/product/shell-tortoise--large)",
+    "alt": "Shell Tortoise- Large"
+  },
+  {
+    "file": "shell-tortoise--medium.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-tortoise--medium.jpg",
+    "used_by": "Product: Shell Tortoise- Medium (/product/shell-tortoise--medium)",
+    "alt": "Shell Tortoise- Medium"
+  },
+  {
+    "file": "shell-tortoise--small.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-tortoise--small.jpg",
+    "used_by": "Product: Shell Tortoise- Small (/product/shell-tortoise--small)",
+    "alt": "Shell Tortoise- Small"
+  },
+  {
+    "file": "shell-toothpicks.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-toothpicks.jpg",
+    "used_by": "Product: Shell Toothpicks (/product/shell-toothpicks)",
+    "alt": "Shell Toothpicks"
+  },
+  {
+    "file": "shell-skewers.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-skewers.jpg",
+    "used_by": "Product: Shell Skewers (/product/shell-skewers)",
+    "alt": "Shell Skewers"
+  },
+  {
+    "file": "shell-rooster.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-rooster.jpg",
+    "used_by": "Product: Shell Rooster (/product/shell-rooster)",
+    "alt": "Shell Rooster"
+  },
+  {
+    "file": "shell-rabbit.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-rabbit.jpg",
+    "used_by": "Product: Shell Rabbit (/product/shell-rabbit)",
+    "alt": "Shell Rabbit"
+  },
+  {
+    "file": "shell-peacock.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-peacock.jpg",
+    "used_by": "Product: Shell Peacock (/product/shell-peacock)",
+    "alt": "Shell Peacock"
+  },
+  {
+    "file": "shell-mirror--round.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-mirror--round.jpg",
+    "used_by": "Product: Shell Mirror- Round (/product/shell-mirror--round)",
+    "alt": "Shell Mirror- Round"
+  },
+  {
+    "file": "shell-mirror--square.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-mirror--square.jpg",
+    "used_by": "Product: Shell Mirror- Square (/product/shell-mirror--square)",
+    "alt": "Shell Mirror- Square"
+  },
+  {
+    "file": "shell-lamp--round.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-lamp--round.jpg",
+    "used_by": "Product: Shell Lamp- Round (/product/shell-lamp--round)",
+    "alt": "Shell Lamp- Round"
+  },
+  {
+    "file": "shell-lamp--square.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-lamp--square.jpg",
+    "used_by": "Product: Shell Lamp- Square (/product/shell-lamp--square)",
+    "alt": "Shell Lamp- Square"
+  },
+  {
+    "file": "shell-keychain.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-keychain.jpg",
+    "used_by": "Product: Shell Keychain (/product/shell-keychain)",
+    "alt": "Shell Keychain"
+  },
+  {
+    "file": "shell-ganpati.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-ganpati.jpg",
+    "used_by": "Product: Shell Ganpati (/product/shell-ganpati)",
+    "alt": "Shell Ganpati"
+  },
+  {
+    "file": "shell-frog.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-frog.jpg",
+    "used_by": "Product: Shell Frog (/product/shell-frog)",
+    "alt": "Shell Frog"
+  },
+  {
+    "file": "shell-fisherwoman.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-fisherwoman.jpg",
+    "used_by": "Product: Shell Fisherwoman (/product/shell-fisherwoman)",
+    "alt": "Shell Fisherwoman"
+  },
+  {
+    "file": "shell-dog.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-dog.jpg",
+    "used_by": "Product: Shell Dog (/product/shell-dog)",
+    "alt": "Shell Dog"
+  },
+  {
+    "file": "shell-crane.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-crane.jpg",
+    "used_by": "Product: Shell Crane (/product/shell-crane)",
+    "alt": "Shell Crane"
+  },
+  {
+    "file": "shell-chopsticks.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-chopsticks.jpg",
+    "used_by": "Product: Shell Chopsticks (/product/shell-chopsticks)",
+    "alt": "Shell Chopsticks"
+  },
+  {
+    "file": "shell-birds.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shell-birds.jpg",
+    "used_by": "Product: Shell Birds (/product/shell-birds)",
+    "alt": "Shell Birds"
+  },
+  {
+    "file": "mud-rooster.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mud-rooster.jpg",
+    "used_by": "Product: Mud Rooster (/product/mud-rooster)",
+    "alt": "Mud Rooster"
+  },
+  {
+    "file": "jute-pot-holder.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/jute-pot-holder.jpg",
+    "used_by": "Product: Jute Pot Holder (/product/jute-pot-holder)",
+    "alt": "Jute Pot Holder"
+  },
+  {
+    "file": "goan-themed-colourful-tiles.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-themed-colourful-tiles.jpg",
+    "used_by": "Product: Goan-themed Colourful Tiles (/product/goan-themed-colourful-tiles)",
+    "alt": "Goan-themed Colourful Tiles"
+  },
+  {
+    "file": "goan-themed-colourful-mugs.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-themed-colourful-mugs.jpg",
+    "used_by": "Product: Goan-themed Colourful Mugs (/product/goan-themed-colourful-mugs)",
+    "alt": "Goan-themed Colourful Mugs"
+  },
+  {
+    "file": "goan-themed-blue-tiles.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-themed-blue-tiles.jpg",
+    "used_by": "Product: Goan-themed Blue Tiles (/product/goan-themed-blue-tiles)",
+    "alt": "Goan-themed Blue Tiles"
+  },
+  {
+    "file": "goan-recipe-book.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-recipe-book.jpg",
+    "used_by": "Product: Goan Recipe Book (/product/goan-recipe-book)",
+    "alt": "Goan Recipe Book"
+  },
+  {
+    "file": "goan-painting-four.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-painting-four.jpg",
+    "used_by": "Product: Goan Painting Four (/product/goan-painting-four)",
+    "alt": "Goan Painting Four"
+  },
+  {
+    "file": "goan-painting-three.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-painting-three.jpg",
+    "used_by": "Product: Goan Painting Three (/product/goan-painting-three)",
+    "alt": "Goan Painting Three"
+  },
+  {
+    "file": "goan-painting-two.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-painting-two.jpg",
+    "used_by": "Product: Goan Painting Two (/product/goan-painting-two)",
+    "alt": "Goan Painting Two"
+  },
+  {
+    "file": "goan-painting-one.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-painting-one.jpg",
+    "used_by": "Product: Goan Painting One (/product/goan-painting-one)",
+    "alt": "Goan Painting One"
+  },
+  {
+    "file": "mud-statue-of-fisherwoman.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mud-statue-of-fisherwoman.jpg",
+    "used_by": "Product: Mud Statue of Fisherwoman (/product/mud-statue-of-fisherwoman)",
+    "alt": "Mud Statue of Fisherwoman"
+  },
+  {
+    "file": "cowrie-shells.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cowrie-shells.jpg",
+    "used_by": "Product: Cowrie Shells (/product/cowrie-shells)",
+    "alt": "Cowrie Shells"
+  },
+  {
+    "file": "conche-shells.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/conche-shells.jpg",
+    "used_by": "Product: Conche Shells (/product/conche-shells)",
+    "alt": "Conche Shells"
+  },
+  {
+    "file": "colourful-mud-rooster.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/colourful-mud-rooster.jpg",
+    "used_by": "Product: Colourful Mud Rooster (/product/colourful-mud-rooster)",
+    "alt": "Colourful Mud Rooster"
+  },
+  {
+    "file": "coconut-shell-spoon--small.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-shell-spoon--small.jpg",
+    "used_by": "Product: Coconut Shell Spoon- Small (/product/coconut-shell-spoon--small)",
+    "alt": "Coconut Shell Spoon- Small"
+  },
+  {
+    "file": "cane-soop.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cane-soop.jpg",
+    "used_by": "Product: Cane Soop (/product/cane-soop)",
+    "alt": "Cane Soop"
+  },
+  {
+    "file": "cane-paatlo.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cane-paatlo.jpg",
+    "used_by": "Product: Cane Paatlo (/product/cane-paatlo)",
+    "alt": "Cane Paatlo"
+  },
+  {
+    "file": "old-goa-virgin-coconut-body-oil--lanvendar-200ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/old-goa-virgin-coconut-body-oil--lanvendar-200ml.jpg",
+    "used_by": "Product: Old Goa Virgin Coconut Body Oil- Lanvendar 200ml (/product/old-goa-virgin-coconut-body-oil--lanvendar-200ml)",
+    "alt": "Old Goa Virgin Coconut Body Oil- Lanvendar 200ml"
+  },
+  {
+    "file": "old-goa-virgin-coconut-body-oil--english-rose-200ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/old-goa-virgin-coconut-body-oil--english-rose-200ml.jpg",
+    "used_by": "Product: Old Goa Virgin Coconut Body Oil- English Rose 200ml (/product/old-goa-virgin-coconut-body-oil--english-rose-200ml)",
+    "alt": "Old Goa Virgin Coconut Body Oil- English Rose 200ml"
+  },
+  {
+    "file": "epsom-salts-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/epsom-salts-100-grams.jpg",
+    "used_by": "Product: Epsom Salts 100 grams (/product/epsom-salts-100-grams)",
+    "alt": "Epsom Salts 100 grams"
+  },
+  {
+    "file": "paaripat-30-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/paaripat-30-grams.jpg",
+    "used_by": "Product: Paaripat 30 grams (/product/paaripat-30-grams)",
+    "alt": "Paaripat 30 grams"
+  },
+  {
+    "file": "kokum-butter-per-piece.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kokum-butter-per-piece.jpg",
+    "used_by": "Product: Kokum Butter per piece (/product/kokum-butter-per-piece)",
+    "alt": "Kokum Butter per piece"
+  },
+  {
+    "file": "kodu-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kodu-50-grams.jpg",
+    "used_by": "Product: Kodu 50 grams (/product/kodu-50-grams)",
+    "alt": "Kodu 50 grams"
+  },
+  {
+    "file": "kiraayte-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kiraayte-50-grams.jpg",
+    "used_by": "Product: Kiraayte 50 grams (/product/kiraayte-50-grams)",
+    "alt": "Kiraayte 50 grams"
+  },
+  {
+    "file": "handmade-soap--besan.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/handmade-soap--besan.jpg",
+    "used_by": "Product: Handmade Soap- Besan (/product/handmade-soap--besan)",
+    "alt": "Handmade Soap- Besan"
+  },
+  {
+    "file": "handmade-soap--besan.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/handmade-soap--besan.jpg",
+    "used_by": "Product: Handmade Soap- Charcoal (/product/handmade-soap--charcoal)",
+    "alt": "Handmade Soap- Charcoal"
+  },
+  {
+    "file": "handmade-soap--besan.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/handmade-soap--besan.jpg",
+    "used_by": "Product: Handmade Soap- Neem (/product/handmade-soap--neem)",
+    "alt": "Handmade Soap- Neem"
+  },
+  {
+    "file": "dhoop.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dhoop.jpg",
+    "used_by": "Product: Dhoop (/product/dhoop)",
+    "alt": "Dhoop"
+  },
+  {
+    "file": "cow-dung-diyas-10-pieces.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cow-dung-diyas-10-pieces.jpg",
+    "used_by": "Product: Cow dung Diyas 10 pieces (/product/cow-dung-diyas-10-pieces)",
+    "alt": "Cow dung Diyas 10 pieces"
+  },
+  {
+    "file": "bath-salts--rose-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bath-salts--rose-500-grams.jpg",
+    "used_by": "Product: Bath Salts- Rose 500 grams (/product/bath-salts--rose-500-grams)",
+    "alt": "Bath Salts- Rose 500 grams"
+  },
+  {
+    "file": "bath-salts--lotus-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bath-salts--lotus-500-grams.jpg",
+    "used_by": "Product: Bath Salts- Lotus 500 grams (/product/bath-salts--lotus-500-grams)",
+    "alt": "Bath Salts- Lotus 500 grams"
+  },
+  {
+    "file": "bath-salts--lavender-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bath-salts--lavender-500-grams.jpg",
+    "used_by": "Product: Bath Salts- Lavender 500 grams (/product/bath-salts--lavender-500-grams)",
+    "alt": "Bath Salts- Lavender 500 grams"
+  },
+  {
+    "file": "bath-salts--coffee-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bath-salts--coffee-500-grams.jpg",
+    "used_by": "Product: Bath Salts- Coffee 500 grams (/product/bath-salts--coffee-500-grams)",
+    "alt": "Bath Salts- Coffee 500 grams"
+  },
+  {
+    "file": "bath-salts-sandalwood-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bath-salts-sandalwood-500-grams.jpg",
+    "used_by": "Product: Bath Salts – Sandalwood 500 grams (/product/bath-salts-sandalwood-500-grams)",
+    "alt": "Bath Salts – Sandalwood 500 grams"
+  },
+  {
+    "file": "agarbatti-8211-sandalwood-80-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/agarbatti-8211-sandalwood-80-grams.jpg",
+    "used_by": "Product: Agarbatti &#8211; Sandalwood 80 grams (/product/agarbatti-8211-sandalwood-80-grams)",
+    "alt": "Agarbatti &#8211; Sandalwood 80 grams"
+  },
+  {
+    "file": "agarbatti-8211-sandalwood-80-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/agarbatti-8211-sandalwood-80-grams.jpg",
+    "used_by": "Product: Agarbatti – Lavender 80 grams (/product/agarbatti-lavender-80-grams)",
+    "alt": "Agarbatti – Lavender 80 grams"
+  },
+  {
+    "file": "agarbatti-8211-sandalwood-80-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/agarbatti-8211-sandalwood-80-grams.jpg",
+    "used_by": "Product: Agarbatti- Musk 80 grams (/product/agarbatti--musk-80-grams)",
+    "alt": "Agarbatti- Musk 80 grams"
+  },
+  {
+    "file": "crop-xacuti-masala-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-xacuti-masala-100-grams.jpg",
+    "used_by": "Product: Crop Xacuti Masala 100 grams (/product/crop-xacuti-masala-100-grams)",
+    "alt": "Crop Xacuti Masala 100 grams"
+  },
+  {
+    "file": "crop-sorpotel-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-sorpotel-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Sorpotel Masala Powder 100 grams (/product/crop-sorpotel-masala-powder-100-grams)",
+    "alt": "Crop Sorpotel Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-samarachi-kodi-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-samarachi-kodi-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Samarachi Kodi Masala Powder 100 grams (/product/crop-samarachi-kodi-masala-powder-100-grams)",
+    "alt": "Crop Samarachi Kodi Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-peri-peri-mix-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-peri-peri-mix-100-grams.jpg",
+    "used_by": "Product: Crop Peri Peri Mix 100 grams (/product/crop-peri-peri-mix-100-grams)",
+    "alt": "Crop Peri Peri Mix 100 grams"
+  },
+  {
+    "file": "crop-mutton-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-mutton-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Mutton Masala Powder 100 grams (/product/crop-mutton-masala-powder-100-grams)",
+    "alt": "Crop Mutton Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-goan-curry-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-goan-curry-powder-100-grams.jpg",
+    "used_by": "Product: Crop Goan Curry Powder 100 grams (/product/crop-goan-curry-powder-100-grams)",
+    "alt": "Crop Goan Curry Powder 100 grams"
+  },
+  {
+    "file": "crop-fish-fry-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-fish-fry-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Fish Fry Masala Powder 100 grams (/product/crop-fish-fry-masala-powder-100-grams)",
+    "alt": "Crop Fish Fry Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-fish-curry-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-fish-curry-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Fish Curry Masala Powder 100 grams (/product/crop-fish-curry-masala-powder-100-grams)",
+    "alt": "Crop Fish Curry Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-crab-xec-xec-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-crab-xec-xec-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Crab Xec Xec Masala Powder 100 grams (/product/crop-crab-xec-xec-masala-powder-100-grams)",
+    "alt": "Crop Crab Xec Xec Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-chicken-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-chicken-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Chicken Masala Powder 100 grams (/product/crop-chicken-masala-powder-100-grams)",
+    "alt": "Crop Chicken Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-caldine-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-caldine-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Caldine Masala Powder 100 grams (/product/crop-caldine-masala-powder-100-grams)",
+    "alt": "Crop Caldine Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-cafreal-masala-mix-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-cafreal-masala-mix-100-grams.jpg",
+    "used_by": "Product: Crop Cafreal Masala Mix 100 grams (/product/crop-cafreal-masala-mix-100-grams)",
+    "alt": "Crop Cafreal Masala Mix 100 grams"
+  },
+  {
+    "file": "crop-balchao-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-balchao-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Balchao Masala Powder 100 grams (/product/crop-balchao-masala-powder-100-grams)",
+    "alt": "Crop Balchao Masala Powder 100 grams"
+  },
+  {
+    "file": "crop-ambot-tik-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-ambot-tik-masala-powder-100-grams.jpg",
+    "used_by": "Product: Crop Ambot Tik Masala Powder 100 grams (/product/crop-ambot-tik-masala-powder-100-grams)",
+    "alt": "Crop Ambot Tik Masala Powder 100 grams"
+  },
+  {
+    "file": "udda-methi-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/udda-methi-powder-250-grams.jpg",
+    "used_by": "Product: Udda Methi Powder 250 grams (/product/udda-methi-powder-250-grams)",
+    "alt": "Udda Methi Powder 250 grams"
+  },
+  {
+    "file": "sorpotel-masala-paste-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/sorpotel-masala-paste-250-grams.jpg",
+    "used_by": "Product: Sorpotel Masala Paste 250 grams (/product/sorpotel-masala-paste-250-grams)",
+    "alt": "Sorpotel Masala Paste 250 grams"
+  },
+  {
+    "file": "samarachi-koddi-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/samarachi-koddi-powder-250-grams.jpg",
+    "used_by": "Product: Samarachi Koddi Powder 250 grams (/product/samarachi-koddi-powder-250-grams)",
+    "alt": "Samarachi Koddi Powder 250 grams"
+  },
+  {
+    "file": "rechado-masala-paste-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/rechado-masala-paste-500-grams.jpg",
+    "used_by": "Product: Rechado Masala Paste 500 grams (/product/rechado-masala-paste-500-grams)",
+    "alt": "Rechado Masala Paste 500 grams"
+  },
+  {
+    "file": "prawn-curry-masala-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/prawn-curry-masala-powder-250-grams.jpg",
+    "used_by": "Product: Prawn Curry Masala Powder 250 grams (/product/prawn-curry-masala-powder-250-grams)",
+    "alt": "Prawn Curry Masala Powder 250 grams"
+  },
+  {
+    "file": "pork-vindaloo-masala-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pork-vindaloo-masala-powder-250-grams.jpg",
+    "used_by": "Product: Pork Vindaloo Masala Powder 250 grams (/product/pork-vindaloo-masala-powder-250-grams)",
+    "alt": "Pork Vindaloo Masala Powder 250 grams"
+  },
+  {
+    "file": "pork-roast-masala-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pork-roast-masala-powder-250-grams.jpg",
+    "used_by": "Product: Pork Roast Masala Powder 250 grams (/product/pork-roast-masala-powder-250-grams)",
+    "alt": "Pork Roast Masala Powder 250 grams"
+  },
+  {
+    "file": "pork-curry-masala-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pork-curry-masala-powder-250-grams.jpg",
+    "used_by": "Product: Pork Curry Masala Powder 250 grams (/product/pork-curry-masala-powder-250-grams)",
+    "alt": "Pork Curry Masala Powder 250 grams"
+  },
+  {
+    "file": "fish-fry-masala-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/fish-fry-masala-powder-250-grams.jpg",
+    "used_by": "Product: Fish Fry Masala Powder 250 grams (/product/fish-fry-masala-powder-250-grams)",
+    "alt": "Fish Fry Masala Powder 250 grams"
+  },
+  {
+    "file": "fish-curry-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/fish-curry-powder-250-grams.jpg",
+    "used_by": "Product: Fish Curry Powder 250 grams (/product/fish-curry-powder-250-grams)",
+    "alt": "Fish Curry Powder 250 grams"
+  },
+  {
+    "file": "fish-curry-masala-powder-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/fish-curry-masala-powder-200-grams.jpg",
+    "used_by": "Product: Fish Curry Masala Powder 200 grams (/product/fish-curry-masala-powder-200-grams)",
+    "alt": "Fish Curry Masala Powder 200 grams"
+  },
+  {
+    "file": "chicken-xacuti-masala-powder-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/chicken-xacuti-masala-powder-200-grams.jpg",
+    "used_by": "Product: Chicken Xacuti Masala Powder 200 grams (/product/chicken-xacuti-masala-powder-200-grams)",
+    "alt": "Chicken Xacuti Masala Powder 200 grams"
+  },
+  {
+    "file": "chicken-roast-masala-powder.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/chicken-roast-masala-powder.jpg",
+    "used_by": "Product: Chicken Roast Masala Powder (/product/chicken-roast-masala-powder)",
+    "alt": "Chicken Roast Masala Powder"
+  },
+  {
+    "file": "caldine-masala-powder-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/caldine-masala-powder-100-grams.jpg",
+    "used_by": "Product: Caldine Masala Powder 100 grams (/product/caldine-masala-powder-100-grams)",
+    "alt": "Caldine Masala Powder 100 grams"
+  },
+  {
+    "file": "cafreal-masala-paste-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cafreal-masala-paste-250-grams.jpg",
+    "used_by": "Product: Cafreal Masala Paste 250 grams (/product/cafreal-masala-paste-250-grams)",
+    "alt": "Cafreal Masala Paste 250 grams"
+  },
+  {
+    "file": "balchao-masala-paste-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/balchao-masala-paste-250-grams.jpg",
+    "used_by": "Product: Balchao Masala Paste 250 grams (/product/balchao-masala-paste-250-grams)",
+    "alt": "Balchao Masala Paste 250 grams"
+  },
+  {
+    "file": "ambot-tik-masala-paste-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/ambot-tik-masala-paste-250-grams.jpg",
+    "used_by": "Product: Ambot Tik Masala Paste 250 grams (/product/ambot-tik-masala-paste-250-grams)",
+    "alt": "Ambot Tik Masala Paste 250 grams"
+  },
+  {
+    "file": "wheat-sheviyo-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/wheat-sheviyo-100-grams.jpg",
+    "used_by": "Product: Wheat Sheviyo 100 grams (/product/wheat-sheviyo-100-grams)",
+    "alt": "Wheat Sheviyo 100 grams"
+  },
+  {
+    "file": "onion-vaddiyo-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/onion-vaddiyo-100-grams.jpg",
+    "used_by": "Product: Onion Vaddiyo 100 grams (/product/onion-vaddiyo-100-grams)",
+    "alt": "Onion Vaddiyo 100 grams"
+  },
+  {
+    "file": "kuwaale-vaddiyo-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kuwaale-vaddiyo-100-grams.jpg",
+    "used_by": "Product: Kuwaale Vaddiyo 100 grams (/product/kuwaale-vaddiyo-100-grams)",
+    "alt": "Kuwaale Vaddiyo 100 grams"
+  },
+  {
+    "file": "tomato-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/tomato-papad-50-grams.jpg",
+    "used_by": "Product: Tomato Papad 50 grams (/product/tomato-papad-50-grams)",
+    "alt": "Tomato Papad 50 grams"
+  },
+  {
+    "file": "star-taarvoti-papad-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/star-taarvoti-papad-200-grams.jpg",
+    "used_by": "Product: Star Taarvoti Papad 200 grams (/product/star-taarvoti-papad-200-grams)",
+    "alt": "Star Taarvoti Papad 200 grams"
+  },
+  {
+    "file": "spinach-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/spinach-papad-50-grams.jpg",
+    "used_by": "Product: Spinach Papad 50 grams (/product/spinach-papad-50-grams)",
+    "alt": "Spinach Papad 50 grams"
+  },
+  {
+    "file": "sabudana-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/sabudana-papad-50-grams.jpg",
+    "used_by": "Product: Sabudana Papad 50 grams (/product/sabudana-papad-50-grams)",
+    "alt": "Sabudana Papad 50 grams"
+  },
+  {
+    "file": "rice-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/rice-papad-50-grams.jpg",
+    "used_by": "Product: Rice Papad 50 grams (/product/rice-papad-50-grams)",
+    "alt": "Rice Papad 50 grams"
+  },
+  {
+    "file": "red-chilli-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/red-chilli-papad-50-grams.jpg",
+    "used_by": "Product: Red Chilli Papad 50 grams (/product/red-chilli-papad-50-grams)",
+    "alt": "Red Chilli Papad 50 grams"
+  },
+  {
+    "file": "jeera-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/jeera-papad-50-grams.jpg",
+    "used_by": "Product: Jeera Papad 50 grams (/product/jeera-papad-50-grams)",
+    "alt": "Jeera Papad 50 grams"
+  },
+  {
+    "file": "green-chilli-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/green-chilli-papad-50-grams.jpg",
+    "used_by": "Product: Green Chilli Papad 50 grams (/product/green-chilli-papad-50-grams)",
+    "alt": "Green Chilli Papad 50 grams"
+  },
+  {
+    "file": "garlic-papad-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/garlic-papad-50-grams.jpg",
+    "used_by": "Product: Garlic Papad 50 grams (/product/garlic-papad-50-grams)",
+    "alt": "Garlic Papad 50 grams"
+  },
+  {
+    "file": "water-mango-pickle-300-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/water-mango-pickle-300-grams.jpg",
+    "used_by": "Product: Water Mango Pickle 300 grams (/product/water-mango-pickle-300-grams)",
+    "alt": "Water Mango Pickle 300 grams"
+  },
+  {
+    "file": "tendli-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/tendli-pickle-200-grams.jpg",
+    "used_by": "Product: Tendli Pickle 200 grams (/product/tendli-pickle-200-grams)",
+    "alt": "Tendli Pickle 200 grams"
+  },
+  {
+    "file": "stuffed-mango-pickle-300-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/stuffed-mango-pickle-300-grams.jpg",
+    "used_by": "Product: Stuffed Mango Pickle 300 grams (/product/stuffed-mango-pickle-300-grams)",
+    "alt": "Stuffed Mango Pickle 300 grams"
+  },
+  {
+    "file": "starfruit-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/starfruit-pickle-200-grams.jpg",
+    "used_by": "Product: Starfruit Pickle 200 grams (/product/starfruit-pickle-200-grams)",
+    "alt": "Starfruit Pickle 200 grams"
+  },
+  {
+    "file": "prawn-balchao-pickle-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/prawn-balchao-pickle-250-grams.jpg",
+    "used_by": "Product: Prawn Balchao Pickle 250 grams (/product/prawn-balchao-pickle-250-grams)",
+    "alt": "Prawn Balchao Pickle 250 grams"
+  },
+  {
+    "file": "mango-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mango-pickle-200-grams.jpg",
+    "used_by": "Product: Mango Pickle 200 grams (/product/mango-pickle-200-grams)",
+    "alt": "Mango Pickle 200 grams"
+  },
+  {
+    "file": "mackarel-mol-pickle-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mackarel-mol-pickle-250-grams.jpg",
+    "used_by": "Product: Mackarel Mol Pickle 250 grams (/product/mackarel-mol-pickle-250-grams)",
+    "alt": "Mackarel Mol Pickle 250 grams"
+  },
+  {
+    "file": "lemon-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/lemon-pickle-200-grams.jpg",
+    "used_by": "Product: Lemon Pickle 200 grams (/product/lemon-pickle-200-grams)",
+    "alt": "Lemon Pickle 200 grams"
+  },
+  {
+    "file": "kingfish-balchao-pickle-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kingfish-balchao-pickle-250-grams.jpg",
+    "used_by": "Product: Kingfish Balchao Pickle 250 grams (/product/kingfish-balchao-pickle-250-grams)",
+    "alt": "Kingfish Balchao Pickle 250 grams"
+  },
+  {
+    "file": "jackfruit-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/jackfruit-pickle-200-grams.jpg",
+    "used_by": "Product: Jackfruit Pickle 200 grams (/product/jackfruit-pickle-200-grams)",
+    "alt": "Jackfruit Pickle 200 grams"
+  },
+  {
+    "file": "fresh-turmeric-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/fresh-turmeric-pickle-200-grams.jpg",
+    "used_by": "Product: Fresh Turmeric Pickle 200 grams (/product/fresh-turmeric-pickle-200-grams)",
+    "alt": "Fresh Turmeric Pickle 200 grams"
+  },
+  {
+    "file": "chilli-lemon-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/chilli-lemon-pickle-200-grams.jpg",
+    "used_by": "Product: Chilli Lemon Pickle 200 grams (/product/chilli-lemon-pickle-200-grams)",
+    "alt": "Chilli Lemon Pickle 200 grams"
+  },
+  {
+    "file": "brinjal-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/brinjal-pickle-200-grams.jpg",
+    "used_by": "Product: Brinjal Pickle 200 grams (/product/brinjal-pickle-200-grams)",
+    "alt": "Brinjal Pickle 200 grams"
+  },
+  {
+    "file": "bombil-pickle-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bombil-pickle-250-grams.jpg",
+    "used_by": "Product: Bombil Pickle 250 grams (/product/bombil-pickle-250-grams)",
+    "alt": "Bombil Pickle 250 grams"
+  },
+  {
+    "file": "bimbli-pickle-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bimbli-pickle-200-grams.jpg",
+    "used_by": "Product: Bimbli Pickle 200 grams (/product/bimbli-pickle-200-grams)",
+    "alt": "Bimbli Pickle 200 grams"
+  },
+  {
+    "file": "tirphal-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/tirphal-50-grams.jpg",
+    "used_by": "Product: Tirphal 50 grams (/product/tirphal-50-grams)",
+    "alt": "Tirphal 50 grams"
+  },
+  {
+    "file": "tamarind-salt-balls.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/tamarind-salt-balls.jpg",
+    "used_by": "Product: Tamarind Salt Balls (/product/tamarind-salt-balls)",
+    "alt": "Tamarind Salt Balls"
+  },
+  {
+    "file": "stuffed-curd-chilli.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/stuffed-curd-chilli.jpg",
+    "used_by": "Product: Stuffed Curd Chilli (/product/stuffed-curd-chilli)",
+    "alt": "Stuffed Curd Chilli"
+  },
+  {
+    "file": "pernem-red-chillies-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pernem-red-chillies-200-grams.jpg",
+    "used_by": "Product: Pernem Red Chillies 200 grams (/product/pernem-red-chillies-200-grams)",
+    "alt": "Pernem Red Chillies 200 grams"
+  },
+  {
+    "file": "mango-sola-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mango-sola-100-grams.jpg",
+    "used_by": "Product: Mango Sola 100 grams (/product/mango-sola-100-grams)",
+    "alt": "Mango Sola 100 grams"
+  },
+  {
+    "file": "mango-padde-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mango-padde-250-grams.jpg",
+    "used_by": "Product: Mango Padde 250 grams (/product/mango-padde-250-grams)",
+    "alt": "Mango Padde 250 grams"
+  },
+  {
+    "file": "kokum-sola-400-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kokum-sola-400-grams.jpg",
+    "used_by": "Product: Kokum Sola 400 grams (/product/kokum-sola-400-grams)",
+    "alt": "Kokum Sola 400 grams"
+  },
+  {
+    "file": "cold-pressed-virgin-coconut-oil-200-ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cold-pressed-virgin-coconut-oil-200-ml.jpg",
+    "used_by": "Product: Cold Pressed Virgin Coconut Oil 200 ml (/product/cold-pressed-virgin-coconut-oil-200-ml)",
+    "alt": "Cold Pressed Virgin Coconut Oil 200 ml"
+  },
+  {
+    "file": "curd-chilli.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/curd-chilli.jpg",
+    "used_by": "Product: Curd Chilli (/product/curd-chilli)",
+    "alt": "Curd Chilli"
+  },
+  {
+    "file": "narla-cold-pressed-virgin-coconut-oil-500ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/narla-cold-pressed-virgin-coconut-oil-500ml.jpg",
+    "used_by": "Product: Narla Cold Pressed Virgin Coconut Oil 500ml (/product/narla-cold-pressed-virgin-coconut-oil-500ml)",
+    "alt": "Narla Cold Pressed Virgin Coconut Oil 500ml"
+  },
+  {
+    "file": "old-goa-cold-pressed-coconut-oil-500ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/old-goa-cold-pressed-coconut-oil-500ml.jpg",
+    "used_by": "Product: Old Goa Cold Pressed Coconut Oil 500ml (/product/old-goa-cold-pressed-coconut-oil-500ml)",
+    "alt": "Old Goa Cold Pressed Coconut Oil 500ml"
+  },
+  {
+    "file": "coconut-jaggery-powder-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-jaggery-powder-250-grams.jpg",
+    "used_by": "Product: Coconut Jaggery Powder 250 grams (/product/coconut-jaggery-powder-250-grams)",
+    "alt": "Coconut Jaggery Powder 250 grams"
+  },
+  {
+    "file": "mulgao-verde-virgin-coconut-oil-250ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mulgao-verde-virgin-coconut-oil-250ml.jpg",
+    "used_by": "Product: Mulgao Verde Virgin Coconut Oil 250ml (/product/mulgao-verde-virgin-coconut-oil-250ml)",
+    "alt": "Mulgao Verde Virgin Coconut Oil 250ml"
+  },
+  {
+    "file": "mulgao-verde-virgin-coconut-oil-100ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mulgao-verde-virgin-coconut-oil-100ml.jpg",
+    "used_by": "Product: Mulgao Verde Virgin Coconut Oil 100ml (/product/mulgao-verde-virgin-coconut-oil-100ml)",
+    "alt": "Mulgao Verde Virgin Coconut Oil 100ml"
+  },
+  {
+    "file": "coconut-jaggery-blocks-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-jaggery-blocks-500-grams.jpg",
+    "used_by": "Product: Coconut Jaggery Blocks 500 grams (/product/coconut-jaggery-blocks-500-grams)",
+    "alt": "Coconut Jaggery Blocks 500 grams"
+  },
+  {
+    "file": "kokamrut-kokum-syrup-500-ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kokamrut-kokum-syrup-500-ml.jpg",
+    "used_by": "Product: Kokamrut Kokum Syrup 500 ml (/product/kokamrut-kokum-syrup-500-ml)",
+    "alt": "Kokamrut Kokum Syrup 500 ml"
+  },
+  {
+    "file": "black-pepper-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/black-pepper-50-grams.jpg",
+    "used_by": "Product: Black Pepper 50 grams (/product/black-pepper-50-grams)",
+    "alt": "Black Pepper 50 grams"
+  },
+  {
+    "file": "kokamrut-kokum-aagal-500-ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kokamrut-kokum-aagal-500-ml.jpg",
+    "used_by": "Product: Kokamrut Kokum Aagal 500 ml (/product/kokamrut-kokum-aagal-500-ml)",
+    "alt": "Kokamrut Kokum Aagal 500 ml"
+  },
+  {
+    "file": "fresh-kokum-aagal-500-ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/fresh-kokum-aagal-500-ml.jpg",
+    "used_by": "Product: Fresh Kokum Aagal 500 ml (/product/fresh-kokum-aagal-500-ml)",
+    "alt": "Fresh Kokum Aagal 500 ml"
+  },
+  {
+    "file": "atom-sola-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/atom-sola-50-grams.jpg",
+    "used_by": "Product: Atom Sola 50 grams (/product/atom-sola-50-grams)",
+    "alt": "Atom Sola 50 grams"
+  },
+  {
+    "file": "filtered-cooking-coconut-oil-500ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/filtered-cooking-coconut-oil-500ml.jpg",
+    "used_by": "Product: Filtered Cooking Coconut Oil 500ml (/product/filtered-cooking-coconut-oil-500ml)",
+    "alt": "Filtered Cooking Coconut Oil 500ml"
+  },
+  {
+    "file": "filtered-cooking-coconut-oil-200ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/filtered-cooking-coconut-oil-200ml.jpg",
+    "used_by": "Product: Filtered Cooking Coconut Oil 200ml (/product/filtered-cooking-coconut-oil-200ml)",
+    "alt": "Filtered Cooking Coconut Oil 200ml"
+  },
+  {
+    "file": "extra-virgin-coconut-oil-250ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/extra-virgin-coconut-oil-250ml.jpg",
+    "used_by": "Product: Extra Virgin Coconut Oil 250ml (/product/extra-virgin-coconut-oil-250ml)",
+    "alt": "Extra Virgin Coconut Oil 250ml"
+  },
+  {
+    "file": "desi-cow-ghee-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/desi-cow-ghee-500-grams.jpg",
+    "used_by": "Product: Desi Cow Ghee 500 grams (/product/desi-cow-ghee-500-grams)",
+    "alt": "Desi Cow Ghee 500 grams"
+  },
+  {
+    "file": "coconut-vinegar-500-ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-vinegar-500-ml.jpg",
+    "used_by": "Product: Coconut Vinegar 500 ml (/product/coconut-vinegar-500-ml)",
+    "alt": "Coconut Vinegar 500 ml"
+  },
+  {
+    "file": "cashew-vinegar-700-ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cashew-vinegar-700-ml.jpg",
+    "used_by": "Product: Cashew Vinegar 700 ml (/product/cashew-vinegar-700-ml)",
+    "alt": "Cashew Vinegar 700 ml"
+  },
+  {
+    "file": "mango-saat.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mango-saat.jpg",
+    "used_by": "Product: Mango Saat (/product/mango-saat)",
+    "alt": "Mango Saat"
+  },
+  {
+    "file": "mango-bites.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mango-bites.jpg",
+    "used_by": "Product: Mango Bites (/product/mango-bites)",
+    "alt": "Mango Bites"
+  },
+  {
+    "file": "mango-bar.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mango-bar.jpg",
+    "used_by": "Product: Mango Bar (/product/mango-bar)",
+    "alt": "Mango Bar"
+  },
+  {
+    "file": "zuzoops-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/zuzoops-100-grams.jpg",
+    "used_by": "Product: Zuzoops 100 grams (/product/zuzoops-100-grams)",
+    "alt": "Zuzoops 100 grams"
+  },
+  {
+    "file": "sugar-boondi-ladoo.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/sugar-boondi-ladoo.jpg",
+    "used_by": "Product: Sugar Boondi Ladoo (/product/sugar-boondi-ladoo)",
+    "alt": "Sugar Boondi Ladoo"
+  },
+  {
+    "file": "shev-ladoo.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/shev-ladoo.jpg",
+    "used_by": "Product: Shev Ladoo (/product/shev-ladoo)",
+    "alt": "Shev Ladoo"
+  },
+  {
+    "file": "rum-038-raisin-cake-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/rum-038-raisin-cake-500-grams.jpg",
+    "used_by": "Product: Rum &#038; Raisin Cake 500 grams (/product/rum-038-raisin-cake-500-grams)",
+    "alt": "Rum &#038; Raisin Cake 500 grams"
+  },
+  {
+    "file": "rose-cookies.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/rose-cookies.jpg",
+    "used_by": "Product: Rose Cookies (/product/rose-cookies)",
+    "alt": "Rose Cookies"
+  },
+  {
+    "file": "pinaagr.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pinaagr.jpg",
+    "used_by": "Product: Pinaagr (/product/pinaagr)",
+    "alt": "Pinaagr"
+  },
+  {
+    "file": "guava-peraad-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/guava-peraad-500-grams.jpg",
+    "used_by": "Product: Guava Peraad 500 grams (/product/guava-peraad-500-grams)",
+    "alt": "Guava Peraad 500 grams"
+  },
+  {
+    "file": "peanut-ladoo.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/peanut-ladoo.jpg",
+    "used_by": "Product: Peanut Ladoo (/product/peanut-ladoo)",
+    "alt": "Peanut Ladoo"
+  },
+  {
+    "file": "khat-khate.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/khat-khate.jpg",
+    "used_by": "Product: Khat-khate (/product/khat-khate)",
+    "alt": "Khat-khate"
+  },
+  {
+    "file": "khajjur-katli-pack-of-4.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/khajjur-katli-pack-of-4.jpg",
+    "used_by": "Product: Khajjur katli pack of 4 (/product/khajjur-katli-pack-of-4)",
+    "alt": "Khajjur katli pack of 4"
+  },
+  {
+    "file": "jackfruit-saat.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/jackfruit-saat.jpg",
+    "used_by": "Product: Jackfruit Saat (/product/jackfruit-saat)",
+    "alt": "Jackfruit Saat"
+  },
+  {
+    "file": "guava-cheese-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/guava-cheese-500-grams.jpg",
+    "used_by": "Product: Guava Cheese 500 grams (/product/guava-cheese-500-grams)",
+    "alt": "Guava Cheese 500 grams"
+  },
+  {
+    "file": "goan-khaaje-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-khaaje-500-grams.jpg",
+    "used_by": "Product: Goan Khaaje 500 grams (/product/goan-khaaje-500-grams)",
+    "alt": "Goan Khaaje 500 grams"
+  },
+  {
+    "file": "dodol-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dodol-500-grams.jpg",
+    "used_by": "Product: Dodol 500 grams (/product/dodol-500-grams)",
+    "alt": "Dodol 500 grams"
+  },
+  {
+    "file": "coconut-mila.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-mila.jpg",
+    "used_by": "Product: Coconut Mila (/product/coconut-mila)",
+    "alt": "Coconut Mila"
+  },
+  {
+    "file": "coconut-chikki.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/coconut-chikki.jpg",
+    "used_by": "Product: Coconut Chikki (/product/coconut-chikki)",
+    "alt": "Coconut Chikki"
+  },
+  {
+    "file": "churmuli-ladoo.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/churmuli-ladoo.jpg",
+    "used_by": "Product: Churmuli Ladoo (/product/churmuli-ladoo)",
+    "alt": "Churmuli Ladoo"
+  },
+  {
+    "file": "sweet-potato-chips-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/sweet-potato-chips-250-grams.jpg",
+    "used_by": "Product: Sweet Potato Chips 250 grams (/product/sweet-potato-chips-250-grams)",
+    "alt": "Sweet Potato Chips 250 grams"
+  },
+  {
+    "file": "spicy-mini-chakli-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/spicy-mini-chakli-100-grams.jpg",
+    "used_by": "Product: Spicy mini chakli 100 grams (/product/spicy-mini-chakli-100-grams)",
+    "alt": "Spicy mini chakli 100 grams"
+  },
+  {
+    "file": "spicy-corn-churma-300-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/spicy-corn-churma-300-grams.jpg",
+    "used_by": "Product: Spicy Corn Churma 300 grams (/product/spicy-corn-churma-300-grams)",
+    "alt": "Spicy Corn Churma 300 grams"
+  },
+  {
+    "file": "cashew-ladoo.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cashew-ladoo.jpg",
+    "used_by": "Product: Cashew Ladoo (/product/cashew-ladoo)",
+    "alt": "Cashew Ladoo"
+  },
+  {
+    "file": "spicy-besan-chakli-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/spicy-besan-chakli-250-grams.jpg",
+    "used_by": "Product: Spicy besan chakli 250 grams (/product/spicy-besan-chakli-250-grams)",
+    "alt": "Spicy besan chakli 250 grams"
+  },
+  {
+    "file": "bolacho-corpial.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bolacho-corpial.jpg",
+    "used_by": "Product: Bolacho Corpial (/product/bolacho-corpial)",
+    "alt": "Bolacho Corpial"
+  },
+  {
+    "file": "bol.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bol.jpg",
+    "used_by": "Product: Bol (/product/bol)",
+    "alt": "Bol"
+  },
+  {
+    "file": "salted-goan-cashews-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/salted-goan-cashews-500-grams.jpg",
+    "used_by": "Product: Salted Goan cashews 500 grams (/product/salted-goan-cashews-500-grams)",
+    "alt": "Salted Goan cashews 500 grams"
+  },
+  {
+    "file": "bebinca-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/bebinca-500-grams.jpg",
+    "used_by": "Product: Bebinca 500 grams (/product/bebinca-500-grams)",
+    "alt": "Bebinca 500 grams"
+  },
+  {
+    "file": "pohe-churma-ladoo.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pohe-churma-ladoo.jpg",
+    "used_by": "Product: Pohe Churma Ladoo (/product/pohe-churma-ladoo)",
+    "alt": "Pohe Churma Ladoo"
+  },
+  {
+    "file": "plain-goan-cashews-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/plain-goan-cashews-500-grams.jpg",
+    "used_by": "Product: Plain goan cashews 500 grams (/product/plain-goan-cashews-500-grams)",
+    "alt": "Plain goan cashews 500 grams"
+  },
+  {
+    "file": "aataa-rings.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/aataa-rings.jpg",
+    "used_by": "Product: Aataa Rings (/product/aataa-rings)",
+    "alt": "Aataa Rings"
+  },
+  {
+    "file": "moong-chakli-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/moong-chakli-250-grams.jpg",
+    "used_by": "Product: Moong Chakli 250 grams (/product/moong-chakli-250-grams)",
+    "alt": "Moong Chakli 250 grams"
+  },
+  {
+    "file": "masala-phenori-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/masala-phenori-500-grams.jpg",
+    "used_by": "Product: Masala Phenori 500 grams (/product/masala-phenori-500-grams)",
+    "alt": "Masala Phenori 500 grams"
+  },
+  {
+    "file": "butter-rice-chakli-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/butter-rice-chakli-250-grams.jpg",
+    "used_by": "Product: Butter rice chakli 250 grams (/product/butter-rice-chakli-250-grams)",
+    "alt": "Butter rice chakli 250 grams"
+  },
+  {
+    "file": "banana-chips-in-palm-oil-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/banana-chips-in-palm-oil-250-grams.jpg",
+    "used_by": "Product: Banana Chips in palm oil 250 grams (/product/banana-chips-in-palm-oil-250-grams)",
+    "alt": "Banana Chips in palm oil 250 grams"
+  },
+  {
+    "file": "banana-chips-in-coconut-oil-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/banana-chips-in-coconut-oil-500-grams.jpg",
+    "used_by": "Product: Banana chips in Coconut oil 500 grams (/product/banana-chips-in-coconut-oil-500-grams)",
+    "alt": "Banana chips in Coconut oil 500 grams"
+  },
+  {
+    "file": "pineapple-jam-250-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/pineapple-jam-250-grams.jpg",
+    "used_by": "Category: Chutneys & Spreads (/product-category/chutneys-and-spreads)",
+    "alt": "Jars of Goan chutney and fruit preserve on a wooden counter"
+  },
+  {
+    "file": "unpeeled-cashew-nuts-500-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/unpeeled-cashew-nuts-500-grams.jpg",
+    "used_by": "Category: Farsaan (/product-category/farsaan)",
+    "alt": "Assorted Goan savoury snacks in paper packaging"
+  },
+  {
+    "file": "white-chawli-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/white-chawli-200-grams.jpg",
+    "used_by": "Category: Grains (/product-category/grains)",
+    "alt": "Open sacks of red rice and pulses"
+  },
+  {
+    "file": "goan-themed-blue-mug.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/goan-themed-blue-mug.jpg",
+    "used_by": "Category: Hand-Crafted (/product-category/hand-crafted)",
+    "alt": "Handmade Goan craft objects and woven baskets"
+  },
+  {
+    "file": "kunbi-shawl.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/kunbi-shawl.jpg",
+    "used_by": "Category: Kunbi (/product-category/kunbi)",
+    "alt": "Folded Kunbi checked cotton textiles in red and white"
+  },
+  {
+    "file": "crop-xacuti-masala-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/crop-xacuti-masala-100-grams.jpg",
+    "used_by": "Category: Masala (/product-category/masala)",
+    "alt": "Goan masala pastes and spice powders in small jars"
+  },
+  {
+    "file": "cold-pressed-virgin-coconut-oil-200-ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/cold-pressed-virgin-coconut-oil-200-ml.jpg",
+    "used_by": "Category: Oils & Vinegars (/product-category/oils-vinegars)",
+    "alt": "Bottles of coconut oil and Goan cashew vinegar"
+  },
+  {
+    "file": "wheat-sheviyo-100-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/wheat-sheviyo-100-grams.jpg",
+    "used_by": "Category: Papads & Pickles (/product-category/papads-pickles)",
+    "alt": "Stacked papads and jars of Goan pickle"
+  },
+  {
+    "file": "dried-sungta-150-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/dried-sungta-150-grams.jpg",
+    "used_by": "Category: Seafood (/product-category/seafood)",
+    "alt": "Dried Goan fish and prawns in woven trays"
+  },
+  {
+    "file": "tirphal-50-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/tirphal-50-grams.jpg",
+    "used_by": "Category: Spices (/product-category/spices)",
+    "alt": "Whole spices, kokum and cashews displayed in bowls"
+  },
+  {
+    "file": "mitti-vases-8211-medium.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/mitti-vases-8211-medium.jpg",
+    "used_by": "Category: Sustainable Products (/product-category/sustainable-products)",
+    "alt": "Sustainable household products in natural materials"
+  },
+  {
+    "file": "wine-biscuits-200-grams.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/wine-biscuits-200-grams.jpg",
+    "used_by": "Category: Sweet (/product-category/sweet)",
+    "alt": "Traditional Goan sweets including bebinca and dodol"
+  },
+  {
+    "file": "old-goa-virgin-coconut-body-oil--lanvendar-200ml.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/catalog/old-goa-virgin-coconut-body-oil--lanvendar-200ml.jpg",
+    "used_by": "Category: Wellness (/product-category/wellness)",
+    "alt": "Natural Goan wellness balms and oils"
+  },
+  {
+    "file": "street-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/street-poster.jpg",
+    "used_by": "Home Video Poster: street (A lane in Fontainhas, Panaji, late afternoon)",
+    "alt": "A lane in Fontainhas, Panaji, late afternoon"
+  },
+  {
+    "file": "street.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/street.mp4",
+    "used_by": "Home Video: street",
+    "alt": "A lane in Fontainhas, Panaji, late afternoon"
+  },
+  {
+    "file": "rice-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/rice-poster.jpg",
+    "used_by": "Home Video Poster: rice (Red rice in a cane soop)",
+    "alt": "Red rice in a cane soop"
+  },
+  {
+    "file": "rice.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/rice.mp4",
+    "used_by": "Home Video: rice",
+    "alt": "Red rice in a cane soop"
+  },
+  {
+    "file": "kunbi-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/kunbi-poster.jpg",
+    "used_by": "Home Video Poster: kunbi (Kunbi weave on cotton)",
+    "alt": "Kunbi weave on cotton"
+  },
+  {
+    "file": "kunbi.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/kunbi.mp4",
+    "used_by": "Home Video: kunbi",
+    "alt": "Kunbi weave on cotton"
+  },
+  {
+    "file": "kokum-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/kokum-poster.jpg",
+    "used_by": "Home Video Poster: kokum (Kokum sola on cotton)",
+    "alt": "Kokum sola on cotton"
+  },
+  {
+    "file": "kokum.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/kokum.mp4",
+    "used_by": "Home Video: kokum",
+    "alt": "Kokum sola on cotton"
+  },
+  {
+    "file": "mitti-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/mitti-poster.jpg",
+    "used_by": "Home Video Poster: mitti (A mitti pot on cotton)",
+    "alt": "A mitti pot on cotton"
+  },
+  {
+    "file": "mitti.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/mitti.mp4",
+    "used_by": "Home Video: mitti",
+    "alt": "A mitti pot on cotton"
+  },
+  {
+    "file": "maker-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/maker-poster.jpg",
+    "used_by": "Home Video Poster: maker (Hands grinding red masala)",
+    "alt": "Hands grinding red masala"
+  },
+  {
+    "file": "maker.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/maker.mp4",
+    "used_by": "Home Video: maker",
+    "alt": "Hands grinding red masala"
+  },
+  {
+    "file": "hamper-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/hamper-poster.jpg",
+    "used_by": "Home Video Poster: hamper (Packing a cane basket)",
+    "alt": "Packing a cane basket"
+  },
+  {
+    "file": "hamper.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/hamper.mp4",
+    "used_by": "Home Video: hamper",
+    "alt": "Packing a cane basket"
+  },
+  {
+    "file": "patio-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/patio-poster.jpg",
+    "used_by": "Home Video Poster: patio (Inside the Fontainhas store)",
+    "alt": "Inside the Fontainhas store"
+  },
+  {
+    "file": "patio.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/patio.mp4",
+    "used_by": "Home Video: patio",
+    "alt": "Inside the Fontainhas store"
+  },
+  {
+    "file": "dusk-poster.jpg",
+    "url": "https://gtl-khaki.vercel.app/videos/dusk-poster.jpg",
+    "used_by": "Home Video Poster: dusk (Fontainhas at dusk, lamps in the windows)",
+    "alt": "Fontainhas at dusk, lamps in the windows"
+  },
+  {
+    "file": "dusk.mp4",
+    "url": "https://gtl-khaki.vercel.app/videos/dusk.mp4",
+    "used_by": "Home Video: dusk",
+    "alt": "Fontainhas at dusk, lamps in the windows"
+  },
+  {
+    "file": "fontainhas-street.mp3",
+    "url": "https://gtl-khaki.vercel.app/audio/fontainhas-street.mp3",
+    "used_by": "Site Asset: /audio/fontainhas-street.mp3",
+    "alt": "/audio/fontainhas-street.mp3"
+  },
+  {
+    "file": "street.mp3",
+    "url": "https://gtl-khaki.vercel.app/audio/street.mp3",
+    "used_by": "Site Asset: /audio/street.mp3",
+    "alt": "/audio/street.mp3"
+  },
+  {
+    "file": "favicon.ico",
+    "url": "https://gtl-khaki.vercel.app/favicon.ico",
+    "used_by": "Site Asset: /favicon.ico",
+    "alt": "/favicon.ico"
+  },
+  {
+    "file": "logo.svg",
+    "url": "https://gtl-khaki.vercel.app/logo.svg",
+    "used_by": "Site Asset: /logo.svg",
+    "alt": "/logo.svg"
+  },
+  {
+    "file": "og.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/og.jpg",
+    "used_by": "Site Asset: /images/og.jpg",
+    "alt": "/images/og.jpg"
+  },
+  {
+    "file": "store-front.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/store-front.jpg",
+    "used_by": "Site Asset: /images/store-front.jpg",
+    "alt": "/images/store-front.jpg"
+  },
+  {
+    "file": "hamper-basket.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/hamper-basket.jpg",
+    "used_by": "Site Asset: /images/hamper-basket.jpg",
+    "alt": "/images/hamper-basket.jpg"
+  },
+  {
+    "file": "hero.jpg",
+    "url": "https://gtl-khaki.vercel.app/images/hero.jpg",
+    "used_by": "Site Asset: /images/hero.jpg",
+    "alt": "/images/hero.jpg"
+  }
+]
