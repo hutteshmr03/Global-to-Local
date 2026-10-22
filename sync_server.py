@@ -54,7 +54,8 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
     print(f"[{i}/{len(files_to_sync)}] Fetching {fname}...", end="", flush=True)
     try:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        busted_url = f"{url}?_cb={int(time.time())}"
+        req = urllib.request.Request(busted_url, headers={"User-Agent": "Mozilla/5.0", "Cache-Control": "no-cache"})
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = resp.read()
             with open(dest, "wb") as f:
