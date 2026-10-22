@@ -18,6 +18,22 @@ if not os.path.exists(BASE_DIR):
     PUBLIC_HTML = os.path.abspath("./dist")
     PYTHON_BIN = sys.executable
 
+# Always ensure working directory is BASE_DIR so .env is correctly resolved
+os.chdir(BASE_DIR)
+
+# Load BASE_DIR/.env into os.environ to ensure MySQL connection strings are active
+env_path = os.path.join(BASE_DIR, ".env")
+if os.path.exists(env_path):
+    with open(env_path, "r", encoding="utf-8") as ef:
+        for line in ef:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ[k.strip()] = v.strip().strip("'").strip('"')
+
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 print(f"[*] Base Directory: {BASE_DIR}", flush=True)
 print(f"[*] Public HTML:    {PUBLIC_HTML}", flush=True)
 
