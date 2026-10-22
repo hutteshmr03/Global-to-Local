@@ -1,14 +1,11 @@
 # Global to Local - Apache / cPanel / LiteSpeed Configuration
-<IfModule LiteSpeed>
-  CacheDisable
-</IfModule>
-
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  # 1. Pass API requests directly to the local Python cPanel backend
-  RewriteRule ^api - [L]
+  # 1. Reverse proxy all API requests directly to the Python backend on port 8008
+  RewriteRule ^api/(.*)$ http://127.0.0.1:8008/api/$1 [P,L]
+  RewriteRule ^api$ http://127.0.0.1:8008/api/ [P,L]
 
   # 2. Redirect all other routes to React index.html for Single Page Application (SPA) routing
   RewriteCond %{REQUEST_FILENAME} !-f

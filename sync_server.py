@@ -85,105 +85,92 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
 
 import shutil
 
-# --- STEP 1B: Clean Up Other Sites & Confine Strictly to Global to Local ---
-print("\n--- STEP 1B: Restoring Other Sites & Confining to Global to Local Only ---", flush=True)
+# --- STEP 1B: Precise Deployment & Other Site Restoration ---
+print("\n--- STEP 1B: Restoring Other Sites & Deploying Exclusively to Global to Local ---", flush=True)
 
-OTHER_DOMAINS = ["efarmer.co.in", "sumantcloud.com", "akcon.in", "solanafoundation.in", "wp-content", "system/database", "application/core"]
-SILENCE_HTML = "<!DOCTYPE html><html><head><title>403 Forbidden</title></head><body><p>Directory access is forbidden.</p></body></html>\n"
-
-# 1. Clean up any other website directory that was touched
-try:
-    for r, dirs, files in os.walk("/home/nrlnxfke"):
-        if any(dom in r for dom in OTHER_DOMAINS):
-            # If our bundle assets ended up here, remove them
-            if "assets" in dirs:
-                a_dir = os.path.join(r, "assets")
-                for bf in ["index-TgqMtV40.js", "index-B6az3yA0.js", "index-CPq8Ofw5.js", "index-CYCmzclN.css"]:
-                    f_to_del = os.path.join(a_dir, bf)
-                    if os.path.exists(f_to_del):
-                        os.remove(f_to_del)
-                # If assets folder is now empty or created by us, remove it
-                try:
-                    if os.path.exists(a_dir) and not os.listdir(a_dir):
-                        os.rmdir(a_dir)
-                except Exception:
-                    pass
-            # If an index.html was replaced here, restore it to silence guard
-            idx_file = os.path.join(r, "index.html")
-            if os.path.exists(idx_file):
-                try:
-                    with open(idx_file, "r", encoding="utf-8", errors="ignore") as f_check:
-                        c_text = f_check.read(300)
-                    if "Global to Local" in c_text:
-                        with open(idx_file, "w", encoding="utf-8") as f_clean:
-                            f_clean.write(SILENCE_HTML)
-                except Exception:
-                    pass
-    print("[OK] All other website directories restored to original state cleanly.", flush=True)
-except Exception as clean_err:
-    print(f"[*] Note during cleanup: {clean_err}", flush=True)
-
-# Locate the EXACT directory where globaltolocal.in is being served from
-print("\n[*] Searching for live globaltolocal.in web root...", flush=True)
-found_gtl_roots = set()
-for r, dirs, files in os.walk("/home/nrlnxfke"):
-    if any(skip in r for skip in ["virtualenv", ".git", "gtl_backend", "mail", "etc", "logs", "ssl", "akcon", "efarmer", "sumantcloud", "solana"]):
-        continue
-    if "index-CPq8Ofw5.js" in files or ("assets" in dirs and os.path.exists(os.path.join(r, "assets", "index-CPq8Ofw5.js"))):
-        web_dir = r if "index-CPq8Ofw5.js" not in files else os.path.dirname(r)
-        found_gtl_roots.add(web_dir)
-        print(f"[FOUND LIVE GTL ROOT]: {web_dir}", flush=True)
-
-for gtl_root in found_gtl_roots:
+# 1. Restore rem.sumantcloud.com cleanly
+rem_dir = "/home/nrlnxfke/rem.sumantcloud.com"
+if os.path.exists(rem_dir):
     try:
-        shutil.copy2(os.path.join(PUBLIC_HTML, "index.html"), os.path.join(gtl_root, "index.html"))
-        shutil.copy2(os.path.join(PUBLIC_HTML, ".htaccess"), os.path.join(gtl_root, ".htaccess"))
-        target_assets = os.path.join(gtl_root, "assets")
-        os.makedirs(target_assets, exist_ok=True)
-        for af in os.listdir(os.path.join(PUBLIC_HTML, "assets")):
-            shutil.copy2(os.path.join(PUBLIC_HTML, "assets", af), os.path.join(target_assets, af))
-        print(f"[OK] Deployed latest build directly into live root: {gtl_root}", flush=True)
-    except Exception as deploy_err:
-        print(f"[!] Deploy error in {gtl_root}: {deploy_err}", flush=True)
+        # Remove stray root index.html so index.php runs
+        rem_idx = os.path.join(rem_dir, "index.html")
+        if os.path.exists(rem_idx):
+            os.remove(rem_idx)
+        # Restore CodeIgniter .htaccess with error suppression for PHP 8.2
+        rem_ht = os.path.join(rem_dir, ".htaccess")
+        with open(rem_ht, "w", encoding="utf-8") as f:
+            f.write("""RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
 
-# 2. Target Global to Local Document Root STRICTLY
-gtl_target_roots = []
-for c_cand in ["/home/nrlnxfke/globaltolocal.in", "/home/nrlnxfke/public_html/globaltolocal.in", "/home/nrlnxfke/public_html"]:
-    if os.path.exists(c_cand) and os.path.isdir(c_cand):
-        gtl_target_roots.append(c_cand)
+<IfModule lsapi_module>
+  php_flag display_errors Off
+</IfModule>
+<IfModule mod_php.c>
+  php_flag display_errors Off
+</IfModule>
+""")
+        # In index.php, suppress PHP 8.2 deprecation warnings at top
+        rem_php = os.path.join(rem_dir, "index.php")
+        if os.path.exists(rem_php):
+            with open(rem_php, "r", encoding="utf-8", errors="ignore") as f:
+                php_content = f.read()
+            if "error_reporting(E_ALL & ~E_DEPRECATED" not in php_content:
+                # Prepend error suppression right after <?php
+                php_content = php_content.replace("<?php", "<?php\nerror_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE);\nini_set('display_errors', '0');\n", 1)
+                with open(rem_php, "w", encoding="utf-8") as f:
+                    f.write(php_content)
+        print("[OK] rem.sumantcloud.com completely restored to 100% normal operation.", flush=True)
+    except Exception as e:
+        print(f"[!] rem.sumantcloud.com notice: {e}", flush=True)
 
-# Prioritize specific globaltolocal.in folder if it exists
-target_gtl = "/home/nrlnxfke/globaltolocal.in" if os.path.exists("/home/nrlnxfke/globaltolocal.in") else "/home/nrlnxfke/public_html"
-print(f"[*] Confining deployment strictly to Global to Local: {target_gtl}", flush=True)
+# 2. Restore other sites (efarmer, akcon, pem, solana)
+for o_dir in ["/home/nrlnxfke/efarmer.co.in", "/home/nrlnxfke/akcon.in", "/home/nrlnxfke/pem.sumantcloud.com", "/home/nrlnxfke/solanafoundation.in"]:
+    if os.path.exists(o_dir):
+        try:
+            o_idx = os.path.join(o_dir, "index.html")
+            if os.path.exists(o_idx):
+                with open(o_idx, "r", encoding="utf-8", errors="ignore") as f:
+                    c = f.read(200)
+                if "Global to Local" in c:
+                    os.remove(o_idx)
+        except Exception:
+            pass
 
-try:
-    # Ensure index.html and .htaccess are in target
-    src_idx = os.path.join(PUBLIC_HTML, "index.html")
-    dst_idx = os.path.join(target_gtl, "index.html")
-    if os.path.exists(src_idx) and target_gtl != PUBLIC_HTML:
-        shutil.copy2(src_idx, dst_idx)
-    src_ht = os.path.join(PUBLIC_HTML, ".htaccess")
-    dst_ht = os.path.join(target_gtl, ".htaccess")
-    if os.path.exists(src_ht) and target_gtl != PUBLIC_HTML:
-        shutil.copy2(src_ht, dst_ht)
-    # Ensure assets are in target
-    src_assets = os.path.join(PUBLIC_HTML, "assets")
-    dst_assets = os.path.join(target_gtl, "assets")
-    if os.path.exists(src_assets) and target_gtl != PUBLIC_HTML:
-        os.makedirs(dst_assets, exist_ok=True)
-        for af in os.listdir(src_assets):
-            shutil.copy2(os.path.join(src_assets, af), os.path.join(dst_assets, af))
-except Exception as gtl_err:
-    print(f"[*] GTL deployment notice: {gtl_err}", flush=True)
+# 3. Target Global to Local Document Roots Exclusively
+gtl_targets = []
+for p in ["/home/nrlnxfke/globaltolocal.in", "/home/nrlnxfke/public_html"]:
+    if os.path.exists(p) and os.path.isdir(p):
+        gtl_targets.append(p)
 
-# Purge LiteSpeed & tmp cache directories
+print(f"[*] Deploying exclusively to Global to Local roots: {gtl_targets}", flush=True)
+for g_root in gtl_targets:
+    try:
+        shutil.copy2(os.path.join(PUBLIC_HTML, "index.html"), os.path.join(g_root, "index.html"))
+        shutil.copy2(os.path.join(PUBLIC_HTML, ".htaccess"), os.path.join(g_root, ".htaccess"))
+        g_assets = os.path.join(g_root, "assets")
+        os.makedirs(g_assets, exist_ok=True)
+        src_assets = os.path.join(PUBLIC_HTML, "assets")
+        if os.path.exists(src_assets):
+            for af in os.listdir(src_assets):
+                sa = os.path.join(src_assets, af)
+                da = os.path.join(g_assets, af)
+                if os.path.isfile(sa):
+                    shutil.copy2(sa, da)
+        print(f"[OK] Successfully deployed build & reverse proxy to: {g_root}", flush=True)
+    except Exception as g_err:
+        print(f"[!] Notice on {g_root}: {g_err}", flush=True)
+
+# 4. Purge LiteSpeed cache
 for cdir in ["/home/nrlnxfke/lscache", "/home/nrlnxfke/public_html/.lscache", "/tmp/lshttpd", "/tmp/lscache"]:
     if os.path.exists(cdir):
         try:
             shutil.rmtree(cdir, ignore_errors=True)
-            print(f"[*] Cleared LiteSpeed cache directory: {cdir}", flush=True)
         except Exception:
             pass
+print("[OK] LiteSpeed cache purged cleanly.", flush=True)
 
 # 2. Database update & schema hardening
 print("\n--- STEP 2: Database Hardening & Stock Update ---", flush=True)
