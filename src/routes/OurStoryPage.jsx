@@ -298,15 +298,15 @@ export default function OurStoryPage() {
               </p>
             </motion.div>
 
-            {/* Right: Balanced Two-Photo Showcase (Sized to Match Left-Side Content Height) */}
-            <div className="w-full max-w-[310px] sm:max-w-[330px] lg:max-w-[310px] mx-auto lg:mx-0 lg:ml-auto flex flex-col gap-3.5 sm:gap-4">
-              {/* Women's photo on top */}
+            {/* Right: Staggered Diagonal Showcase in Marked Boxes (1st: Top-Left, 2nd: Bottom-Right) */}
+            <div className="w-full max-w-[500px] mx-auto lg:max-w-none flex flex-col gap-4 sm:gap-5">
+              {/* Photo 1 (Women) - Positioned in 1st marked box (top, left-aligned) */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="w-full overflow-hidden rounded-[16px] shadow-md bg-surface"
+                className="w-full sm:w-[68%] lg:w-[66%] self-start overflow-hidden rounded-[16px] shadow-md bg-surface transition-all duration-300 hover:shadow-lg"
               >
                 <img
                   src="/images/site/store-visitors-women.jpg"
@@ -316,13 +316,13 @@ export default function OurStoryPage() {
                 />
               </motion.div>
 
-              {/* Men's photo below */}
+              {/* Photo 2 (Men) - Positioned in 2nd marked box (bottom, right-aligned) */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="w-full overflow-hidden rounded-[16px] shadow-md bg-surface"
+                className="w-full sm:w-[74%] lg:w-[72%] self-end overflow-hidden rounded-[16px] shadow-md bg-surface transition-all duration-300 hover:shadow-lg"
               >
                 <img
                   src="/images/site/store-team-men.jpg"
