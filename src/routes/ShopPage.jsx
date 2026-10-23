@@ -235,6 +235,11 @@ export default function ShopPage() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
 
+                        {/* Product Count Badge */}
+                        <span className="absolute top-3 right-3 rounded-pill bg-black/60 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-xs">
+                          {count} {count === 1 ? 'Product' : 'Products'}
+                        </span>
+
                         {/* Shelf Title on Image */}
                         <div className="absolute bottom-3.5 left-4 right-4">
                           <h3 className="font-display text-xl sm:text-2xl font-bold text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
@@ -243,12 +248,17 @@ export default function ShopPage() {
                         </div>
                       </div>
 
-                      {/* Card Body - Only the Show More button */}
-                      <div className="p-4 bg-surface">
+                      {/* Card Body */}
+                      <div className="p-5 flex flex-1 flex-col justify-between">
+                        <p className="text-xs sm:text-sm text-content-muted line-clamp-2 leading-relaxed">
+                          {blurb || `Authentic Goan ${cat.name.toLowerCase()} sourced directly from local producers.`}
+                        </p>
+
+                        {/* Button Under Every Shelf: Show More */}
                         <button
                           type="button"
                           onClick={() => updateFilters('category', cat.slug)}
-                          className="w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-palm py-2.5 px-4 text-xs sm:text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-xs active:scale-[0.98]"
+                          className="mt-5 w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-palm py-2.5 px-4 text-xs sm:text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-xs active:scale-[0.98]"
                         >
                           <span>Show More</span>
                           <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
