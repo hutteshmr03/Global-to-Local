@@ -298,8 +298,8 @@ export default function OurStoryPage() {
               </p>
             </motion.div>
 
-            {/* Right: Two Vertically Stacked Photos (Natural Aspect Ratio, All People Fully Visible, Nothing Cropped) */}
-            <div className="w-full max-w-[480px] mx-auto lg:mx-0 lg:ml-auto flex flex-col gap-[20px]">
+            {/* Right: Balanced Two-Photo Showcase (Sized to Match Left-Side Content Height) */}
+            <div className="w-full max-w-[310px] sm:max-w-[330px] lg:max-w-[310px] mx-auto lg:mx-0 lg:ml-auto flex flex-col gap-3.5 sm:gap-4">
               {/* Women's photo on top */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
