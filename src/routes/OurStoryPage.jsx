@@ -298,22 +298,20 @@ export default function OurStoryPage() {
               </p>
             </motion.div>
 
-            {/* Right: Stacked Photos (1 photo per row, compact size, full uncropped view) */}
-            <div className="flex flex-col gap-4 sm:gap-5 w-full max-w-[460px] mx-auto lg:max-w-none">
+            {/* Right: 2-Photo Staggered Gallery */}
+            <div className="grid grid-cols-2 gap-4 sm:gap-5">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="relative overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-md group"
+                className="aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-surface shadow-md group"
               >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
-                  <img
-                    alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
-                    src="/images/site/store-visitors-women.jpg"
-                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  />
-                </div>
+                <img
+                  src="/images/site/store-visitors-women-cropped.jpg"
+                  alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
+                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                />
               </motion.div>
 
               <motion.div
@@ -321,15 +319,13 @@ export default function OurStoryPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="relative overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-md group"
+                className="mt-8 sm:mt-10 aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-surface shadow-md group"
               >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
-                  <img
-                    alt="Our team and guests inside Global to Local Fontainhas"
-                    src="/images/site/store-team-men.jpg"
-                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  />
-                </div>
+                <img
+                  src="/images/site/store-team-men-cropped.jpg"
+                  alt="Our team and guests inside Global to Local Fontainhas"
+                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                />
               </motion.div>
             </div>
           </div>
