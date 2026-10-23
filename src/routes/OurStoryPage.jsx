@@ -88,7 +88,7 @@ export default function OurStoryPage() {
             <div className="mt-10">
               <Link
                 to="/shop"
-                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-palm bg-palm px-8 py-3.5 text-base font-medium text-content-ondark hover:bg-ink-deep hover:border-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-[#3D2C22] bg-[#3D2C22] px-8 py-3.5 text-base font-medium text-white hover:bg-[#2A1E17] hover:border-[#2A1E17] transition-all duration-200 active:scale-[0.985] shadow-md"
               >
                 Visit the store
               </Link>

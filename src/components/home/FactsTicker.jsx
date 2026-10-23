@@ -64,7 +64,7 @@ export default function FactsTicker() {
         >
           <Link
             to="/our-story"
-            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-palm bg-palm px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-content-ondark hover:bg-ink-deep hover:border-ink-deep transition-all duration-200 active:scale-[0.985] shadow-sm"
+            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-[#3D2C22] bg-[#3D2C22] px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-white hover:bg-[#2A1E17] hover:border-[#2A1E17] transition-all duration-200 active:scale-[0.985] shadow-sm"
           >
             Meet the makers
           </Link>

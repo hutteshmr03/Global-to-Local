@@ -334,7 +334,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-palm bg-palm px-8 py-3.5 text-sm font-semibold text-content-ondark hover:bg-ink-deep hover:border-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-[#3D2C22] bg-[#3D2C22] px-8 py-3.5 text-sm font-semibold text-white hover:bg-[#2A1E17] hover:border-[#2A1E17] transition-all duration-200 active:scale-[0.985] shadow-md"
                   >
                     <span>Open in your email app</span>
                     <ArrowUpRight className="h-4 w-4" />
@@ -382,7 +382,7 @@ export default function ContactPage() {
                   href="https://www.google.com/maps/search/?api=1&query=Tarcar%20Mansion%2C%20Fontainhas%2C%20Panaji%2C%20Goa%20403001"
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-pill bg-[#E5A823] text-content-ondark px-3.5 py-1.5 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold tracking-[-0.01em] hover:brightness-105 transition-all duration-200 active:scale-[0.985] shadow-xs"
+                  className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-pill border border-[#3D2C22] bg-[#3D2C22] text-white px-3.5 py-1.5 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold tracking-[-0.01em] hover:bg-[#2A1E17] hover:border-[#2A1E17] transition-all duration-200 active:scale-[0.985] shadow-xs"
                 >
                   <MapPin className="h-3 w-3" />
                   <span>Open in Maps</span>
