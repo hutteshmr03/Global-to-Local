@@ -32,7 +32,7 @@ export default function StoreBanner() {
                 to="/shop"
                 className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
               >
-                Shop the shelves
+                Shop Now
               </Link>
               <Link
                 to="/contact"

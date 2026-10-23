@@ -411,7 +411,7 @@ export default function Header() {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="mt-3 flex w-full items-center justify-center rounded-pill bg-palm py-3 text-sm font-bold text-white hover:bg-palm-shade"
                   >
-                    Shop the Shelves
+                    Shop Now
                   </Link>
                 </nav>
               </motion.div>
