@@ -124,7 +124,7 @@ export default function OrderConfirmationPage() {
 
           <div className="border-t border-border/30 pt-3 flex items-center gap-2 text-xs text-palm font-medium">
             <CheckCircle2 className="w-4 h-4 text-palm shrink-0 stroke-[2.5]" />
-            <span>Payment received via Bank Transfer. Your order is confirmed and being prepared for dispatch.</span>
+            <span>Payment verified via UPI QR. Your order is confirmed and being prepared for dispatch.</span>
           </div>
 
           {(cancelMsg || order?.cancelNotice) && (
