@@ -106,19 +106,21 @@ export default function BagDrawer() {
                     : (product.slug ? `/images/catalog/${product.slug}.jpg` : (product.image_url || '/images/catalog/goan-themed-blue-mug.jpg'));
                   const itemWeight = product.weight || product.unit_label || '';
                   return (
-                      <div key={product.id} className="py-4 flex gap-4">
-                        <img
-                          src={itemImg}
-                          alt={product.imageAlt || product.name}
-                          className="h-20 w-20 rounded-lg object-cover bg-surface-muted shrink-0 border border-border/20"
-                        />
-                        <div className="flex flex-1 flex-col justify-between">
+                      <div key={product.id} className="py-4 flex gap-3.5 sm:gap-4 items-start">
+                        <Link to={`/product/${product.slug}`} onClick={closeCart} className="shrink-0">
+                          <img
+                            src={itemImg}
+                            alt={product.imageAlt || product.name}
+                            className="h-20 w-20 rounded-lg object-cover bg-surface-muted border border-border/20 hover:opacity-90 transition-opacity"
+                          />
+                        </Link>
+                        <div className="flex flex-1 min-w-0 flex-col justify-between self-stretch">
                           <div>
                             <div className="flex justify-between items-start">
                               <Link
                                 to={`/product/${product.slug}`}
                                 onClick={closeCart}
-                                className="font-display text-sm font-semibold text-content hover:text-accent line-clamp-1 transition-colors"
+                                className="font-display text-sm font-semibold text-content hover:text-accent line-clamp-2 leading-snug transition-colors"
                               >
                                 {product.name}
                               </Link>
@@ -129,7 +131,7 @@ export default function BagDrawer() {
                             </p>
                           </div>
 
-                          <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center justify-between gap-2 mt-3">
                             {/* Stepper & Delete Dustbin */}
                             <div className="flex items-center gap-2">
                               <div className="flex items-center rounded-pill border border-border/50 bg-surface shadow-xs">
@@ -163,7 +165,7 @@ export default function BagDrawer() {
                               </button>
                             </div>
 
-                            <span className="font-sans text-sm font-bold tabular-nums tracking-tight text-content">
+                            <span className="font-sans text-sm font-bold tabular-nums tracking-tight text-content whitespace-nowrap">
                               {formatPrice(itemPrice * qty)}
                             </span>
                           </div>

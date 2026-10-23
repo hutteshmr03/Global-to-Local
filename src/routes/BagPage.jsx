@@ -27,7 +27,7 @@ export default function BagPage() {
           </Link>
         </div>
 
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-content">
+        <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-content">
           Shopping Cart ({items.reduce((s, i) => s + i.qty, 0)})
         </h1>
         {cartError && (
@@ -56,7 +56,7 @@ export default function BagPage() {
         )}
 
         {items.length === 0 ? (
-          <div className="mt-16 rounded-2xl border border-border/40 bg-surface p-12 sm:p-16 text-center max-w-md mx-auto shadow-xs">
+          <div className="mt-12 sm:mt-16 rounded-2xl border border-border/40 bg-surface p-8 sm:p-16 text-center max-w-md mx-auto shadow-xs">
             <h2 className="font-display text-2xl sm:text-3xl font-semibold text-content">The shopping cart is empty</h2>
             <Link
               to="/shop"
@@ -67,9 +67,9 @@ export default function BagPage() {
             </Link>
           </div>
         ) : (
-          <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="mt-6 sm:mt-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-16">
             {/* Items List */}
-            <div className="lg:col-span-8 rounded-2xl border border-border/40 bg-surface p-6 sm:p-8 divide-y divide-border/20">
+            <div className="lg:col-span-8 rounded-2xl border border-border/40 bg-surface p-4 sm:p-8 divide-y divide-border/20 shadow-xs">
               {items.map(({ product, qty }) => {
                 const itemPrice = product.price ?? product.price_paise ?? 0;
                 const itemImg = (product.imageSrc && !product.imageSrc.endsWith('goan-themed-blue-mug.jpg'))
@@ -77,61 +77,63 @@ export default function BagPage() {
                   : (product.slug ? `/images/catalog/${product.slug}.jpg` : (product.image_url || '/images/catalog/goan-themed-blue-mug.jpg'));
                 const itemWeight = product.weight || product.unit_label || '';
                 return (
-                  <div key={product.id} className="py-6 first:pt-0 last:pb-0 flex flex-col sm:flex-row gap-6">
-                    <img
-                      src={itemImg}
-                      alt={product.name}
-                      className="h-28 w-28 rounded-xl object-cover bg-surface-muted shrink-0 border border-border/20"
-                    />
-                    <div className="flex flex-1 flex-col justify-between">
+                  <div key={product.id} className="py-4 sm:py-6 first:pt-0 last:pb-0 flex flex-row gap-3.5 sm:gap-6 items-start">
+                    <Link to={`/product/${product.slug}`} className="shrink-0">
+                      <img
+                        src={itemImg}
+                        alt={product.name}
+                        className="h-20 w-20 sm:h-28 sm:w-28 rounded-xl object-cover bg-surface-muted border border-border/20 hover:opacity-90 transition-opacity"
+                      />
+                    </Link>
+                    <div className="flex flex-1 min-w-0 flex-col justify-between self-stretch">
                       <div>
-                        <div className="flex justify-between items-start">
-                          <Link
-                            to={`/product/${product.slug}`}
-                            className="font-display text-lg font-bold text-content hover:text-accent transition-colors"
-                          >
-                            {product.name}
-                          </Link>
-                        </div>
+                        <Link
+                          to={`/product/${product.slug}`}
+                          className="font-display text-sm sm:text-base lg:text-lg font-bold text-content hover:text-accent transition-colors line-clamp-2 leading-snug"
+                        >
+                          {product.name}
+                        </Link>
                         <p className="text-xs text-content-muted mt-1">
                           {itemWeight ? `${itemWeight} · ` : ''}
                           <span className="font-semibold text-content">{formatPrice(itemPrice)}</span>
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center justify-between gap-2 mt-3 sm:mt-4">
                         {/* Stepper + Dustbin Button */}
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex items-center rounded-pill border border-border bg-ground px-3 py-1">
+                        <div className="flex items-center gap-2 sm:gap-2.5">
+                          <div className="flex items-center rounded-pill border border-border bg-ground px-2 sm:px-3 py-1 shadow-xs">
                             <button
                               onClick={() => updateQty(product.id, qty - 1)}
                               className="p-1 text-content hover:text-accent cursor-pointer"
                               aria-label="Decrease quantity"
                             >
-                              <Minus className="w-4 h-4" />
+                              <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </button>
-                            <span className="px-3 text-sm font-bold text-content">{qty}</span>
+                            <span className="px-2 sm:px-3 text-xs sm:text-sm font-bold text-content min-w-[20px] text-center">
+                              {qty}
+                            </span>
                             <button
                               onClick={() => updateQty(product.id, qty + 1)}
                               disabled={qty >= 20}
                               className="p-1 text-content hover:text-accent disabled:opacity-30 cursor-pointer"
                               aria-label="Increase quantity"
                             >
-                              <Plus className="w-4 h-4" />
+                              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </button>
                           </div>
 
                           <button
                             onClick={() => removeItem(product.id)}
-                            className="flex h-8 w-8 items-center justify-center rounded-full text-content-muted hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
+                            className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-content-muted hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
                             title="Remove item"
                             aria-label={`Remove ${product.name} from cart`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           </button>
                         </div>
 
-                        <span className="font-sans text-base sm:text-lg font-bold tabular-nums tracking-tight text-content">
+                        <span className="font-sans text-sm sm:text-lg font-bold tabular-nums tracking-tight text-content whitespace-nowrap">
                           {formatPrice(itemPrice * qty)}
                         </span>
                       </div>
