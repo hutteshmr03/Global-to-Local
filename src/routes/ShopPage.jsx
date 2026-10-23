@@ -156,7 +156,7 @@ export default function ShopPage() {
           {/* Filter & Controls Bar - Only visible when inside a specific shelf or searching */}
           {!isBrowsingAllShelves && (
             <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="relative flex-1 sm:max-w-xs">
+              <div className="relative flex-1 sm:max-w-md">
                 <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-content-muted" />
                 <input
                   type="text"
@@ -174,39 +174,6 @@ export default function ShopPage() {
                     <X className="h-3.5 w-3.5" />
                   </button>
                 )}
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => updateFilters('in_stock', !inStockOnly)}
-                  className={`flex items-center gap-2 rounded-pill border px-4 py-2 text-xs font-semibold transition-all shadow-xs cursor-pointer ${
-                    inStockOnly
-                      ? 'border-accent bg-accent/10 text-accent'
-                      : 'border-border/80 bg-surface text-content hover:bg-surface-muted'
-                  }`}
-                >
-                  <div
-                    className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${
-                      inStockOnly ? 'border-accent bg-accent text-white' : 'border-border'
-                    }`}
-                  >
-                    {inStockOnly && <Check className="w-3 h-3 stroke-[3]" />}
-                  </div>
-                  <span>In Stock</span>
-                </button>
-
-                <select
-                  aria-label="Sort products"
-                  value={currentSort}
-                  onChange={(e) => updateFilters('sort', e.target.value)}
-                  className="rounded-pill border border-border/80 bg-surface py-2 px-4 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-xs"
-                >
-                  <option value="featured">Sort: Featured</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                  <option value="name_asc">Name: A to Z</option>
-                </select>
               </div>
             </div>
           )}
