@@ -44,6 +44,7 @@ export function clearClientAuthTokens() {
     localStorage.removeItem('gtl_access_token');
     localStorage.removeItem('gtl_refresh_token');
     localStorage.removeItem('gtl_user_session');
+    localStorage.removeItem('gtl_mock_auth_user_v1');
   } catch {}
 }
 
@@ -171,7 +172,8 @@ export async function apiFetch(path, options = {}) {
     !path.includes('/auth/login') &&
     !path.includes('/auth/register') &&
     !path.includes('/auth/otp') &&
-    !path.includes('/auth/refresh')
+    !path.includes('/auth/refresh') &&
+    !path.includes('/auth/logout')
   ) {
     try {
       const refreshPayload = inMemoryRefreshToken ? { refresh_token: inMemoryRefreshToken } : {};

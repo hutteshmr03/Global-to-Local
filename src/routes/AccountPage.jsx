@@ -140,9 +140,17 @@ export default function AccountPage() {
     }, 4000);
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      navigate('/', { replace: true });
+    }
   };
 
   if (!isInitialized) {
@@ -177,11 +185,13 @@ export default function AccountPage() {
             </p>
           </div>
           <button
+            type="button"
             onClick={handleLogout}
-            className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-pill border border-border bg-surface px-3.5 py-2 sm:px-4 sm:py-2 text-xs font-semibold text-content hover:bg-surface-muted hover:border-content-subtle transition-all shadow-xs"
+            disabled={isLoggingOut}
+            className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-pill border border-border bg-surface px-3.5 py-2 sm:px-4 sm:py-2 text-xs font-semibold text-content hover:bg-surface-muted hover:border-content-subtle transition-all shadow-xs disabled:opacity-50"
           >
             <LogOut className="w-3.5 h-3.5 text-accent" />
-            <span>Sign Out</span>
+            <span>{isLoggingOut ? 'Signing Out...' : 'Sign Out'}</span>
           </button>
         </div>
 

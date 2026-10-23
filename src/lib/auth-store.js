@@ -536,19 +536,37 @@ export const useAuthStore = create((set, get) => {
   },
 
   logout: async () => {
+    // 1. Immediately wipe client tokens and session synchronously so UI reacts instantly
+    persistUserSession(null);
+    clearClientAuthTokens();
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.removeItem('gtl_mock_auth_user_v1');
+        localStorage.removeItem('gtl_user_session');
+        localStorage.removeItem('gtl_access_token');
+        localStorage.removeItem('gtl_refresh_token');
+        localStorage.removeItem('gtl_csrf_token');
+      } catch {}
+    }
+    set({ user: null, isHydrating: false, isInitialized: true });
+    useCartStore.setState({ items: [], isLoggedIn: false });
+
+    // 2. Best-effort server notification with a fast timeout (2.5s) so it never blocks or hangs
     try {
       const refreshToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_refresh_token') : null;
-      await apiFetch('/api/v1/auth/logout', {
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timeoutId = controller ? setTimeout(() => controller.abort(), 2500) : null;
+      await fetch('/api/v1/auth/logout', {
         method: 'POST',
-        body: refreshToken ? { refresh_token: refreshToken } : undefined,
-      });
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(refreshToken ? { refresh_token: refreshToken } : {}),
+        signal: controller ? controller.signal : undefined,
+      }).catch(() => {});
+      if (timeoutId) clearTimeout(timeoutId);
     } catch {
       // ignore
     }
-    persistUserSession(null);
-    clearClientAuthTokens();
-    set({ user: null, isHydrating: false, isInitialized: true });
-    useCartStore.setState({ items: [], isLoggedIn: false });
   },
 
   isAuthenticated: () => Boolean(get().user),

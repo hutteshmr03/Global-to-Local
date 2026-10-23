@@ -757,16 +757,7 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
         return JSON.parse(raw);
       } catch {}
     }
-    // Default to admin if accessed in back-office context
-    const defaultUser = {
-      id: '7654a59a-d3f2-488a-92c5-b32f898d97a9',
-      email: 'admin@globaltolocal.in',
-      full_name: 'Global to Local Admin',
-      name: 'Global to Local Admin',
-      role: 'admin',
-      is_active: true,
-    };
-    return defaultUser;
+    throw new ApiProblemError(401, { detail: 'Unauthorized. Please sign in.' });
   }
 
   if (pathname === '/api/v1/admin/me' && method === 'GET') {
@@ -781,6 +772,7 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
 
   if (pathname === '/api/v1/auth/logout') {
     localStorage.removeItem(STORAGE_USER);
+    localStorage.removeItem('gtl_user_session');
     return { status: 'success' };
   }
 
