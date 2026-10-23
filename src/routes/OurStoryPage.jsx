@@ -82,16 +82,39 @@ export default function OurStoryPage() {
       {/* 2. SOCIAL VENTURE GENESIS */}
       <section className="pt-6 pb-8 sm:pt-16 sm:pb-16 lg:py-28 bg-ground text-content border-t border-border/40">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
+          {/* Heading - in one row */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="grid gap-6 sm:gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20"
+            className="mb-8 sm:mb-12"
           >
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-content">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight text-content tracking-tight">
               Conceptualised during the pandemic, as a social venture
             </h2>
+          </motion.div>
+
+          {/* Video on Left, Story on Right */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center"
+          >
+            {/* Left: Video */}
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-ink-deep shadow-lg">
+              <iframe
+                src="https://drive.google.com/file/d/1iAKFzXKggu2FCXk5zYDbGId4P_bIFKvz/preview"
+                title="Global to Local Story Video"
+                className="h-full w-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+
+            {/* Right: Story Text */}
             <div className="space-y-6 text-base sm:text-lg text-content-muted leading-relaxed">
               <p>
                 The brain child of Goan entrepreneur Asha Arondekar to support the local women of this tropical little state. Conceptualised during the pandemic as a sole social venture to support women and promote the forgotten essence of our serene state.
@@ -103,21 +126,6 @@ export default function OurStoryPage() {
               </p>
               <div className="h-px w-full bg-accent/40 my-6" />
             </div>
-          </motion.div>
-
-          {/* Wide Hero Image */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-6 sm:mt-12 aspect-[16/9] sm:aspect-[21/9] overflow-hidden rounded-2xl border border-border bg-surface shadow-md lg:mt-20 group"
-          >
-            <img
-              alt="Customers and visitors exploring authentic Goan products and handcrafted textiles at Global to Local"
-              src="/images/site/community-shoppers.jpg"
-              className="h-full w-full object-cover object-[center_35%] transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-            />
           </motion.div>
         </div>
       </section>
