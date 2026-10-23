@@ -17,13 +17,15 @@ export default function BagPage() {
   return (
     <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen">
       <div className="mx-auto max-w-shell px-5 sm:px-8 lg:px-12">
-        <Link
-          to="/shop"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-content-muted hover:text-accent mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Continue Shopping</span>
-        </Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-2 rounded-pill border border-border/80 bg-surface px-4 py-2 text-xs sm:text-sm font-semibold text-content hover:bg-surface-muted transition-colors shadow-xs"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Shop More</span>
+          </Link>
+        </div>
 
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-content">
           Shopping Cart ({items.reduce((s, i) => s + i.qty, 0)})
@@ -58,9 +60,10 @@ export default function BagPage() {
             <h2 className="font-display text-2xl sm:text-3xl font-semibold text-content">The shopping cart is empty</h2>
             <Link
               to="/shop"
-              className="mt-6 inline-flex items-center justify-center rounded-pill bg-palm px-8 py-3 text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-md active:scale-[0.98]"
+              className="mt-6 inline-flex items-center justify-center gap-2 rounded-pill bg-[#3D2C22] px-8 py-3 text-sm font-semibold text-white hover:bg-[#2A1E17] transition-all duration-200 shadow-md active:scale-[0.98]"
             >
-              Start shopping
+              <ArrowLeft className="w-4 h-4" />
+              <span>Shop More</span>
             </Link>
           </div>
         ) : (
@@ -168,13 +171,23 @@ export default function BagPage() {
                   Prices inclusive of GST. Delivery is ₹80 within Goa (pincode 403xxx) or ₹120 for all other Indian states.
                 </p>
 
-                <Link
-                  to={user ? '/checkout' : '/login?redirect=/checkout'}
-                  className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent py-4 text-sm font-bold text-white hover:bg-accent-hover transition-colors shadow-sm"
-                >
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                <div className="flex flex-col gap-3">
+                  <Link
+                    to={user ? '/checkout' : '/login?redirect=/checkout'}
+                    className="flex w-full items-center justify-center gap-2 rounded-pill bg-[#3D2C22] py-4 text-sm font-bold text-white hover:bg-[#2A1E17] transition-colors shadow-sm"
+                  >
+                    <span>Proceed to Checkout</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+
+                  <Link
+                    to="/shop"
+                    className="flex w-full items-center justify-center gap-2 rounded-pill border border-border/80 bg-surface py-3 text-sm font-semibold text-content hover:bg-surface-muted transition-colors shadow-xs"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Shop More</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

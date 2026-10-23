@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus, ShoppingCart, ArrowRight, Trash2 } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { useCartStore } from '../../lib/cart-store';
 import { useAuthStore } from '../../lib/auth-store';
 import { formatPrice } from '../../lib/data';
@@ -92,9 +92,10 @@ export default function BagDrawer() {
                   <Link
                     to="/shop"
                     onClick={closeCart}
-                    className="mt-6 inline-flex cursor-pointer items-center justify-center rounded-pill bg-palm px-8 py-3 text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-md active:scale-[0.98]"
+                    className="mt-6 inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-[#3D2C22] px-8 py-3 text-sm font-semibold text-white hover:bg-[#2A1E17] transition-all duration-200 shadow-md active:scale-[0.98]"
                   >
-                    Start shopping
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Shop More</span>
                   </Link>
                 </div>
               ) : (
@@ -188,15 +189,23 @@ export default function BagDrawer() {
                   <Link
                     to={user ? '/checkout' : '/login?redirect=/checkout'}
                     onClick={closeCart}
-                    className="flex w-full items-center justify-center gap-2 rounded-pill bg-accent px-6 py-3.5 text-sm font-bold text-white hover:bg-accent-hover transition-colors shadow-sm"
+                    className="flex w-full items-center justify-center gap-2 rounded-pill bg-[#3D2C22] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#2A1E17] transition-colors shadow-sm"
                   >
                     <span>Proceed to Checkout</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                   <Link
+                    to="/shop"
+                    onClick={closeCart}
+                    className="flex w-full items-center justify-center gap-2 rounded-pill border border-border/80 bg-surface px-6 py-2.5 text-sm font-semibold text-content hover:bg-surface-muted transition-colors shadow-xs"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Shop More</span>
+                  </Link>
+                  <Link
                     to="/cart"
                     onClick={closeCart}
-                    className="flex w-full items-center justify-center rounded-pill border border-border px-6 py-2.5 text-sm font-semibold text-content hover:bg-surface-muted transition-colors"
+                    className="flex w-full items-center justify-center rounded-pill border border-border/60 bg-surface px-6 py-2 text-xs font-semibold text-content-muted hover:text-content hover:bg-surface-muted transition-colors"
                   >
                     View Full Shopping Cart
                   </Link>
