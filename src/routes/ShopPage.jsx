@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Check, X } from 'lucide-react';
+import { Search, Check, X, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import { useCategories, useAllProducts, ProductGridSkeleton } from '../lib/catalogue-hooks';
 import ProductCard from '../components/product/ProductCard';
 import ShellShelf from '../components/home/ShellShelf';
@@ -18,6 +18,15 @@ export default function ShopPage() {
   const currentSort = searchParams.get('sort') || 'featured';
   const inStockOnly = searchParams.get('in_stock') === 'true';
 
+  const [expandedShelves, setExpandedShelves] = useState({});
+
+  const toggleShelf = (slug) => {
+    setExpandedShelves((prev) => ({
+      ...prev,
+      [slug]: !prev[slug],
+    }));
+  };
+
   const updateFilters = (key, value) => {
     const next = new URLSearchParams(searchParams);
     if (value && value !== 'all' && value !== false) {
@@ -31,6 +40,12 @@ export default function ShopPage() {
   const clearAllFilters = () => {
     setSearchParams({});
   };
+
+  // Selected category object
+  const selectedCategoryObj = useMemo(() => {
+    if (currentCategory === 'all') return null;
+    return categories.find((c) => c.slug === currentCategory);
+  }, [categories, currentCategory]);
 
   // Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
@@ -64,6 +79,26 @@ export default function ShopPage() {
         return 0; // featured
       });
   }, [products, currentCategory, currentSearch, currentSort, inStockOnly]);
+
+  // Group products by category when viewing "all" without search query
+  const categorizedShelves = useMemo(() => {
+    if (currentCategory !== 'all' || currentSearch.trim() !== '') {
+      return null;
+    }
+
+    return categories
+      .map((cat) => {
+        const catProducts = filteredProducts.filter((p) => {
+          const pCat = p.categorySlug || p.category_slug || (p.category && p.category.slug);
+          return pCat === cat.slug;
+        });
+        return {
+          category: cat,
+          products: catProducts,
+        };
+      })
+      .filter((shelf) => shelf.products.length > 0);
+  }, [categories, filteredProducts, currentCategory, currentSearch]);
 
   return (
     <main id="main" className="min-w-0 bg-ground pt-24 sm:pt-28 lg:pt-32 pb-20">
@@ -265,11 +300,111 @@ export default function ShopPage() {
                 Reset Filters
               </button>
             </motion.div>
+          ) : categorizedShelves ? (
+            /* 13 Categorized Shelves View */
+            <div className="mt-10 space-y-16">
+              {categorizedShelves.map((shelf) => {
+                const isExpanded = !!expandedShelves[shelf.category.slug];
+                const visibleProducts = isExpanded ? shelf.products : shelf.products.slice(0, 4);
+                const hasMore = shelf.products.length > 4;
+
+                return (
+                  <section
+                    key={shelf.category.slug}
+                    id={`shelf-${shelf.category.slug}`}
+                    className="border-b border-border/30 pb-12 last:border-b-0 last:pb-0"
+                  >
+                    {/* Shelf Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-border/20 pb-4 mb-6">
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-display text-2xl sm:text-3xl font-semibold text-content">
+                            {shelf.category.name}
+                          </h3>
+                          <span className="rounded-pill bg-palm/10 px-3 py-0.5 text-xs font-semibold text-palm">
+                            {shelf.products.length} {shelf.products.length === 1 ? 'product' : 'products'}
+                          </span>
+                        </div>
+                        {shelf.category.blurb && (
+                          <p className="mt-1.5 text-xs sm:text-sm text-content-muted max-w-2xl">
+                            {shelf.category.blurb}
+                          </p>
+                        )}
+                      </div>
+
+                      {hasMore && (
+                        <button
+                          type="button"
+                          onClick={() => updateFilters('category', shelf.category.slug)}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-palm hover:text-ink-deep transition-colors cursor-pointer self-start sm:self-auto"
+                        >
+                          <span>View full shelf ({shelf.products.length})</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Products Grid */}
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-6">
+                      {visibleProducts.map((product, idx) => (
+                        <ProductCard key={product.id} product={product} priority={idx < 4} />
+                      ))}
+                    </div>
+
+                    {/* Show More / Show Less Button */}
+                    {hasMore && (
+                      <div className="mt-8 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => toggleShelf(shelf.category.slug)}
+                          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-palm/40 bg-surface px-7 py-3 text-xs sm:text-sm font-semibold text-palm hover:bg-palm hover:border-palm hover:text-white transition-all duration-200 shadow-xs active:scale-[0.98]"
+                        >
+                          {isExpanded ? (
+                            <>
+                              <span>Show Less</span>
+                              <ChevronUp className="w-4 h-4" />
+                            </>
+                          ) : (
+                            <>
+                              <span>Show More ({shelf.products.length} {shelf.category.name})</span>
+                              <ChevronDown className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
           ) : (
-            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-6">
-              {filteredProducts.map((product, idx) => (
-                <ProductCard key={product.id} product={product} priority={idx < 8} />
-              ))}
+            /* Single Category or Search Filtered Grid */
+            <div>
+              {selectedCategoryObj && (
+                <div className="mt-8 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/30 pb-4">
+                  <div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-semibold text-content">
+                      {selectedCategoryObj.name}
+                    </h3>
+                    <p className="mt-1 text-xs sm:text-sm text-content-muted">
+                      Showing all {filteredProducts.length} products in this shelf
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => updateFilters('category', 'all')}
+                    className="inline-flex items-center gap-1.5 rounded-pill border border-border/80 bg-surface px-4 py-2 text-xs font-semibold text-content hover:bg-surface-muted transition-colors cursor-pointer self-start sm:self-auto"
+                  >
+                    <span>← Back to all shelves</span>
+                  </button>
+                </div>
+              )}
+
+              <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-6">
+                {filteredProducts.map((product, idx) => (
+                  <ProductCard key={product.id} product={product} priority={idx < 8} />
+                ))}
+              </div>
             </div>
           )}
         </div>
