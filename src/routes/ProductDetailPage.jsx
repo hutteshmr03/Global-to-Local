@@ -200,46 +200,51 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Stepper and Add To Bag Button */}
-            <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
-              {/* Stepper */}
-              <div className="flex h-12 items-center justify-between rounded-pill border border-border bg-surface px-4 sm:w-36 shadow-xs">
+            <div className="mt-7 flex items-center gap-2.5 sm:gap-3.5">
+              {/* Stepper (Compact on mobile, left side) */}
+              <div className="flex h-11 sm:h-12 w-28 sm:w-36 shrink-0 items-center justify-between rounded-pill border border-border/80 bg-surface px-2.5 sm:px-4 shadow-xs">
                 <button
+                  type="button"
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  className="p-1 text-content hover:text-accent transition-colors cursor-pointer"
+                  className="p-1 text-content hover:text-accent transition-colors cursor-pointer active:scale-90"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="font-sans text-sm font-bold text-content">{qty}</span>
+                <span className="font-sans text-xs sm:text-sm font-bold text-content select-none">{qty}</span>
                 <button
+                  type="button"
                   onClick={() => setQty(Math.min(20, qty + 1))}
                   disabled={qty >= 20}
-                  className="p-1 text-content hover:text-accent disabled:opacity-30 transition-colors cursor-pointer"
+                  className="p-1 text-content hover:text-accent disabled:opacity-30 transition-colors cursor-pointer active:scale-90"
                   aria-label="Increase quantity"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              {/* Add to Bag Button */}
+              {/* Add to Bag Button (Right side, fills remaining space) */}
               <button
+                type="button"
                 onClick={handleAddToCart}
                 disabled={product.inStock === false}
-                className={`flex-1 flex h-12 items-center justify-center gap-2 rounded-pill px-8 text-sm sm:text-base font-bold text-white disabled:opacity-40 transition-all shadow-md hover:shadow-lg cursor-pointer ${
+                className={`flex-1 flex h-11 sm:h-12 items-center justify-center gap-1.5 sm:gap-2 rounded-pill px-3 sm:px-8 text-xs sm:text-base font-bold text-white disabled:opacity-40 transition-all shadow-md hover:shadow-lg cursor-pointer whitespace-nowrap active:scale-[0.99] ${
                   isAdded
-                    ? 'bg-palm hover:bg-palm scale-[1.02]'
+                    ? 'bg-palm hover:bg-palm scale-[1.01]'
                     : 'bg-accent hover:bg-accent-hover'
                 }`}
               >
                 {isAdded ? (
                   <>
-                    <Check className="w-4 h-4 stroke-[3]" />
-                    <span>Added {qty > 1 ? `${qty} items` : ''} to Bag!</span>
+                    <Check className="w-4 h-4 stroke-[3] shrink-0" />
+                    <span>Added to Bag!</span>
                   </>
                 ) : (
                   <>
-                    <Plus className="w-4 h-4" />
-                    <span className="font-sans font-bold tabular-nums">Add {qty > 1 ? `${qty} items` : ''} to Bag · {formatPrice((product.price ?? product.price_paise ?? 0) * qty)}</span>
+                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                    <span className="font-sans font-bold tabular-nums truncate">
+                      Add to Bag · {formatPrice((product.price ?? product.price_paise ?? 0) * qty)}
+                    </span>
                   </>
                 )}
               </button>
