@@ -73,7 +73,7 @@ export default function ProductCard({ product, priority = false }) {
 
   return (
     <div className="group relative flex flex-col justify-between rounded-xl bg-surface border border-border/40 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      <Link to={`/product/${product.slug}`} className="flex flex-col flex-1">
+      <Link to={`/product/${product.slug}`} className="flex flex-col">
         {/* Product Image */}
         <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-surface-muted">
           <img
@@ -97,25 +97,21 @@ export default function ProductCard({ product, priority = false }) {
         </div>
 
         {/* Info */}
-        <div className="mt-4 flex flex-col flex-1 justify-between">
-          <div>
-            <h3 className="font-display text-base font-semibold text-content group-hover:text-accent line-clamp-1 transition-colors">
-              {product.name}
-            </h3>
-            <p className="mt-1 text-xs text-content-muted line-clamp-2">
-              {displayDesc}
-            </p>
-          </div>
+        <div className="mt-3 flex flex-col">
+          <h3 className="font-display text-sm sm:text-base font-semibold text-content group-hover:text-accent line-clamp-1 transition-colors">
+            {product.name}
+          </h3>
+          <p className="mt-1 text-xs text-content-muted line-clamp-2 leading-relaxed min-h-[2.25rem]">
+            {displayDesc}
+          </p>
           
-          <div className="mt-4 flex items-baseline justify-between border-t border-border/20 pt-3">
-            <div className="flex items-baseline gap-1">
-              <span className="font-sans text-base font-bold tabular-nums tracking-tight text-content">
-                {formatPrice(displayPricePaise)}
-              </span>
-              <span className="text-xs text-content-subtle">
-                / {displayWeight}
-              </span>
-            </div>
+          <div className="mt-2.5 flex items-baseline gap-1">
+            <span className="font-sans text-base font-bold tabular-nums tracking-tight text-content">
+              {formatPrice(displayPricePaise)}
+            </span>
+            <span className="text-xs text-content-subtle">
+              / {displayWeight}
+            </span>
           </div>
         </div>
       </Link>
