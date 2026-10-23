@@ -111,7 +111,7 @@ export default function OurStoryPage() {
       </section>
 
       {/* 2. SOCIAL VENTURE GENESIS */}
-      <section className="pt-6 pb-8 sm:pt-16 sm:pb-16 lg:py-28 bg-ground text-content border-t border-border/40">
+      <section className="pt-6 pb-6 sm:pt-10 sm:pb-10 lg:pt-12 lg:pb-10 bg-ground text-content border-t border-border/40">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
           {/* Heading - strictly in one row */}
           <motion.div
@@ -119,7 +119,7 @@ export default function OurStoryPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mb-8 sm:mb-12"
+            className="mb-6 sm:mb-8"
           >
             <h2 className="font-display text-2xl sm:text-3xl md:text-3xl lg:text-[2.25rem] xl:text-[2.5rem] font-semibold leading-tight text-content tracking-tight md:whitespace-nowrap">
               Conceptualised during the pandemic, as a social venture
@@ -203,7 +203,7 @@ export default function OurStoryPage() {
       </section>
 
       {/* 3. WHERE IT ALL COMES FROM */}
-      <section className="relative pt-6 pb-8 sm:pt-14 sm:pb-16 lg:py-28 overflow-hidden bg-ground border-t border-border/40">
+      <section className="relative pt-6 pb-6 sm:pt-8 sm:pb-8 lg:pt-10 lg:pb-10 overflow-hidden bg-ground border-t border-border/40">
         <div className="mx-auto w-full max-w-shell px-5 sm:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -215,7 +215,7 @@ export default function OurStoryPage() {
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.04] tracking-[-0.03em] text-content">
               One small state, one long coast
             </h2>
-            <p className="mt-6 text-base sm:text-lg text-content-muted leading-relaxed">
+            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-content-muted leading-relaxed">
               Goa is not just about kokum, cashew and fish just walk into the store and learn more.
             </p>
           </motion.div>
@@ -236,7 +236,7 @@ export default function OurStoryPage() {
       </section>
 
       {/* 4. WHAT TWO YEARS OF BUYING LOCAL ADDS UP TO (STATS) */}
-      <section className="relative isolate py-12 sm:py-20 lg:py-24 mx-[clamp(12px,2.5vw,32px)] my-2 sm:my-4 overflow-clip rounded-2xl bg-palm text-content-ondark palm-shade shadow-xl">
+      <section className="relative isolate py-8 sm:py-12 lg:py-14 mx-[clamp(12px,2.5vw,32px)] my-2 sm:my-3 overflow-clip rounded-2xl bg-palm text-content-ondark palm-shade shadow-xl">
         {/* Floating Goan motifs */}
         <ShellDrift tone="dark" />
 
