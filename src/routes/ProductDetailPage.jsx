@@ -245,7 +245,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Reassurance Badges */}
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-border/30 pt-6 text-xs text-content-muted">
+            <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 border-t border-border/30 pt-5 sm:pt-6 text-xs text-content-muted">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-accent shrink-0" />
                 <span>100% Made in Goa</span>
@@ -264,11 +264,11 @@ export default function ProductDetailPage() {
 
         {/* Related Products Shelf */}
         {relatedProducts.length > 0 && (
-          <div className="mt-24 border-t border-border/40 pt-16">
-            <h2 className="font-display text-2xl font-bold tracking-tight text-content sm:text-3xl">
+          <div className="mt-8 sm:mt-12 border-t border-border/40 pt-6 sm:pt-8">
+            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-content sm:text-3xl">
               More from the {category?.name} Shelf
             </h2>
-            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 sm:gap-6">
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 sm:gap-6">
               {relatedProducts.map(p => (
                 <ProductCard key={p.id} product={p} />
               ))}
