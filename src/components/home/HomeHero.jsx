@@ -24,15 +24,15 @@ export default function HomeHero() {
   }, [isPlayingAudio]);
 
   useEffect(() => {
-    // 1st photo stays clean without text/cards for 5 seconds, then content fades in smoothly
+    // 1st photo stays clean without text/cards for 4 seconds, then content fades in ultra-smoothly
     const contentTimer = setTimeout(() => {
       setShowContent(true);
-    }, 5000);
+    }, 4000);
 
-    // 1st photo remains visible for at least 7 seconds before gentle video transition
+    // Photo begins smooth crossfade at 4 seconds
     const videoTimer = setTimeout(() => {
       setIsVideoReady(true);
-    }, 7500);
+    }, 4200);
 
     return () => {
       clearTimeout(contentTimer);
@@ -61,7 +61,7 @@ export default function HomeHero() {
 
         {/* 2. Storefront Image Layer (Top) - Expanded edge-to-edge left & right */}
         <div
-          className={`absolute inset-0 w-full h-full transition-opacity duration-[4500ms] ease-in-out ${
+          className={`absolute inset-0 w-full h-full transition-opacity duration-[3500ms] ease-in-out ${
             isVideoReady ? 'opacity-0 pointer-events-none' : 'opacity-100'
           }`}
         >
@@ -79,8 +79,8 @@ export default function HomeHero() {
       {/* Exact Live Film Scrim */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 film-scrim transition-opacity duration-1000 ${
-          showContent ? 'opacity-100' : 'opacity-35'
+        className={`pointer-events-none absolute inset-0 film-scrim transition-opacity duration-[2500ms] ease-in-out ${
+          showContent ? 'opacity-100' : 'opacity-25'
         }`}
       />
 
@@ -90,9 +90,9 @@ export default function HomeHero() {
       {/* Main Hero Content */}
       <div className="relative z-10 flex min-h-dvh flex-col justify-end mx-auto max-w-shell px-5 pb-[max(3.6rem,calc(3.2rem+env(safe-area-inset-bottom)))] sm:px-8 sm:pb-8 lg:px-12 lg:pb-10 w-full">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, y: 18 }}
+          animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
+          transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-[26rem] sm:max-w-[46rem] lg:max-w-[56rem]"
         >
           {/* Tagline */}
@@ -142,7 +142,7 @@ export default function HomeHero() {
         aria-hidden="true"
         initial={{ opacity: 0 }}
         animate={showContent ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
         className="pointer-events-none absolute bottom-24 right-5 z-20 hidden flex-col items-center gap-4 sm:right-8 sm:flex lg:right-12"
       >
         <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-content-ondark/80 [writing-mode:vertical-rl] [text-shadow:0_1px_4px_rgba(18,38,43,0.6)]">
@@ -161,7 +161,7 @@ export default function HomeHero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={showContent ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
         className="pointer-events-auto absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-20 sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:right-8 lg:right-12"
       >
         <button
