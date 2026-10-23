@@ -149,7 +149,7 @@ export default function AccountPage() {
     try {
       await logout();
     } finally {
-      navigate('/', { replace: true });
+      navigate('/login', { replace: true });
     }
   };
 

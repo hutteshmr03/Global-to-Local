@@ -34,7 +34,7 @@ export default function Header() {
 
   const user = useAuthStore(state => state.user);
   const isAdminUser = user?.role === 'admin';
-  const accountPath = isAdminUser ? '/admin' : '/account';
+  const accountPath = isAdminUser ? '/admin' : user ? '/account' : '/login';
 
   const totalItems = useCartStore(state => state.getTotalItems());
   const openCart = useCartStore(state => state.openCart);
@@ -279,8 +279,8 @@ export default function Header() {
             <Link
               to={accountPath}
               onClick={() => setIsMobileMenuOpen(false)}
-              aria-label={isAdminUser ? 'Admin Office' : 'Customer Account / Profile'}
-              title={isAdminUser ? 'Admin Office' : 'My Account'}
+              aria-label={isAdminUser ? 'Admin Office' : user ? 'Customer Account' : 'Sign In'}
+              title={isAdminUser ? 'Admin Office' : user ? 'My Account' : 'Sign In'}
               className={`relative grid h-10 w-10 sm:h-11 sm:w-11 cursor-pointer place-items-center rounded-pill border transition-all duration-200 active:scale-95 ${
                 isTransparentOnVideo
                   ? 'border-content-ondark/30 text-content-ondark hover:bg-content-ondark/10 hover:border-content-ondark/60'
@@ -401,7 +401,7 @@ export default function Header() {
                       ) : (
                         <User className="w-4 h-4 text-accent" />
                       )}
-                      <span>{isAdminUser ? 'Admin Office' : 'My Account'}</span>
+                      <span>{isAdminUser ? 'Admin Office' : user ? 'My Account' : 'Sign In'}</span>
                     </span>
                     {(pathname.startsWith('/account') || pathname.startsWith('/admin') || pathname.startsWith('/login')) && <span className="text-accent text-xs">●</span>}
                   </Link>

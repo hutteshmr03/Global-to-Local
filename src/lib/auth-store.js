@@ -536,7 +536,15 @@ export const useAuthStore = create((set, get) => {
   },
 
   logout: async () => {
-    // 1. Immediately wipe client tokens and session synchronously so UI reacts instantly
+    // 1. Read refresh token before clearing
+    let refreshToken = null;
+    if (typeof localStorage !== 'undefined') {
+      try {
+        refreshToken = localStorage.getItem('gtl_refresh_token');
+      } catch {}
+    }
+
+    // 2. Immediately wipe client tokens and session synchronously so UI reacts instantly
     persistUserSession(null);
     clearClientAuthTokens();
     if (typeof localStorage !== 'undefined') {
@@ -546,24 +554,28 @@ export const useAuthStore = create((set, get) => {
         localStorage.removeItem('gtl_access_token');
         localStorage.removeItem('gtl_refresh_token');
         localStorage.removeItem('gtl_csrf_token');
+        localStorage.removeItem('gtl.cart.v1');
       } catch {}
     }
+
+    // 3. Clear cookie tokens on client side
+    if (typeof document !== 'undefined') {
+      try {
+        document.cookie = 'gtl_access_token=; Max-Age=0; path=/; SameSite=Lax';
+        document.cookie = 'gtl_refresh_token=; Max-Age=0; path=/; SameSite=Lax';
+        document.cookie = 'gtl_csrf_token=; Max-Age=0; path=/; SameSite=Lax';
+      } catch {}
+    }
+
     set({ user: null, isHydrating: false, isInitialized: true });
     useCartStore.setState({ items: [], isLoggedIn: false });
 
-    // 2. Best-effort server notification with a fast timeout (2.5s) so it never blocks or hangs
+    // 4. Best-effort server notification with direct failover via apiFetch
     try {
-      const refreshToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_refresh_token') : null;
-      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const timeoutId = controller ? setTimeout(() => controller.abort(), 2500) : null;
-      await fetch('/api/v1/auth/logout', {
+      await apiFetch('/api/v1/auth/logout', {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(refreshToken ? { refresh_token: refreshToken } : {}),
-        signal: controller ? controller.signal : undefined,
+        body: refreshToken ? { refresh_token: refreshToken } : {},
       }).catch(() => {});
-      if (timeoutId) clearTimeout(timeoutId);
     } catch {
       // ignore
     }
