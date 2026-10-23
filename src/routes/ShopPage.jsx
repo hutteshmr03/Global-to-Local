@@ -254,11 +254,11 @@ export default function ShopPage() {
                           {blurb || `Authentic Goan ${cat.name.toLowerCase()} sourced directly from local producers.`}
                         </p>
 
-                        {/* Button Under Every Shelf: Show More */}
+                        {/* Button Under Every Shelf: Show More (Dark always - matches Image 2) */}
                         <button
                           type="button"
                           onClick={() => updateFilters('category', cat.slug)}
-                          className="mt-5 w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-palm py-2.5 px-4 text-xs sm:text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-xs active:scale-[0.98]"
+                          className="mt-5 w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-[#3D2C22] py-2.5 px-4 text-xs sm:text-sm font-semibold text-white hover:bg-[#2A1E17] transition-all duration-200 shadow-xs active:scale-[0.98]"
                         >
                           <span>Show More</span>
                           <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

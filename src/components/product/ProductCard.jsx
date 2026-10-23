@@ -160,10 +160,10 @@ export default function ProductCard({ product, priority = false }) {
           type="button"
           onClick={handleQuickAdd}
           disabled={isSoldOut}
-          className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2 text-xs font-semibold disabled:opacity-40 transition-all border cursor-pointer ${
+          className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2.5 text-xs font-semibold disabled:opacity-40 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
             isAdded
-              ? 'bg-palm text-white border-palm scale-[1.02] shadow-sm'
-              : 'bg-ground-alt text-palm hover:bg-palm hover:text-white border-border/40'
+              ? 'bg-palm text-white scale-[1.02]'
+              : 'bg-[#E5A823] text-white hover:bg-[#CD9216]'
           }`}
           aria-label={`Add ${product.name} to cart`}
         >
