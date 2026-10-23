@@ -9,8 +9,9 @@ const RENDER_BACKEND_URL = 'https://global-to-local.onrender.com';
 
 let inMemoryCsrfToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_csrf_token') : null;
 let inMemoryAccessToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_access_token') : null;
+let inMemoryRefreshToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_refresh_token') : null;
 
-export function setClientAuthTokens({ csrfToken, accessToken } = {}) {
+export function setClientAuthTokens({ csrfToken, accessToken, refreshToken } = {}) {
   if (csrfToken !== undefined) {
     inMemoryCsrfToken = csrfToken;
     try {
@@ -25,14 +26,24 @@ export function setClientAuthTokens({ csrfToken, accessToken } = {}) {
       else localStorage.removeItem('gtl_access_token');
     } catch {}
   }
+  if (refreshToken !== undefined) {
+    inMemoryRefreshToken = refreshToken;
+    try {
+      if (refreshToken) localStorage.setItem('gtl_refresh_token', refreshToken);
+      else localStorage.removeItem('gtl_refresh_token');
+    } catch {}
+  }
 }
 
 export function clearClientAuthTokens() {
   inMemoryCsrfToken = null;
   inMemoryAccessToken = null;
+  inMemoryRefreshToken = null;
   try {
     localStorage.removeItem('gtl_csrf_token');
     localStorage.removeItem('gtl_access_token');
+    localStorage.removeItem('gtl_refresh_token');
+    localStorage.removeItem('gtl_user_session');
   } catch {}
 }
 
@@ -163,16 +174,23 @@ export async function apiFetch(path, options = {}) {
     !path.includes('/auth/refresh')
   ) {
     try {
+      const refreshPayload = inMemoryRefreshToken ? { refresh_token: inMemoryRefreshToken } : {};
       const refreshRes = await fetch('/api/v1/auth/refresh', {
         method: 'POST',
         credentials: 'include',
-        headers: { Accept: 'application/json' },
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          ...(inMemoryRefreshToken ? { 'X-Refresh-Token': inMemoryRefreshToken } : {}),
+        },
+        body: JSON.stringify(refreshPayload),
       });
       if (refreshRes.ok) {
         const refreshData = await refreshRes.json();
         setClientAuthTokens({
           csrfToken: refreshData.csrf_token,
           accessToken: refreshData.access_token,
+          refreshToken: refreshData.refresh_token || inMemoryRefreshToken,
         });
         return apiFetch(path, { ...options, _retried: true });
       }

@@ -19,8 +19,8 @@ REFRESH_COOKIE_NAME = "gtl_refresh_token"
 CSRF_COOKIE_NAME = "gtl_csrf_token"
 CART_SESSION_COOKIE_NAME = "gtl_cart_session"
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
-REFRESH_TOKEN_EXPIRE_DAYS = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 365  # 1 year: Persistent session until intentional logout
+REFRESH_TOKEN_EXPIRE_DAYS = 365              # 1 year: Persistent refresh token
 
 ph = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=4)
 

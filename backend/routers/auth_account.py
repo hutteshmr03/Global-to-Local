@@ -153,6 +153,7 @@ def issue_session_and_cookies(
     return {
         "user": serialize_user(user),
         "access_token": access_token,
+        "refresh_token": raw_refresh,
         "csrf_token": csrf_token,
         "cart": serialize_cart(merged_cart),
     }
@@ -935,12 +936,22 @@ def reset_password(
 
 
 @router.post("/auth/refresh")
-def refresh_session(
+async def refresh_session(
     request: Request,
     response: Response,
     db: Session = Depends(get_db),
 ):
     raw_refresh = request.cookies.get(REFRESH_COOKIE_NAME)
+    if not raw_refresh:
+        raw_refresh = request.headers.get("X-Refresh-Token")
+    if not raw_refresh:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                raw_refresh = body.get("refresh_token")
+        except Exception:
+            pass
+
     if not raw_refresh:
         raise ProblemException(
             status_code=401,
@@ -1004,17 +1015,28 @@ def refresh_session(
     return {
         "user": serialize_user(user),
         "access_token": access_token,
+        "refresh_token": new_raw_refresh,
         "csrf_token": csrf_token,
     }
 
 
 @router.post("/auth/logout")
-def logout_session(
+async def logout_session(
     request: Request,
     response: Response,
     db: Session = Depends(get_db),
 ):
     raw_refresh = request.cookies.get(REFRESH_COOKIE_NAME)
+    if not raw_refresh:
+        raw_refresh = request.headers.get("X-Refresh-Token")
+    if not raw_refresh:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                raw_refresh = body.get("refresh_token")
+        except Exception:
+            pass
+
     if raw_refresh:
         r_hash = hash_token(raw_refresh)
         session_row = db.query(UserSession).filter(UserSession.refresh_token_hash == r_hash).first()

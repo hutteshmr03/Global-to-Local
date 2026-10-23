@@ -65,6 +65,28 @@ function mapServerOrderToUiOrder(order) {
   };
 }
 
+
+function loadSavedUserSession() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('gtl_user_session');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistUserSession(uiUser) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (uiUser) {
+      localStorage.setItem('gtl_user_session', JSON.stringify(uiUser));
+    } else {
+      localStorage.removeItem('gtl_user_session');
+    }
+  } catch {}
+}
+
 function mapServerUserToUiUser(u, addresses = [], orders = []) {
   if (!u) return null;
   const rawPhone = u.phone || '';
@@ -96,17 +118,22 @@ function mapServerUserToUiUser(u, addresses = [], orders = []) {
   };
 }
 
-export const useAuthStore = create((set, get) => ({
-  user: null,
-  isHydrating: true,
-  isInitialized: false,
+export const useAuthStore = create((set, get) => {
+  const cachedUser = loadSavedUserSession();
+  return {
+  user: cachedUser,
+  isHydrating: !cachedUser,
+  isInitialized: true,
 
   fetchMe: async () => {
     return await get().hydrateSession();
   },
 
   hydrateSession: async () => {
-    set({ isHydrating: true });
+    const existing = get().user || loadSavedUserSession();
+    if (existing && !get().user) {
+      set({ user: existing });
+    }
     try {
       const me = await apiFetch('/api/v1/me');
       let ordersList = [];
@@ -117,10 +144,26 @@ export const useAuthStore = create((set, get) => ({
         ordersList = [];
       }
       const uiUser = mapServerUserToUiUser(me, me.addresses || [], ordersList);
+      persistUserSession(uiUser);
       set({ user: uiUser, isHydrating: false, isInitialized: true });
       await useCartStore.getState().hydrateCart(true);
       return uiUser;
-    } catch {
+    } catch (err) {
+      // If server unreachable or error, DO NOT log off unless explicit 401 without refresh capability
+      const hasRefreshToken = typeof localStorage !== 'undefined' && localStorage.getItem('gtl_refresh_token');
+      if (err?.status === 401 && !hasRefreshToken) {
+        // Intentionally invalid / revoked
+        persistUserSession(null);
+        set({ user: null, isHydrating: false, isInitialized: true });
+        await useCartStore.getState().hydrateCart(false);
+        return null;
+      }
+      // Never log off customer on refresh, background calls, or temporary failures
+      if (existing) {
+        set({ user: existing, isHydrating: false, isInitialized: true });
+        await useCartStore.getState().hydrateCart(true);
+        return existing;
+      }
       set({ user: null, isHydrating: false, isInitialized: true });
       await useCartStore.getState().hydrateCart(false);
       return null;
@@ -143,6 +186,7 @@ export const useAuthStore = create((set, get) => ({
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
+        refreshToken: res.refresh_token,
       });
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
@@ -190,6 +234,7 @@ export const useAuthStore = create((set, get) => ({
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
+        refreshToken: res.refresh_token,
       });
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
@@ -219,6 +264,7 @@ export const useAuthStore = create((set, get) => ({
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
+        refreshToken: res.refresh_token,
       });
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
@@ -246,6 +292,7 @@ export const useAuthStore = create((set, get) => ({
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
+        refreshToken: res.refresh_token,
       });
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
@@ -280,6 +327,7 @@ export const useAuthStore = create((set, get) => ({
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
+        refreshToken: res.refresh_token,
       });
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
@@ -301,6 +349,7 @@ export const useAuthStore = create((set, get) => ({
       setClientAuthTokens({
         csrfToken: res.csrf_token,
         accessToken: res.access_token,
+        refreshToken: res.refresh_token,
       });
       if (res.cart) {
         useCartStore.getState().setFromServerCart(res.cart, true);
@@ -488,14 +537,20 @@ export const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      await apiFetch('/api/v1/auth/logout', { method: 'POST' });
+      const refreshToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_refresh_token') : null;
+      await apiFetch('/api/v1/auth/logout', {
+        method: 'POST',
+        body: refreshToken ? { refresh_token: refreshToken } : undefined,
+      });
     } catch {
       // ignore
     }
-    setClientAuthTokens({ csrfToken: null, accessToken: null });
+    persistUserSession(null);
+    clearClientAuthTokens();
     set({ user: null, isHydrating: false, isInitialized: true });
     useCartStore.setState({ items: [], isLoggedIn: false });
   },
 
   isAuthenticated: () => Boolean(get().user),
-}));
+};
+});
