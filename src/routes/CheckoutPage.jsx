@@ -121,7 +121,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <main className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen text-center">
-        <h1 className="font-display text-2xl font-bold text-content">Your Bag is Empty</h1>
+        <h1 className="font-display text-2xl font-bold text-content">Your Cart is Empty</h1>
         <p className="mt-2 text-sm text-content-muted">Please add products before checking out.</p>
         <Link to="/shop" className="mt-6 inline-block rounded-pill bg-palm px-8 py-3 text-sm font-semibold text-white">
           Return to Shop
@@ -213,11 +213,11 @@ export default function CheckoutPage() {
     <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen">
       <div className="mx-auto max-w-shell px-5 sm:px-8 lg:px-12">
         <Link
-          to="/bag"
+          to="/cart"
           className="inline-flex items-center gap-2 text-xs font-semibold text-content-muted hover:text-accent mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Bag</span>
+          <span>Back to Cart</span>
         </Link>
 
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-content mb-8">

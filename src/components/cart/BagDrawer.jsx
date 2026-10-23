@@ -20,7 +20,7 @@ export default function BagDrawer() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label="Shopping Bag">
+        <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label="Shopping Cart">
           {/* Dimmed Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -156,7 +156,7 @@ export default function BagDrawer() {
                                 onClick={() => removeItem(product.id)}
                                 className="flex h-7 w-7 items-center justify-center rounded-full text-content-muted hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
                                 title="Remove item"
-                                aria-label={`Remove ${product.name} from bag`}
+                                aria-label={`Remove ${product.name} from cart`}
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -194,7 +194,7 @@ export default function BagDrawer() {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                   <Link
-                    to="/bag"
+                    to="/cart"
                     onClick={closeCart}
                     className="flex w-full items-center justify-center rounded-pill border border-border px-6 py-2.5 text-sm font-semibold text-content hover:bg-surface-muted transition-colors"
                   >

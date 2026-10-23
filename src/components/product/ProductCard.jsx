@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, Check, ShoppingBag } from 'lucide-react';
+import { Plus, Minus, Check, ShoppingCart } from 'lucide-react';
 import { formatPrice } from '../../lib/data';
 import { useCartStore } from '../../lib/cart-store';
 import { useFlyToCart } from '../cart/FlyToCart';
@@ -96,8 +96,8 @@ export default function ProductCard({ product, priority = false }) {
           />
           {inCartQty > 0 && (
             <span className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-pill bg-palm px-2.5 py-0.5 text-[11px] font-bold text-white shadow-md">
-              <ShoppingBag className="w-3 h-3 text-white" />
-              <span>{inCartQty} in Bag</span>
+              <ShoppingCart className="w-3 h-3 text-white" />
+              <span>{inCartQty} in Cart</span>
             </span>
           )}
           {isSoldOut && (
@@ -143,7 +143,7 @@ export default function ProductCard({ product, priority = false }) {
             <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
           <span className="font-sans text-xs font-bold px-2 select-none flex items-center gap-1">
-            <span>{inCartQty} in Bag</span>
+            <span>{inCartQty} in Cart</span>
           </span>
           <button
             type="button"
@@ -165,7 +165,7 @@ export default function ProductCard({ product, priority = false }) {
               ? 'bg-palm text-white border-palm scale-[1.02] shadow-sm'
               : 'bg-ground-alt text-palm hover:bg-palm hover:text-white border-border/40'
           }`}
-          aria-label={`Add ${product.name} to bag`}
+          aria-label={`Add ${product.name} to cart`}
         >
           {isAdded ? (
             <>
@@ -175,7 +175,7 @@ export default function ProductCard({ product, priority = false }) {
           ) : (
             <>
               <Plus className="w-3.5 h-3.5" />
-              <span>Add to Bag</span>
+              <span>Add to Cart</span>
             </>
           )}
         </button>

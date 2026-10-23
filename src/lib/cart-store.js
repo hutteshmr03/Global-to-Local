@@ -106,7 +106,7 @@ export const useCartStore = create((set, get) => ({
     const desiredTotal = (existing ? existing.qty : 0) + qty;
 
     if (desiredTotal > 20) {
-      set({ cartError: 'Maximum 20 pieces per item allowed in your bag.' });
+      set({ cartError: 'Maximum 20 pieces per item allowed in your cart.' });
       return;
     }
 
@@ -148,7 +148,7 @@ export const useCartStore = create((set, get) => ({
         err?.status === 404
           ? 'This product is currently unavailable.'
           : err?.status === 409 || err?.status === 422
-          ? (err.detail || err.message || 'Unable to add item to bag.')
+          ? (err.detail || err.message || 'Unable to add item to cart.')
           : 'Something went wrong. Please try again.';
       set({
         items: prevItems,
@@ -162,7 +162,7 @@ export const useCartStore = create((set, get) => ({
       return get().removeItem(productId);
     }
     if (qty > 20) {
-      set({ cartError: 'Maximum 20 pieces per item allowed in your bag.' });
+      set({ cartError: 'Maximum 20 pieces per item allowed in your cart.' });
       return;
     }
 

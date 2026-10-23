@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Plus, Minus, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, ArrowRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { useCartStore } from '../lib/cart-store';
 import { useAuthStore } from '../lib/auth-store';
 import { formatPrice } from '../lib/data';
@@ -26,7 +26,7 @@ export default function BagPage() {
         </Link>
 
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-content">
-          Shopping Bag ({items.reduce((s, i) => s + i.qty, 0)})
+          Shopping Cart ({items.reduce((s, i) => s + i.qty, 0)})
         </h1>
         {cartError && (
           <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs font-medium text-red-700">
@@ -122,7 +122,7 @@ export default function BagPage() {
                             onClick={() => removeItem(product.id)}
                             className="flex h-8 w-8 items-center justify-center rounded-full text-content-muted hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
                             title="Remove item"
-                            aria-label={`Remove ${product.name} from bag`}
+                            aria-label={`Remove ${product.name} from cart`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

@@ -49,6 +49,7 @@ function AppShell() {
       '/login',
       '/account',
       '/bag',
+      '/cart',
       '/checkout',
       '/terms-and-conditions',
       '/privacy-policy',
@@ -88,6 +89,7 @@ function AppShell() {
           <Route path="/terms-and-conditions" element={<PoliciesPage />} />
           <Route path="/privacy-policy" element={<PoliciesPage />} />
           <Route path="/bag" element={<BagPage />} />
+          <Route path="/cart" element={<BagPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order/:orderNumber" element={<OrderConfirmationPage />} />
           <Route path="/account" element={<AccountPage />} />

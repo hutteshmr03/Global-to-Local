@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Plus, Minus, Check, ShieldCheck, Truck, MapPin, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Check, ShieldCheck, Truck, MapPin, ShoppingCart } from 'lucide-react';
 import { formatPrice } from '../lib/data';
 import { useProductDetail, useCategories } from '../lib/catalogue-hooks';
 import { useCartStore } from '../lib/cart-store';
@@ -193,13 +193,13 @@ export default function ProductDetailPage() {
               </div>
               {inCartQty > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-pill bg-palm/15 border border-palm/25 text-palm px-3 py-1 text-xs font-bold">
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>{inCartQty} currently in your bag</span>
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  <span>{inCartQty} currently in your cart</span>
                 </span>
               )}
             </div>
 
-            {/* Stepper and Add To Bag Button */}
+            {/* Stepper and Add To Cart Button */}
             <div className="mt-7 flex items-center gap-2.5 sm:gap-3.5">
               {/* Stepper (Compact on mobile, left side) */}
               <div className="flex h-11 sm:h-12 w-28 sm:w-36 shrink-0 items-center justify-between rounded-pill border border-border/80 bg-surface px-2.5 sm:px-4 shadow-xs">
@@ -223,7 +223,7 @@ export default function ProductDetailPage() {
                 </button>
               </div>
 
-              {/* Add to Bag Button (Right side, fills remaining space) */}
+              {/* Add to Cart Button (Right side, fills remaining space) */}
               <button
                 type="button"
                 onClick={handleAddToCart}
@@ -237,13 +237,13 @@ export default function ProductDetailPage() {
                 {isAdded ? (
                   <>
                     <Check className="w-4 h-4 stroke-[3] shrink-0" />
-                    <span>Added to Bag!</span>
+                    <span>Added to Cart!</span>
                   </>
                 ) : (
                   <>
                     <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                     <span className="font-sans font-bold tabular-nums truncate">
-                      Add to Bag · {formatPrice((product.price ?? product.price_paise ?? 0) * qty)}
+                      Add to Cart · {formatPrice((product.price ?? product.price_paise ?? 0) * qty)}
                     </span>
                   </>
                 )}
