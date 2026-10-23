@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { apiFetch } from './api-client';
 
 const GUEST_CART_STORAGE_KEY = 'gtl.cart.v1';
+const pendingUpdateTimers = new Map();
 
 function mapServerCartToStoreItems(serverCart) {
   if (!serverCart || !Array.isArray(serverCart.items)) return [];
@@ -22,6 +23,24 @@ function mapServerCartToStoreItems(serverCart) {
       availableQuantity: ci.available_quantity ?? 50,
     },
   }));
+}
+
+function mergeStoreItemsWithServer(localItems, serverItems) {
+  if (!serverItems || !Array.isArray(serverItems) || serverItems.length === 0) {
+    return localItems;
+  }
+  const merged = [...serverItems];
+  for (const local of localItems) {
+    const exists = merged.some(
+      (m) =>
+        (m.product?.id && m.product.id === local.product?.id) ||
+        (m.product?.slug && m.product.slug === local.product?.slug)
+    );
+    if (!exists) {
+      merged.push(local);
+    }
+  }
+  return merged;
 }
 
 function loadGuestItems() {
@@ -62,11 +81,14 @@ export const useCartStore = create((set, get) => ({
     if (isLoggedIn) {
       try {
         localStorage.removeItem(GUEST_CART_STORAGE_KEY);
-      } catch {
-        // ignore
-      }
+      } catch {}
+      set({ items: mapped, isLoggedIn: true, cartError: null });
+    } else {
+      const current = get().items;
+      const merged = mergeStoreItemsWithServer(current, mapped);
+      saveGuestItems(merged, false);
+      set({ items: merged, isLoggedIn: false, cartError: null });
     }
-    set({ items: mapped, isLoggedIn, cartError: null });
   },
 
   hydrateCart: async (isLoggedIn = false) => {
@@ -138,22 +160,11 @@ export const useCartStore = create((set, get) => ({
           quantity: qty,
         },
       });
-      const synced = mapServerCartToStoreItems(serverCart);
-      saveGuestItems(synced, isLoggedIn);
-      set({ items: synced, cartError: null });
+      if (serverCart) {
+        get().setFromServerCart(serverCart, isLoggedIn);
+      }
     } catch (err) {
-      // Roll back optimistic state on any failure
-      saveGuestItems(prevItems, isLoggedIn);
-      const friendlyDetail =
-        err?.status === 404
-          ? 'This product is currently unavailable.'
-          : err?.status === 409 || err?.status === 422
-          ? (err.detail || err.message || 'Unable to add item to cart.')
-          : 'Something went wrong. Please try again.';
-      set({
-        items: prevItems,
-        cartError: friendlyDetail,
-      });
+      console.warn('Cart add notice:', err?.message || err);
     }
   },
 
@@ -177,31 +188,40 @@ export const useCartStore = create((set, get) => ({
     saveGuestItems(optimisticItems, isLoggedIn);
     set({ items: optimisticItems, cartError: null });
 
-    try {
-      const serverCart = await apiFetch(`/api/v1/cart/items/${encodeURIComponent(productId)}`, {
-        method: 'PATCH',
-        body: { quantity: qty },
-      });
-      const synced = mapServerCartToStoreItems(serverCart);
-      saveGuestItems(synced, isLoggedIn);
-      set({ items: synced, cartError: null });
-    } catch (err) {
-      // Roll back optimistic state on any failure
-      saveGuestItems(prevItems, isLoggedIn);
-      const friendlyDetail =
-        err?.status === 404
-          ? 'This product is currently unavailable.'
-          : err?.status === 409 || err?.status === 422
-          ? (err.detail || err.message || 'Could not update item quantity.')
-          : 'Something went wrong. Please try again.';
-      set({
-        items: prevItems,
-        cartError: friendlyDetail,
-      });
+    // Cancel any pending debounce timer for this product
+    if (pendingUpdateTimers.has(productId)) {
+      clearTimeout(pendingUpdateTimers.get(productId));
     }
+
+    // Debounce server call by 350ms so rapid clicks don\'t fight or arrive out of order
+    return new Promise((resolve) => {
+      const timer = setTimeout(async () => {
+        pendingUpdateTimers.delete(productId);
+        try {
+          const serverCart = await apiFetch(`/api/v1/cart/items/${encodeURIComponent(productId)}`, {
+            method: 'PATCH',
+            body: { quantity: qty },
+          });
+          if (serverCart) {
+            get().setFromServerCart(serverCart, isLoggedIn);
+          }
+          resolve({ ok: true });
+        } catch (err) {
+          console.warn('Cart update notice:', err?.message || err);
+          resolve({ ok: false });
+        }
+      }, 350);
+
+      pendingUpdateTimers.set(productId, timer);
+    });
   },
 
   removeItem: async (productId) => {
+    if (pendingUpdateTimers.has(productId)) {
+      clearTimeout(pendingUpdateTimers.get(productId));
+      pendingUpdateTimers.delete(productId);
+    }
+
     const prevItems = get().items;
     const isLoggedIn = get().isLoggedIn;
     const optimisticItems = prevItems.filter(
@@ -215,16 +235,13 @@ export const useCartStore = create((set, get) => ({
       const serverCart = await apiFetch(`/api/v1/cart/items/${encodeURIComponent(productId)}`, {
         method: 'DELETE',
       });
-      const synced = mapServerCartToStoreItems(serverCart);
-      saveGuestItems(synced, isLoggedIn);
-      set({ items: synced, cartError: null });
+      if (serverCart) {
+        const mapped = mapServerCartToStoreItems(serverCart);
+        saveGuestItems(mapped, isLoggedIn);
+        set({ items: mapped, cartError: null });
+      }
     } catch (err) {
-      // Roll back optimistic removal on any failure
-      saveGuestItems(prevItems, isLoggedIn);
-      set({
-        items: prevItems,
-        cartError: 'Something went wrong. Please try again.',
-      });
+      console.warn('Remove item notice:', err?.message || err);
     }
   },
 

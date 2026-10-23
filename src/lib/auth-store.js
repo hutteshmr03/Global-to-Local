@@ -555,6 +555,7 @@ export const useAuthStore = create((set, get) => {
         localStorage.removeItem('gtl_refresh_token');
         localStorage.removeItem('gtl_csrf_token');
         localStorage.removeItem('gtl.cart.v1');
+        localStorage.removeItem('gtl_cart_session_token');
       } catch {}
     }
 

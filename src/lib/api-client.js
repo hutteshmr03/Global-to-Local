@@ -58,6 +58,18 @@ export function getCsrfToken() {
   return getCookieValue('gtl_csrf_token') || inMemoryCsrfToken || '';
 }
 
+export function getCartSessionToken() {
+  if (typeof localStorage === 'undefined') return '';
+  let token = localStorage.getItem('gtl_cart_session_token');
+  if (!token) {
+    token = 'cs_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+    try {
+      localStorage.setItem('gtl_cart_session_token', token);
+    } catch {}
+  }
+  return token;
+}
+
 export class ApiProblemError extends Error {
   constructor(status, problem) {
     const rawMsg = problem?.detail || problem?.title || `Request failed (${status})`;
@@ -95,6 +107,11 @@ export async function apiFetch(path, options = {}) {
     if (csrf) {
       headers['X-CSRF-Token'] = csrf;
     }
+  }
+
+  const cartSession = getCartSessionToken();
+  if (cartSession && !headers['X-Cart-Session']) {
+    headers['X-Cart-Session'] = cartSession;
   }
 
   if (inMemoryAccessToken && !headers['Authorization']) {
