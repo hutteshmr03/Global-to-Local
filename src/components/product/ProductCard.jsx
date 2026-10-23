@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Minus, Check, ShoppingCart } from 'lucide-react';
+import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { formatPrice } from '../../lib/data';
 import { useCartStore } from '../../lib/cart-store';
 import { useFlyToCart } from '../cart/FlyToCart';
@@ -16,7 +16,6 @@ export default function ProductCard({ product, priority = false }) {
     return item ? item.qty : 0;
   });
   const flyToCart = useFlyToCart();
-  const [isAdded, setIsAdded] = useState(false);
   const [imgSrc, setImgSrc] = useState(null);
 
   if (isHidden) {
@@ -34,12 +33,8 @@ export default function ProductCard({ product, priority = false }) {
       imageSrc: product.imageSrc || product.image_url || '/images/catalog/goan-themed-blue-mug.jpg',
     });
 
-    // Add item to cart store
+    // Add item to cart store directly (immediately turns inCartQty to 1)
     addItem(product, 1);
-
-    // Visual button feedback
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1200);
   };
 
   const handleIncrement = (e) => {
@@ -154,24 +149,11 @@ export default function ProductCard({ product, priority = false }) {
           type="button"
           onClick={handleQuickAdd}
           disabled={isSoldOut}
-          className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2.5 text-xs font-semibold disabled:opacity-40 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
-            isAdded
-              ? 'bg-palm text-white scale-[1.02]'
-              : 'bg-[#3D2C22] text-white hover:bg-[#2A1E17]'
-          }`}
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2.5 text-xs font-semibold disabled:opacity-40 transition-all cursor-pointer shadow-xs active:scale-[0.98] bg-[#3D2C22] text-white hover:bg-[#2A1E17]"
           aria-label={`Add ${product.name} to cart`}
         >
-          {isAdded ? (
-            <>
-              <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
-              <span>Added</span>
-            </>
-          ) : (
-            <>
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add to Cart</span>
-            </>
-          )}
+          <Plus className="w-3.5 h-3.5" />
+          <span>Add to Cart</span>
         </button>
       )}
     </div>
