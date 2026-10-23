@@ -27,7 +27,7 @@ print(f"New JS bundle: {new_js}")
 print(f"New CSS bundle: {new_css}")
 
 # Alias to all known previous bundle names
-legacy_bundles = ['index-_dkMbmMh.js', 'index-B7CRgMYJ.js', 'index-Cd8MBQWv.js', 'index-Mug5p7GC.js', 'index-Dityyu4I.js', 'index-CptRI5Dd.js', 'index-TgqMtV40.js', 'index-B6az3yA0.js', 'index-CPq8Ofw5.js', 'index-C3wiUHt2.js', 'index-DMUcV2ny.js', 'index-iXfLwrxW.js', 'index-BcsolVHe.js', 'index-B0Y-ixBk.js']
+legacy_bundles = ['index-CbVqoYig.js', 'index-_dkMbmMh.js', 'index-B7CRgMYJ.js', 'index-Cd8MBQWv.js', 'index-Mug5p7GC.js', 'index-Dityyu4I.js', 'index-CptRI5Dd.js', 'index-TgqMtV40.js', 'index-B6az3yA0.js', 'index-CPq8Ofw5.js', 'index-C3wiUHt2.js', 'index-DMUcV2ny.js', 'index-iXfLwrxW.js', 'index-BcsolVHe.js', 'index-B0Y-ixBk.js']
 for legacy in legacy_bundles:
     alias_dst = os.path.join(live_assets, legacy)
     shutil.copy2(os.path.join(live_assets, new_js), alias_dst)

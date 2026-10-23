@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Check, X, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
+import { Search, Check, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useCategories, useAllProducts, ProductGridSkeleton } from '../lib/catalogue-hooks';
+import { categories as fallbackCategories } from '../lib/data';
 import ProductCard from '../components/product/ProductCard';
 import ShellShelf from '../components/home/ShellShelf';
 import StoreBanner from '../components/home/StoreBanner';
@@ -17,15 +18,6 @@ export default function ShopPage() {
   const currentSearch = searchParams.get('q') || '';
   const currentSort = searchParams.get('sort') || 'featured';
   const inStockOnly = searchParams.get('in_stock') === 'true';
-
-  const [expandedShelves, setExpandedShelves] = useState({});
-
-  const toggleShelf = (slug) => {
-    setExpandedShelves((prev) => ({
-      ...prev,
-      [slug]: !prev[slug],
-    }));
-  };
 
   const updateFilters = (key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -46,6 +38,16 @@ export default function ShopPage() {
     if (currentCategory === 'all') return null;
     return categories.find((c) => c.slug === currentCategory);
   }, [categories, currentCategory]);
+
+  const getCategoryCover = (cat) => {
+    if (cat.imageSrc) return cat.imageSrc;
+    const fb = fallbackCategories.find((c) => c.slug === cat.slug);
+    return fb?.imageSrc || '/images/site/storefront-hero.jpg';
+  };
+
+  const getCategoryBlurb = (cat) => {
+    return cat.blurb || cat.description || fallbackCategories.find((c) => c.slug === cat.slug)?.blurb || '';
+  };
 
   // Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
@@ -80,25 +82,7 @@ export default function ShopPage() {
       });
   }, [products, currentCategory, currentSearch, currentSort, inStockOnly]);
 
-  // Group products by category when viewing "all" without search query
-  const categorizedShelves = useMemo(() => {
-    if (currentCategory !== 'all' || currentSearch.trim() !== '') {
-      return null;
-    }
-
-    return categories
-      .map((cat) => {
-        const catProducts = filteredProducts.filter((p) => {
-          const pCat = p.categorySlug || p.category_slug || (p.category && p.category.slug);
-          return pCat === cat.slug;
-        });
-        return {
-          category: cat,
-          products: catProducts,
-        };
-      })
-      .filter((shelf) => shelf.products.length > 0);
-  }, [categories, filteredProducts, currentCategory, currentSearch]);
+  const isBrowsingAllShelves = currentCategory === 'all' && currentSearch.trim() === '';
 
   return (
     <main id="main" className="min-w-0 bg-ground pt-24 sm:pt-28 lg:pt-32 pb-20">
@@ -133,17 +117,40 @@ export default function ShopPage() {
         </section>
       </div>
 
-      {/* 2. THE COMPLETE GOAN CATALOGUE (FILTERS & PRODUCT GRID) */}
-      <section id="catalogue" className="py-16 sm:py-20 lg:py-24 bg-ground text-content">
+      {/* 2. THE COMPLETE GOAN CATALOGUE (13 SHELVES OR SHELF PRODUCTS) */}
+      <section id="catalogue" className="py-12 sm:py-16 lg:py-20 bg-ground text-content">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
           {/* Header */}
-          <div className="border-b border-border/40 pb-8">
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
-              The Complete Goan Catalogue
-            </h2>
-            <p className="mt-3 text-base text-content-muted leading-relaxed whitespace-normal sm:whitespace-nowrap">
-              Explore 230 authentic Goan products across all 13 shelves, dispatched directly from Fontainhas, Panaji.
-            </p>
+          <div className="border-b border-border/40 pb-6 sm:pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
+                {isBrowsingAllShelves
+                  ? 'The 13 Goan Shelves'
+                  : selectedCategoryObj
+                  ? selectedCategoryObj.name
+                  : 'Search Results'}
+              </h2>
+              <p className="mt-3 text-sm sm:text-base text-content-muted leading-relaxed">
+                {isBrowsingAllShelves
+                  ? 'Explore our 13 curated shelves from across the state. Click "Show More" on any shelf to view all its authentic local products.'
+                  : selectedCategoryObj
+                  ? `Showing all ${filteredProducts.length} authentic products in this shelf.`
+                  : `Showing ${filteredProducts.length} products matching "${currentSearch}".`}
+              </p>
+            </div>
+
+            {!isBrowsingAllShelves && (
+              <button
+                type="button"
+                onClick={() => {
+                  clearAllFilters();
+                }}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-border/80 bg-surface px-5 py-2.5 text-xs sm:text-sm font-semibold text-content hover:bg-surface-muted transition-colors shadow-xs self-start md:self-auto"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to All 13 Shelves</span>
+              </button>
+            )}
           </div>
 
           {/* Filter & Controls Bar */}
@@ -159,7 +166,7 @@ export default function ShopPage() {
                     : 'border-border/60 bg-surface text-content hover:bg-surface-muted'
                 }`}
               >
-                All
+                All 13 Shelves
               </button>
               {categories.map((cat) => {
                 const count = products.filter((p) => {
@@ -193,7 +200,7 @@ export default function ShopPage() {
                   type="text"
                   value={currentSearch}
                   onChange={(e) => updateFilters('q', e.target.value)}
-                  placeholder="Search products..."
+                  placeholder="Search all products..."
                   className="w-full rounded-pill border border-border/80 bg-surface py-2 pl-9 pr-8 text-xs font-medium text-content placeholder-content-subtle outline-none focus:border-palm shadow-xs"
                 />
                 {currentSearch && (
@@ -242,23 +249,7 @@ export default function ShopPage() {
             </div>
           </div>
 
-          {/* Results Count & Filter Reset */}
-          <div className="mt-6 flex items-center justify-between text-xs font-medium text-content-muted">
-            <span>
-              Showing {filteredProducts.length} of {products.length} products
-            </span>
-            {(currentCategory !== 'all' || currentSearch || inStockOnly || currentSort !== 'featured') && (
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="text-accent hover:underline font-semibold cursor-pointer"
-              >
-                Clear all filters
-              </button>
-            )}
-          </div>
-
-          {/* Products Grid */}
+          {/* Main Content Area */}
           {isProductsLoading && products.length === 0 ? (
             <ProductGridSkeleton count={8} />
           ) : isProductsError && products.length === 0 ? (
@@ -267,9 +258,9 @@ export default function ShopPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mt-16 rounded-2xl border border-rose-200 bg-rose-50/60 p-12 text-center max-w-lg mx-auto shadow-xs"
             >
-              <h3 className="font-display text-xl font-semibold text-content">Could not load products</h3>
+              <h3 className="font-display text-xl font-semibold text-content">Could not load catalogue</h3>
               <p className="mt-2 text-sm text-content-muted leading-relaxed">
-                Could not connect to the live store API. Please check that the backend is running and retry.
+                Could not connect to the store catalogue. Please retry.
               </p>
               <button
                 type="button"
@@ -282,125 +273,105 @@ export default function ShopPage() {
                 Retry
               </button>
             </motion.div>
+          ) : isBrowsingAllShelves ? (
+            /* 13 Shelves Cards View */
+            <div className="mt-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-7">
+                {categories.map((cat, idx) => {
+                  const count = products.filter((p) => {
+                    const pCat = p.categorySlug || p.category_slug || (p.category && p.category.slug);
+                    return pCat === cat.slug;
+                  }).length;
+                  const cover = getCategoryCover(cat);
+                  const blurb = getCategoryBlurb(cat);
+
+                  return (
+                    <motion.div
+                      key={cat.slug}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: Math.min(idx * 0.04, 0.4) }}
+                      className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    >
+                      {/* Shelf Image Container */}
+                      <div
+                        onClick={() => updateFilters('category', cat.slug)}
+                        className="relative aspect-[4/3] w-full overflow-hidden bg-surface-muted cursor-pointer"
+                      >
+                        <img
+                          src={cover}
+                          alt={cat.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30" />
+
+                        {/* Shelf Number */}
+                        <span className="absolute top-3 left-3 rounded-pill bg-palm text-white px-2.5 py-0.5 text-[11px] font-bold shadow-xs">
+                          Shelf {idx + 1}
+                        </span>
+
+                        {/* Product Count Badge */}
+                        <span className="absolute top-3 right-3 rounded-pill bg-black/60 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-xs">
+                          {count} {count === 1 ? 'Product' : 'Products'}
+                        </span>
+
+                        {/* Shelf Title on Image */}
+                        <div className="absolute bottom-3.5 left-4 right-4">
+                          <h3 className="font-display text-xl sm:text-2xl font-bold text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+                            {cat.name}
+                          </h3>
+                        </div>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="p-5 flex flex-1 flex-col justify-between">
+                        <p className="text-xs sm:text-sm text-content-muted line-clamp-2 leading-relaxed">
+                          {blurb || `Authentic Goan ${cat.name.toLowerCase()} sourced directly from local producers.`}
+                        </p>
+
+                        {/* Button Under Every Shelf: Show More */}
+                        <button
+                          type="button"
+                          onClick={() => updateFilters('category', cat.slug)}
+                          className="mt-5 w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-palm py-2.5 px-4 text-xs sm:text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-xs active:scale-[0.98]"
+                        >
+                          <span>Show More</span>
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
           ) : filteredProducts.length === 0 ? (
+            /* No Products Found */
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               className="mt-16 rounded-2xl border border-border/40 bg-surface p-12 text-center max-w-lg mx-auto shadow-xs"
             >
-              <h3 className="font-display text-xl font-semibold text-content">No products match your search</h3>
+              <h3 className="font-display text-xl font-semibold text-content">No products found</h3>
               <p className="mt-2 text-sm text-content-muted leading-relaxed">
-                Try adjusting your search keywords, selecting another shelf category, or clearing active filters.
+                No products match the selected filters.
               </p>
               <button
                 type="button"
                 onClick={clearAllFilters}
                 className="mt-6 inline-flex items-center rounded-pill bg-palm px-6 py-2.5 text-xs font-semibold text-white hover:bg-palm-shade transition-colors shadow-sm cursor-pointer"
               >
-                Reset Filters
+                Back to All 13 Shelves
               </button>
             </motion.div>
-          ) : categorizedShelves ? (
-            /* 13 Categorized Shelves View */
-            <div className="mt-10 space-y-16">
-              {categorizedShelves.map((shelf) => {
-                const isExpanded = !!expandedShelves[shelf.category.slug];
-                const visibleProducts = isExpanded ? shelf.products : shelf.products.slice(0, 4);
-                const hasMore = shelf.products.length > 4;
-
-                return (
-                  <section
-                    key={shelf.category.slug}
-                    id={`shelf-${shelf.category.slug}`}
-                    className="border-b border-border/30 pb-12 last:border-b-0 last:pb-0"
-                  >
-                    {/* Shelf Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-border/20 pb-4 mb-6">
-                      <div>
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-display text-2xl sm:text-3xl font-semibold text-content">
-                            {shelf.category.name}
-                          </h3>
-                          <span className="rounded-pill bg-palm/10 px-3 py-0.5 text-xs font-semibold text-palm">
-                            {shelf.products.length} {shelf.products.length === 1 ? 'product' : 'products'}
-                          </span>
-                        </div>
-                        {shelf.category.blurb && (
-                          <p className="mt-1.5 text-xs sm:text-sm text-content-muted max-w-2xl">
-                            {shelf.category.blurb}
-                          </p>
-                        )}
-                      </div>
-
-                      {hasMore && (
-                        <button
-                          type="button"
-                          onClick={() => updateFilters('category', shelf.category.slug)}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-palm hover:text-ink-deep transition-colors cursor-pointer self-start sm:self-auto"
-                        >
-                          <span>View full shelf ({shelf.products.length})</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Products Grid */}
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-6">
-                      {visibleProducts.map((product, idx) => (
-                        <ProductCard key={product.id} product={product} priority={idx < 4} />
-                      ))}
-                    </div>
-
-                    {/* Show More / Show Less Button */}
-                    {hasMore && (
-                      <div className="mt-8 flex justify-center">
-                        <button
-                          type="button"
-                          onClick={() => toggleShelf(shelf.category.slug)}
-                          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-palm/40 bg-surface px-7 py-3 text-xs sm:text-sm font-semibold text-palm hover:bg-palm hover:border-palm hover:text-white transition-all duration-200 shadow-xs active:scale-[0.98]"
-                        >
-                          {isExpanded ? (
-                            <>
-                              <span>Show Less</span>
-                              <ChevronUp className="w-4 h-4" />
-                            </>
-                          ) : (
-                            <>
-                              <span>Show More ({shelf.products.length} {shelf.category.name})</span>
-                              <ChevronDown className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
-                  </section>
-                );
-              })}
-            </div>
           ) : (
-            /* Single Category or Search Filtered Grid */
+            /* Selected Shelf / Category Full Products Grid */
             <div>
-              {selectedCategoryObj && (
-                <div className="mt-8 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/30 pb-4">
-                  <div>
-                    <h3 className="font-display text-2xl sm:text-3xl font-semibold text-content">
-                      {selectedCategoryObj.name}
-                    </h3>
-                    <p className="mt-1 text-xs sm:text-sm text-content-muted">
-                      Showing all {filteredProducts.length} products in this shelf
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => updateFilters('category', 'all')}
-                    className="inline-flex items-center gap-1.5 rounded-pill border border-border/80 bg-surface px-4 py-2 text-xs font-semibold text-content hover:bg-surface-muted transition-colors cursor-pointer self-start sm:self-auto"
-                  >
-                    <span>← Back to all shelves</span>
-                  </button>
-                </div>
-              )}
+              <div className="mt-6 mb-4 flex items-center justify-between text-xs font-medium text-content-muted">
+                <span>Showing all {filteredProducts.length} products</span>
+              </div>
 
-              <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-6">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 sm:gap-6">
                 {filteredProducts.map((product, idx) => (
                   <ProductCard key={product.id} product={product} priority={idx < 8} />
                 ))}
