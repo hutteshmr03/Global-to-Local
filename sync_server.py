@@ -53,7 +53,7 @@ files_to_sync = [
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
-    (f"{RAW_BASE}/dist_live/assets/index-Mc1VRRv_.js", os.path.join(PUBLIC_HTML, "assets", "index-Mc1VRRv_.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-R5-I6BB4.js", os.path.join(PUBLIC_HTML, "assets", "index-R5-I6BB4.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dh1iVGLV.css", os.path.join(PUBLIC_HTML, "assets", "index-Dh1iVGLV.css")),
     (f"{RAW_BASE}/dist_live/videos/our-story.mp4", os.path.join(PUBLIC_HTML, "videos", "our-story.mp4")),
     # Missing / Aliased catalog images

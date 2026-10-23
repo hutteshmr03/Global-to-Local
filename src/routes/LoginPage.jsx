@@ -549,7 +549,7 @@ export default function LoginPage() {
               {/* Mode Toggle Footer (Sign In <-> Sign Up) */}
               <div className="mt-6 text-center text-xs text-content-muted">
                 {mode === 'signin' ? (
-                  <p className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0">
+                  <p className="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-0">
                     <span className="hidden sm:inline">New to Global to Local?{' '}</span>
                     <button
                       type="button"
@@ -558,13 +558,13 @@ export default function LoginPage() {
                         setErrorMessage('');
                         setOtpSent(false);
                       }}
-                      className="font-bold text-xs sm:text-xs text-accent underline underline-offset-4 sm:no-underline sm:hover:underline sm:ml-1 py-1.5 px-4 sm:p-0 rounded-pill sm:rounded-none bg-accent/10 sm:bg-transparent border border-accent/25 sm:border-0 hover:bg-accent/15 sm:hover:bg-transparent transition-all cursor-pointer shadow-xs sm:shadow-none"
+                      className="font-bold text-sm sm:text-xs text-accent sm:ml-1 py-2.5 px-6 sm:p-0 rounded-pill sm:rounded-none bg-accent/10 sm:bg-transparent border border-accent/30 sm:border-0 hover:bg-accent/15 sm:hover:bg-transparent transition-all cursor-pointer shadow-xs sm:shadow-none"
                     >
                       Create an account
                     </button>
                   </p>
                 ) : (
-                  <p className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0">
+                  <p className="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-0">
                     <span className="hidden sm:inline">Already have an account?{' '}</span>
                     <button
                       type="button"
@@ -573,7 +573,7 @@ export default function LoginPage() {
                         setErrorMessage('');
                         setOtpSent(false);
                       }}
-                      className="font-bold text-xs sm:text-xs text-accent underline underline-offset-4 sm:no-underline sm:hover:underline sm:ml-1 py-1.5 px-4 sm:p-0 rounded-pill sm:rounded-none bg-accent/10 sm:bg-transparent border border-accent/25 sm:border-0 hover:bg-accent/15 sm:hover:bg-transparent transition-all cursor-pointer shadow-xs sm:shadow-none"
+                      className="font-bold text-sm sm:text-xs text-accent sm:ml-1 py-2.5 px-6 sm:p-0 rounded-pill sm:rounded-none bg-accent/10 sm:bg-transparent border border-accent/30 sm:border-0 hover:bg-accent/15 sm:hover:bg-transparent transition-all cursor-pointer shadow-xs sm:shadow-none"
                     >
                       Sign in here
                     </button>
