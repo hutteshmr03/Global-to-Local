@@ -94,12 +94,6 @@ export default function ProductCard({ product, priority = false }) {
             }}
             className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           />
-          {inCartQty > 0 && (
-            <span className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-pill bg-palm px-2.5 py-0.5 text-[11px] font-bold text-white shadow-md">
-              <ShoppingCart className="w-3 h-3 text-white" />
-              <span>{inCartQty} in Cart</span>
-            </span>
-          )}
           {isSoldOut && (
             <span className="absolute top-2 right-2 rounded bg-ink-deep/80 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-xs">
               Sold Out
@@ -133,23 +127,23 @@ export default function ProductCard({ product, priority = false }) {
 
       {/* Quick Add / Stepper Button */}
       {inCartQty > 0 ? (
-        <div className="mt-3 flex w-full items-center justify-between rounded-pill bg-palm text-white border border-palm px-1.5 py-1 text-xs font-bold shadow-xs">
+        <div className="mt-3 flex w-full items-center justify-between rounded-pill bg-[#3D2C22] text-white border border-[#3D2C22] px-2 py-1.5 text-xs font-bold shadow-xs">
           <button
             type="button"
             onClick={handleDecrement}
-            className="grid h-7 w-7 place-items-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
+            className="grid h-7 w-7 place-items-center rounded-full bg-white/15 hover:bg-white/25 text-white transition-colors cursor-pointer active:scale-90"
             aria-label={`Decrease ${product.name} quantity`}
           >
             <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
-          <span className="font-sans text-xs font-bold px-2 select-none flex items-center gap-1">
-            <span>{inCartQty} in Cart</span>
+          <span className="font-sans text-xs font-bold px-3 select-none text-white">
+            {inCartQty}
           </span>
           <button
             type="button"
             onClick={handleIncrement}
             disabled={inCartQty >= 20}
-            className="grid h-7 w-7 place-items-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer disabled:opacity-40"
+            className="grid h-7 w-7 place-items-center rounded-full bg-white/15 hover:bg-white/25 text-white transition-colors cursor-pointer disabled:opacity-40 active:scale-90"
             aria-label={`Increase ${product.name} quantity`}
           >
             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />

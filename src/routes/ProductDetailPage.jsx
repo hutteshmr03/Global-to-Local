@@ -191,12 +191,6 @@ export default function ProductDetailPage() {
                 <Check className="w-4 h-4 text-palm shrink-0 stroke-[2.5]" />
                 <span>In stock and ready to dispatch from Fontainhas</span>
               </div>
-              {inCartQty > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-pill bg-palm/15 border border-palm/25 text-palm px-3 py-1 text-xs font-bold">
-                  <ShoppingCart className="w-3.5 h-3.5" />
-                  <span>{inCartQty} currently in your cart</span>
-                </span>
-              )}
             </div>
 
             {/* Stepper and Add To Cart Button */}
