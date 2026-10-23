@@ -298,35 +298,39 @@ export default function OurStoryPage() {
               </p>
             </motion.div>
 
-            {/* Right: Overlapping Staggered Showcase (Stacked on Mobile, Staggered Overlap on Desktop) */}
-            <div className="relative w-full max-w-md sm:max-w-xl mx-auto lg:max-w-none flex flex-col gap-5 sm:block sm:min-h-[460px] md:min-h-[500px] lg:min-h-[520px]">
-              {/* Left Photo (Group of four women) - Larger, higher up */}
+            {/* Right: Two Fixed-size Portrait Cards (Staggered Side-by-Side on Desktop, Stacked on Mobile) */}
+            <div className="flex flex-col md:flex-row items-center md:items-start justify-center lg:justify-end gap-[20px] w-full">
+              {/* Left Card: 4 Women (object-position: 20% center) */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="w-full sm:w-[62%] sm:absolute sm:top-0 sm:left-0 aspect-[4/5] overflow-hidden rounded-2xl border-2 sm:border-[3px] border-white shadow-lg bg-surface z-10 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl hover:z-30 cursor-pointer group"
+                className="w-full h-[320px] md:w-[260px] md:h-[340px] md:aspect-[3/4] shrink-0 overflow-hidden rounded-[16px] shadow-md bg-surface"
               >
                 <img
-                  src="/images/site/store-visitors-women-cropped.jpg"
-                  alt="Group of four women visitors and shoppers at Global to Local in Fontainhas"
-                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                  src="/images/site/store-visitors-women.jpg"
+                  alt="Visitors exploring Global to Local store in Fontainhas"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: '20% center' }}
                 />
               </motion.div>
 
-              {/* Right Photo (Three men standing) - Slightly smaller, lower down, overlapping bottom-right of left photo */}
+              {/* Right Card: 3 Men (object-position: 70% center, sits 40px lower on desktop) */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="w-full sm:w-[52%] sm:absolute sm:bottom-0 sm:right-0 aspect-[4/5] overflow-hidden rounded-2xl border-2 sm:border-[3px] border-white shadow-xl bg-surface z-20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl hover:z-30 cursor-pointer group"
+                className="w-full h-[320px] md:w-[260px] md:h-[340px] md:aspect-[3/4] md:mt-[40px] shrink-0 overflow-hidden rounded-[16px] shadow-md bg-surface"
               >
                 <img
-                  src="/images/site/store-team-men-cropped.jpg"
-                  alt="Three men standing together inside Global to Local store in Panaji"
-                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                  src="/images/site/store-team-men.jpg"
+                  alt="Our team inside Global to Local Fontainhas"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: '70% center' }}
                 />
               </motion.div>
             </div>
