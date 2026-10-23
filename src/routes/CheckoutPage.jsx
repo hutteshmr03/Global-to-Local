@@ -413,23 +413,17 @@ export default function CheckoutPage() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2.5 font-display text-xl font-bold text-content">
                   <QrCode className="w-5 h-5 text-accent" />
-                  <h2>2. Payment Option (UPI QR / Scan & Pay)</h2>
+                  <h2>2. Payment Option (UPI / QR Code)</h2>
                 </div>
-                <span className="text-xs font-semibold text-palm bg-palm/10 border border-palm/20 px-2.5 py-1 rounded-pill">
-                  Instant UPI Payment
-                </span>
               </div>
 
               {/* UPI QR Payment Card */}
               <div className="rounded-xl border border-accent/25 bg-accent/5 p-5 sm:p-6 shadow-2xs max-w-lg mx-auto space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-border/40 w-full">
+                <div className="flex items-center justify-center pb-3 border-b border-border/40 w-full">
                   <div className="flex items-center gap-2">
                     <QrCode className="w-4 h-4 text-accent" />
-                    <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent">QR Scanner (Scan & Pay)</span>
+                    <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-accent">QR Scanner</span>
                   </div>
-                  <span className="text-[11px] sm:text-xs font-semibold text-palm flex items-center gap-1">
-                    <Smartphone className="w-3.5 h-3.5" /> GPay / PhonePe / Paytm / BHIM
-                  </span>
                 </div>
 
                 {/* QR Code Standee Image */}
@@ -470,9 +464,6 @@ export default function CheckoutPage() {
                   </label>
                   <span className="text-[11px] font-semibold text-accent uppercase tracking-wider">Required</span>
                 </div>
-                <p className="text-xs text-content-muted leading-relaxed">
-                  After completing the UPI payment, enter the 12-digit UTR or Transaction Reference number below before confirming:
-                </p>
                 <input
                   id="utr-input"
                   type="text"
