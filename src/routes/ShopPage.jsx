@@ -121,7 +121,7 @@ export default function ShopPage() {
       <section id="catalogue" className="py-12 sm:py-16 lg:py-20 bg-ground text-content">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
           {/* Header */}
-          <div className="border-b border-border/40 pb-6 sm:pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-content">
                 {isBrowsingAllShelves
@@ -155,7 +155,7 @@ export default function ShopPage() {
 
           {/* Filter & Controls Bar - Only visible when inside a specific shelf or searching */}
           {!isBrowsingAllShelves && (
-            <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="relative flex-1 sm:max-w-md">
                 <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-content-muted" />
                 <input
