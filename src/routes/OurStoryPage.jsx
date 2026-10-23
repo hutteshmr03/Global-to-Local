@@ -298,42 +298,38 @@ export default function OurStoryPage() {
               </p>
             </motion.div>
 
-            {/* Right: Full Landscape Showcase (All People Completely Visible) */}
-            <div className="flex flex-col gap-5 sm:gap-6 w-full max-w-[520px] mx-auto lg:max-w-none">
-              {/* Photo 1: All 8 Women completely visible */}
+            {/* Right: Two Vertically Stacked Photos (Natural Aspect Ratio, All People Fully Visible, Nothing Cropped) */}
+            <div className="w-full max-w-[480px] mx-auto lg:mx-0 lg:ml-auto flex flex-col gap-[20px]">
+              {/* Women's photo on top */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="overflow-hidden rounded-2xl border border-border/50 bg-surface shadow-md transition-all duration-300 hover:shadow-lg group"
+                className="w-full overflow-hidden rounded-[16px] shadow-md bg-surface"
               >
-                <div className="relative aspect-[16/9.5] w-full overflow-hidden bg-surface-muted">
-                  <img
-                    src="/images/site/store-visitors-women.jpg"
-                    alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
-                    loading="lazy"
-                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                  />
-                </div>
+                <img
+                  src="/images/site/store-visitors-women.jpg"
+                  alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
+                  loading="lazy"
+                  className="w-full h-auto object-contain block"
+                />
               </motion.div>
 
-              {/* Photo 2: All 4 Men completely visible */}
+              {/* Men's photo below */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="overflow-hidden rounded-2xl border border-border/50 bg-surface shadow-md transition-all duration-300 hover:shadow-lg group"
+                className="w-full overflow-hidden rounded-[16px] shadow-md bg-surface"
               >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
-                  <img
-                    src="/images/site/store-team-men.jpg"
-                    alt="Our team and guests inside Global to Local Fontainhas"
-                    loading="lazy"
-                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                  />
-                </div>
+                <img
+                  src="/images/site/store-team-men.jpg"
+                  alt="Our team and guests inside Global to Local Fontainhas"
+                  loading="lazy"
+                  className="w-full h-auto object-contain block"
+                />
               </motion.div>
             </div>
           </div>

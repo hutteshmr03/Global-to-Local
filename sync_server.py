@@ -53,8 +53,8 @@ files_to_sync = [
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
-    (f"{RAW_BASE}/dist_live/assets/index-CH9CJtVd.js", os.path.join(PUBLIC_HTML, "assets", "index-CH9CJtVd.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-CCpZkR0U.css", os.path.join(PUBLIC_HTML, "assets", "index-CCpZkR0U.css")),
+    (f"{RAW_BASE}/dist_live/assets/index-D5URXTi4.js", os.path.join(PUBLIC_HTML, "assets", "index-D5URXTi4.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BA6bEE1q.css", os.path.join(PUBLIC_HTML, "assets", "index-BA6bEE1q.css")),
     (f"{RAW_BASE}/dist_live/videos/our-story.mp4", os.path.join(PUBLIC_HTML, "videos", "our-story.mp4")),
     # Missing / Aliased catalog images
     (f"{RAW_BASE}/public/images/catalog/agarbatti-lavender-80-grams.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "agarbatti-lavender-80-grams.jpg")),
