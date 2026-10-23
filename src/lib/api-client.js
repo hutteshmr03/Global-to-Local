@@ -112,40 +112,48 @@ export async function apiFetch(path, options = {}) {
         : options.body,
   };
 
+  const isHostedDomain =
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1';
+
+  // In production (globaltolocal.in), call Render directly so LiteSpeed proxy never hangs for 15+ seconds
+  const primaryUrl = isHostedDomain && path.startsWith('/api')
+    ? `${RENDER_BACKEND_URL}${path}`
+    : path;
+
   let res = null;
   let networkFailed = false;
 
   try {
-    res = await fetch(path, fetchOptions);
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 4500) : null;
+    try {
+      res = await fetch(primaryUrl, {
+        ...fetchOptions,
+        signal: controller ? controller.signal : undefined,
+      });
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
   } catch (err) {
     networkFailed = true;
   }
 
-  // Dual-tier failover: If local web server proxy fails (404, 500, 502, 503, 504) or network fails,
-  // automatically call the live backend directly
-  if (
-    (networkFailed || (res && [404, 500, 502, 503, 504].includes(res.status))) &&
-    typeof window !== 'undefined' &&
-    window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1' &&
-    path.startsWith('/api')
-  ) {
+  // Dual-tier failover: If direct Render call failed, try local endpoint
+  if ((networkFailed || !res || !res.ok) && isHostedDomain && primaryUrl !== path) {
     try {
-      const directUrl = `${RENDER_BACKEND_URL}${path}`;
-      const directRes = await fetch(directUrl, fetchOptions);
-      if (directRes && (directRes.ok || directRes.status < 500)) {
-        res = directRes;
+      const fallbackRes = await fetch(path, fetchOptions);
+      if (fallbackRes && fallbackRes.ok) {
+        res = fallbackRes;
         networkFailed = false;
       }
-    } catch {
-      // Fall through to mock/error handling
-    }
+    } catch {}
   }
 
   // Standalone fallback: Only when backend server is completely unreachable (networkFailed)
-  // or proxy gateway failed (502, 503, 504 on hosted preview environments like Vercel).
-  // Ensures catalogue & preview fallback never overrides live API data on localhost.
-  const isGatewayUnreachable = res && [502, 503, 504].includes(res.status);
+  // or proxy gateway failed (444, 502, 503, 504 on hosted preview environments).
+  const isGatewayUnreachable = res && [444, 502, 503, 504].includes(res.status);
   const isRouteNotFound = res && res.status === 404;
   if (networkFailed || isGatewayUnreachable || isRouteNotFound) {
     try {
@@ -229,20 +237,33 @@ export async function apiFetch(path, options = {}) {
  * Fetch all 230 products across paginated /api/v1/products (max 60 per page)
  */
 export async function fetchAllCatalogueProducts() {
-  const firstPage = await apiFetch('/api/v1/products?page=1&page_size=60');
-  const items = [...(firstPage.items || [])];
-  const totalPages = firstPage.meta?.total_pages || 1;
-  if (totalPages > 1) {
-    const remainingPromises = [];
-    for (let p = 2; p <= totalPages; p++) {
-      remainingPromises.push(apiFetch(`/api/v1/products?page=${p}&page_size=60`));
-    }
-    const pages = await Promise.all(remainingPromises);
-    for (const pg of pages) {
-      if (pg?.items) {
-        items.push(...pg.items);
+  try {
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Catalogue fetch timeout')), 4500)
+    );
+
+    const fetchPromise = (async () => {
+      const firstPage = await apiFetch('/api/v1/products?page=1&page_size=60');
+      const items = [...(firstPage.items || [])];
+      const totalPages = firstPage.meta?.total_pages || 1;
+      if (totalPages > 1) {
+        const remainingPromises = [];
+        for (let p = 2; p <= totalPages; p++) {
+          remainingPromises.push(apiFetch(`/api/v1/products?page=${p}&page_size=60`));
+        }
+        const pages = await Promise.all(remainingPromises);
+        for (const pg of pages) {
+          if (pg?.items) {
+            items.push(...pg.items);
+          }
+        }
       }
-    }
+      return items;
+    })();
+
+    const result = await Promise.race([fetchPromise, timeoutPromise]);
+    return result || [];
+  } catch {
+    return [];
   }
-  return items;
 }

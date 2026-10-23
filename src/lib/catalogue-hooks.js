@@ -64,6 +64,9 @@ export function useAllProducts() {
         return fallbackProducts;
       }
     },
+    initialData: () => fallbackProducts,
+    placeholderData: () => fallbackProducts,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -86,6 +89,9 @@ export function useCategoryProducts(categorySlug) {
         return fallback;
       }
     },
+    initialData: () => fallback,
+    placeholderData: () => fallback,
+    staleTime: 5 * 60 * 1000,
     enabled: Boolean(categorySlug),
   });
 }
