@@ -231,7 +231,7 @@ export default function ProductDetailPage() {
                 className={`flex-1 flex h-11 sm:h-12 items-center justify-center gap-1.5 sm:gap-2 rounded-pill px-3 sm:px-8 text-xs sm:text-base font-bold text-white disabled:opacity-40 transition-all shadow-md hover:shadow-lg cursor-pointer whitespace-nowrap active:scale-[0.99] ${
                   isAdded
                     ? 'bg-palm hover:bg-palm scale-[1.01]'
-                    : 'bg-[#E5A823] hover:bg-[#CD9216]'
+                    : 'bg-[#3D2C22] hover:bg-[#2A1E17]'
                 }`}
               >
                 {isAdded ? (

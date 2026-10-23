@@ -163,7 +163,7 @@ export default function ProductCard({ product, priority = false }) {
           className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2.5 text-xs font-semibold disabled:opacity-40 transition-all cursor-pointer shadow-xs active:scale-[0.98] ${
             isAdded
               ? 'bg-palm text-white scale-[1.02]'
-              : 'bg-[#E5A823] text-white hover:bg-[#CD9216]'
+              : 'bg-[#3D2C22] text-white hover:bg-[#2A1E17]'
           }`}
           aria-label={`Add ${product.name} to cart`}
         >
