@@ -160,7 +160,7 @@ export default function BagPage() {
                       <span className="text-content-muted block">Delivery Fee</span>
                       <span className="text-[11px] text-content-subtle">Goa: ₹80 | Outside Goa: ₹120</span>
                     </div>
-                    <span className="text-xs text-palm font-semibold">Based on address</span>
+                    <span className="text-xs text-[#3D2C22] font-semibold">Based on address</span>
                   </div>
                 </div>
 

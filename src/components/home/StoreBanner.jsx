@@ -30,7 +30,7 @@ export default function StoreBanner() {
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link
                 to="/shop"
-                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-7 py-3 text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+                className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-7 py-3 text-sm font-bold tracking-[-0.01em] text-[#3D2C22] hover:bg-surface hover:border-surface hover:text-black transition-all duration-200 active:scale-[0.985] shadow-md"
               >
                 Shop Now
               </Link>

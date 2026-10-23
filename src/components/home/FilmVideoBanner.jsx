@@ -70,7 +70,7 @@ export default function FilmVideoBanner({
               <div className="mt-6 sm:mt-7">
                 <Link
                   to={ctaLink}
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-bold tracking-[-0.01em] text-[#3D2C22] hover:bg-surface hover:border-surface hover:text-black transition-all duration-200 active:scale-[0.985] shadow-md"
                 >
                   {ctaText}
                 </Link>

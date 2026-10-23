@@ -41,7 +41,7 @@ export default function CategoryPage() {
             <p className="mt-3 text-sm sm:text-base text-content-muted leading-relaxed">
               {category.blurb || `Authentic Goan ${category.name.toLowerCase()} sourced from local producers.`}
             </p>
-            <p className="mt-4 text-xs font-semibold text-palm">
+            <p className="mt-4 text-xs font-semibold text-[#3D2C22]">
               Showing all {activeProducts.length} {activeProducts.length === 1 ? 'item' : 'items'} on this shelf
             </p>
           </div>

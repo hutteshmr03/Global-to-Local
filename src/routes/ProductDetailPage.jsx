@@ -187,8 +187,8 @@ export default function ProductDetailPage() {
 
             {/* Availability Status */}
             <div className="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold">
-              <div className="flex items-center gap-2 text-palm">
-                <Check className="w-4 h-4 text-palm shrink-0 stroke-[2.5]" />
+              <div className="flex items-center gap-2 text-[#3D2C22]">
+                <Check className="w-4 h-4 text-[#3D2C22] shrink-0 stroke-[2.5]" />
                 <span>In stock and ready to dispatch from Fontainhas</span>
               </div>
             </div>

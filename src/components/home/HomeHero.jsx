@@ -118,7 +118,7 @@ export default function HomeHero() {
           <div className="mt-6 sm:mt-7 flex flex-wrap items-center gap-3.5">
             <Link
               to="/shop"
-              className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-semibold tracking-[-0.01em] text-palm hover:bg-surface hover:border-surface hover:text-ink-deep transition-all duration-200 active:scale-[0.985] shadow-md"
+              className="inline-flex cursor-pointer items-center justify-center rounded-pill border border-content-ondark bg-content-ondark px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-bold tracking-[-0.01em] text-[#3D2C22] hover:bg-surface hover:border-surface hover:text-black transition-all duration-200 active:scale-[0.985] shadow-md"
             >
               Shop Now
             </Link>
@@ -170,7 +170,7 @@ export default function HomeHero() {
           aria-pressed={isPlayingAudio}
           className={`flex items-center gap-1.5 sm:gap-2 rounded-pill border px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium backdrop-blur-md transition-all duration-200 cursor-pointer active:scale-95 select-none shadow-md ${
             isPlayingAudio
-              ? 'border-content-ondark bg-content-ondark text-palm shadow-lg font-semibold'
+              ? 'border-content-ondark bg-content-ondark text-[#3D2C22] shadow-lg font-semibold'
               : 'border-content-ondark/35 bg-ink-deep/45 text-content-ondark hover:border-content-ondark/60 hover:bg-content-ondark/15'
           }`}
         >
