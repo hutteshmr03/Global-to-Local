@@ -3,7 +3,6 @@ import sys
 import time
 import subprocess
 import urllib.request
-from sqlalchemy import text
 
 print("=" * 65, flush=True)
 print(" GLOBAL TO LOCAL — LIVE SYSTEM REPAIR & FULL SYNC", flush=True)
@@ -16,6 +15,9 @@ PYTHON_BIN = "/home/nrlnxfke/virtualenv/gtl_backend/3.11/bin/python"
 if not os.path.exists(BASE_DIR):
     BASE_DIR = os.path.abspath(".")
     PUBLIC_HTML = os.path.abspath("./dist")
+    PYTHON_BIN = sys.executable
+
+if not os.path.exists(PYTHON_BIN):
     PYTHON_BIN = sys.executable
 
 # Always ensure working directory is BASE_DIR so .env is correctly resolved
@@ -191,6 +193,7 @@ print("\n--- STEP 2: Database Hardening & Stock Update ---", flush=True)
 try:
     if BASE_DIR not in sys.path:
         sys.path.insert(0, BASE_DIR)
+    from sqlalchemy import text
     from backend.database import engine
 
     with engine.connect() as conn:
