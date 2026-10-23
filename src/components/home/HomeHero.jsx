@@ -7,6 +7,7 @@ import { siteConfig } from '../../lib/data';
 export default function HomeHero() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [showContent, setShowContent] = useState(false);
   const audioRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -23,12 +24,20 @@ export default function HomeHero() {
   }, [isPlayingAudio]);
 
   useEffect(() => {
-    // Start smooth fade after a brief 500ms pause, gently fading over 4500ms
-    const timer = setTimeout(() => {
-      setIsVideoReady(true);
-    }, 500);
+    // 1st photo stays clean without text/cards for 5 seconds, then content fades in smoothly
+    const contentTimer = setTimeout(() => {
+      setShowContent(true);
+    }, 5000);
 
-    return () => clearTimeout(timer);
+    // 1st photo remains visible for at least 7 seconds before gentle video transition
+    const videoTimer = setTimeout(() => {
+      setIsVideoReady(true);
+    }, 7500);
+
+    return () => {
+      clearTimeout(contentTimer);
+      clearTimeout(videoTimer);
+    };
   }, []);
 
   return (
@@ -68,7 +77,12 @@ export default function HomeHero() {
       </div>
 
       {/* Exact Live Film Scrim */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 film-scrim" />
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 film-scrim transition-opacity duration-1000 ${
+          showContent ? 'opacity-100' : 'opacity-35'
+        }`}
+      />
 
       {/* Hidden Audio */}
       <audio ref={audioRef} src="/audio/fontainhas-street.wav" loop preload="none" />
@@ -76,9 +90,9 @@ export default function HomeHero() {
       {/* Main Hero Content */}
       <div className="relative z-10 flex min-h-dvh flex-col justify-end mx-auto max-w-shell px-5 pb-[max(3.6rem,calc(3.2rem+env(safe-area-inset-bottom)))] sm:px-8 sm:pb-8 lg:px-12 lg:pb-10 w-full">
         <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          initial={{ opacity: 0, y: 24 }}
+          animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-[26rem] sm:max-w-[46rem] lg:max-w-[56rem]"
         >
           {/* Tagline */}
@@ -124,8 +138,11 @@ export default function HomeHero() {
       </div>
 
       {/* Vertical SCROLL Indicator (Right side) */}
-      <div
+      <motion.div
         aria-hidden="true"
+        initial={{ opacity: 0 }}
+        animate={showContent ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
         className="pointer-events-none absolute bottom-24 right-5 z-20 hidden flex-col items-center gap-4 sm:right-8 sm:flex lg:right-12"
       >
         <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-content-ondark/80 [writing-mode:vertical-rl] [text-shadow:0_1px_4px_rgba(18,38,43,0.6)]">
@@ -138,10 +155,15 @@ export default function HomeHero() {
             transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.4 }}
           />
         </span>
-      </div>
+      </motion.div>
 
       {/* "Hear the street" Audio Control (Bottom Right) */}
-      <div className="pointer-events-auto absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-20 sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:right-8 lg:right-12">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={showContent ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        className="pointer-events-auto absolute bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-20 sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] sm:right-8 lg:right-12"
+      >
         <button
           type="button"
           onClick={() => setIsPlayingAudio(!isPlayingAudio)}
@@ -164,7 +186,7 @@ export default function HomeHero() {
             </>
           )}
         </button>
-      </div>
+      </motion.div>
     </section>
   );
 }
