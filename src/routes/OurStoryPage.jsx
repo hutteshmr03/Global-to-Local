@@ -278,57 +278,60 @@ export default function OurStoryPage() {
       {/* 5. A MUST VISIT IN THE HEART OF PANAJI (GALLERY) */}
       <section className="py-12 sm:py-16 lg:py-20 bg-ground text-content">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl"
-          >
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-content">
-              A must visit in the heart of the capital, Panaji
-            </h2>
-            <p className="mt-5 text-base sm:text-lg text-content-muted leading-relaxed">
-              We house everything from art and handicraft, to spices and grains, to wellness products, to bakery products and delectable desserts to name a few.
-            </p>
-            <p className="mt-3 text-base sm:text-lg text-content-muted leading-relaxed">
-              We at Global to Local like to take things the extra mile, an experience is what it’s called by all that visit us with our staff educating you on the uniqueness, creativity, and process that goes into making Goa so culturally enriched.
-            </p>
-          </motion.div>
-
-          {/* Full View 2-Image Showcase */}
-          <div className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+            {/* Left: Text */}
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-md group flex flex-col"
+              className="max-w-xl"
             >
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
-                <img
-                  alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
-                  src="/images/site/store-visitors-women.jpg"
-                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                />
-              </div>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-content">
+                A must visit in the heart of the capital, Panaji
+              </h2>
+              <p className="mt-5 text-base sm:text-lg text-content-muted leading-relaxed">
+                We house everything from art and handicraft, to spices and grains, to wellness products, to bakery products and delectable desserts to name a few.
+              </p>
+              <p className="mt-3 text-base sm:text-lg text-content-muted leading-relaxed">
+                We at Global to Local like to take things the extra mile, an experience is what it’s called by all that visit us with our staff educating you on the uniqueness, creativity, and process that goes into making Goa so culturally enriched.
+              </p>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="relative overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-md group flex flex-col"
-            >
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
-                <img
-                  alt="Our team and guests inside Global to Local Fontainhas"
-                  src="/images/site/store-team-men.jpg"
-                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                />
-              </div>
-            </motion.div>
+            {/* Right: Stacked Photos (1 photo per row, compact size, full uncropped view) */}
+            <div className="flex flex-col gap-4 sm:gap-5 w-full max-w-[460px] mx-auto lg:max-w-none">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="relative overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-md group"
+              >
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
+                  <img
+                    alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
+                    src="/images/site/store-visitors-women.jpg"
+                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="relative overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-md group"
+              >
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
+                  <img
+                    alt="Our team and guests inside Global to Local Fontainhas"
+                    src="/images/site/store-team-men.jpg"
+                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                  />
+                </div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
