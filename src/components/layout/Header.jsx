@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, User, Menu, X, Search, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, Search, ShieldCheck } from 'lucide-react';
 import { useCartStore } from '../../lib/cart-store';
 import { useAuthStore } from '../../lib/auth-store';
 import { siteConfig } from '../../lib/data';
@@ -262,7 +262,7 @@ export default function Header() {
                 }`}
                 aria-label={`Open shopping cart with ${totalItems} items`}
               >
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingCart className="w-4 h-4" />
                 <motion.span
                   key={totalItems}
                   initial={{ scale: 0.6, y: -4 }}
