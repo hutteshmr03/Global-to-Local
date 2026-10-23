@@ -153,54 +153,16 @@ export default function ShopPage() {
             )}
           </div>
 
-          {/* Filter & Controls Bar */}
-          <div className="mt-8 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-            {/* Shelf Category Horizontal Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 hide-scrollbar">
-              <button
-                type="button"
-                onClick={() => updateFilters('category', 'all')}
-                className={`rounded-pill px-4 py-2 text-xs font-semibold whitespace-nowrap transition-all border shadow-xs cursor-pointer ${
-                  currentCategory === 'all'
-                    ? 'border-palm bg-palm text-white shadow-sm'
-                    : 'border-border/60 bg-surface text-content hover:bg-surface-muted'
-                }`}
-              >
-                All 13 Shelves
-              </button>
-              {categories.map((cat) => {
-                const count = products.filter((p) => {
-                  const pCat = p.categorySlug || p.category_slug || (p.category && p.category.slug);
-                  return pCat === cat.slug;
-                }).length;
-                const isSelected = currentCategory === cat.slug;
-                return (
-                  <button
-                    key={cat.slug}
-                    type="button"
-                    onClick={() => updateFilters('category', cat.slug)}
-                    className={`rounded-pill px-4 py-2 text-xs font-semibold whitespace-nowrap transition-all border shadow-xs cursor-pointer ${
-                      isSelected
-                        ? 'border-palm bg-palm text-white shadow-sm'
-                        : 'border-border/60 bg-surface text-content hover:bg-surface-muted'
-                    }`}
-                  >
-                    {cat.name} ({count})
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Search, In-Stock Checkbox, Sort Dropdown */}
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Search Input */}
-              <div className="relative flex-1 sm:w-64">
+          {/* Filter & Controls Bar - Only visible when inside a specific shelf or searching */}
+          {!isBrowsingAllShelves && (
+            <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="relative flex-1 sm:max-w-xs">
                 <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-content-muted" />
                 <input
                   type="text"
                   value={currentSearch}
                   onChange={(e) => updateFilters('q', e.target.value)}
-                  placeholder="Search all products..."
+                  placeholder="Search in this shelf..."
                   className="w-full rounded-pill border border-border/80 bg-surface py-2 pl-9 pr-8 text-xs font-medium text-content placeholder-content-subtle outline-none focus:border-palm shadow-xs"
                 />
                 {currentSearch && (
@@ -214,40 +176,40 @@ export default function ShopPage() {
                 )}
               </div>
 
-              {/* In-Stock Toggle */}
-              <button
-                type="button"
-                onClick={() => updateFilters('in_stock', !inStockOnly)}
-                className={`flex items-center gap-2 rounded-pill border px-4 py-2 text-xs font-semibold transition-all shadow-xs cursor-pointer ${
-                  inStockOnly
-                    ? 'border-accent bg-accent/10 text-accent'
-                    : 'border-border/80 bg-surface text-content hover:bg-surface-muted'
-                }`}
-              >
-                <div
-                  className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${
-                    inStockOnly ? 'border-accent bg-accent text-white' : 'border-border'
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => updateFilters('in_stock', !inStockOnly)}
+                  className={`flex items-center gap-2 rounded-pill border px-4 py-2 text-xs font-semibold transition-all shadow-xs cursor-pointer ${
+                    inStockOnly
+                      ? 'border-accent bg-accent/10 text-accent'
+                      : 'border-border/80 bg-surface text-content hover:bg-surface-muted'
                   }`}
                 >
-                  {inStockOnly && <Check className="w-3 h-3 stroke-[3]" />}
-                </div>
-                <span>In Stock</span>
-              </button>
+                  <div
+                    className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${
+                      inStockOnly ? 'border-accent bg-accent text-white' : 'border-border'
+                    }`}
+                  >
+                    {inStockOnly && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                  <span>In Stock</span>
+                </button>
 
-              {/* Sort Dropdown */}
-              <select
-                aria-label="Sort products"
-                value={currentSort}
-                onChange={(e) => updateFilters('sort', e.target.value)}
-                className="rounded-pill border border-border/80 bg-surface py-2 px-4 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-xs"
-              >
-                <option value="featured">Sort: Featured</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="name_asc">Name: A to Z</option>
-              </select>
+                <select
+                  aria-label="Sort products"
+                  value={currentSort}
+                  onChange={(e) => updateFilters('sort', e.target.value)}
+                  className="rounded-pill border border-border/80 bg-surface py-2 px-4 text-xs font-semibold text-content outline-none cursor-pointer focus:border-palm shadow-xs"
+                >
+                  <option value="featured">Sort: Featured</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="name_asc">Name: A to Z</option>
+                </select>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Main Content Area */}
           {isProductsLoading && products.length === 0 ? (
@@ -304,17 +266,7 @@ export default function ShopPage() {
                           loading="lazy"
                           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30" />
-
-                        {/* Shelf Number */}
-                        <span className="absolute top-3 left-3 rounded-pill bg-palm text-white px-2.5 py-0.5 text-[11px] font-bold shadow-xs">
-                          Shelf {idx + 1}
-                        </span>
-
-                        {/* Product Count Badge */}
-                        <span className="absolute top-3 right-3 rounded-pill bg-black/60 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-xs">
-                          {count} {count === 1 ? 'Product' : 'Products'}
-                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
 
                         {/* Shelf Title on Image */}
                         <div className="absolute bottom-3.5 left-4 right-4">
@@ -324,17 +276,12 @@ export default function ShopPage() {
                         </div>
                       </div>
 
-                      {/* Card Body */}
-                      <div className="p-5 flex flex-1 flex-col justify-between">
-                        <p className="text-xs sm:text-sm text-content-muted line-clamp-2 leading-relaxed">
-                          {blurb || `Authentic Goan ${cat.name.toLowerCase()} sourced directly from local producers.`}
-                        </p>
-
-                        {/* Button Under Every Shelf: Show More */}
+                      {/* Card Body - Only the Show More button */}
+                      <div className="p-4 bg-surface">
                         <button
                           type="button"
                           onClick={() => updateFilters('category', cat.slug)}
-                          className="mt-5 w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-palm py-2.5 px-4 text-xs sm:text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-xs active:scale-[0.98]"
+                          className="w-full inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill bg-palm py-2.5 px-4 text-xs sm:text-sm font-semibold text-content-ondark hover:bg-ink-deep transition-all duration-200 shadow-xs active:scale-[0.98]"
                         >
                           <span>Show More</span>
                           <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
