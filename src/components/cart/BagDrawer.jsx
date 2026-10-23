@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus, ShoppingBag, ArrowRight, Trash2 } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, ArrowRight, Trash2 } from 'lucide-react';
 import { useCartStore } from '../../lib/cart-store';
 import { useAuthStore } from '../../lib/auth-store';
 import { formatPrice } from '../../lib/data';
@@ -42,7 +42,7 @@ export default function BagDrawer() {
             {/* Drawer Header */}
             <div className="flex items-center justify-between border-b border-border/40 px-6 py-5">
               <div className="flex items-center gap-2.5">
-                <ShoppingBag className="w-5 h-5 text-palm" />
+                <ShoppingCart className="w-5 h-5 text-palm" />
                 <h2 className="font-display text-xl font-bold text-content">Shopping Cart</h2>
                 <span className="text-xs font-semibold text-content-muted">
                   ({items.reduce((s, i) => s + i.qty, 0)} items)
