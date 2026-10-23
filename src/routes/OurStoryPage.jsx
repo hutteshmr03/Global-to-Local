@@ -298,33 +298,35 @@ export default function OurStoryPage() {
               </p>
             </motion.div>
 
-            {/* Right: 2-Photo Staggered Gallery */}
-            <div className="grid grid-cols-2 gap-4 sm:gap-5">
+            {/* Right: Overlapping Staggered Showcase (Stacked on Mobile, Staggered Overlap on Desktop) */}
+            <div className="relative w-full max-w-md sm:max-w-xl mx-auto lg:max-w-none flex flex-col gap-5 sm:block sm:min-h-[460px] md:min-h-[500px] lg:min-h-[520px]">
+              {/* Left Photo (Group of four women) - Larger, higher up */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-surface shadow-md group"
+                className="w-full sm:w-[62%] sm:absolute sm:top-0 sm:left-0 aspect-[4/5] overflow-hidden rounded-2xl border-2 sm:border-[3px] border-white shadow-lg bg-surface z-10 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl hover:z-30 cursor-pointer group"
               >
                 <img
                   src="/images/site/store-visitors-women-cropped.jpg"
-                  alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
-                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                  alt="Group of four women visitors and shoppers at Global to Local in Fontainhas"
+                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                 />
               </motion.div>
 
+              {/* Right Photo (Three men standing) - Slightly smaller, lower down, overlapping bottom-right of left photo */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="mt-8 sm:mt-10 aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-2xl border border-border bg-surface shadow-md group"
+                className="w-full sm:w-[52%] sm:absolute sm:bottom-0 sm:right-0 aspect-[4/5] overflow-hidden rounded-2xl border-2 sm:border-[3px] border-white shadow-xl bg-surface z-20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl hover:z-30 cursor-pointer group"
               >
                 <img
                   src="/images/site/store-team-men-cropped.jpg"
-                  alt="Our team and guests inside Global to Local Fontainhas"
-                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                  alt="Three men standing together inside Global to Local store in Panaji"
+                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                 />
               </motion.div>
             </div>
