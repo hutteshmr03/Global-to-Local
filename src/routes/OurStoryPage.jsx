@@ -298,40 +298,42 @@ export default function OurStoryPage() {
               </p>
             </motion.div>
 
-            {/* Right: Two Fixed-size Portrait Cards (Staggered Side-by-Side on Desktop, Stacked on Mobile) */}
-            <div className="flex flex-col md:flex-row items-center md:items-start justify-center lg:justify-end gap-[20px] w-full">
-              {/* Left Card: 4 Women (object-position: 20% center) */}
+            {/* Right: Full Landscape Showcase (All People Completely Visible) */}
+            <div className="flex flex-col gap-5 sm:gap-6 w-full max-w-[520px] mx-auto lg:max-w-none">
+              {/* Photo 1: All 8 Women completely visible */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="w-full h-[320px] md:w-[260px] md:h-[340px] md:aspect-[3/4] shrink-0 overflow-hidden rounded-[16px] shadow-md bg-surface"
+                className="overflow-hidden rounded-2xl border border-border/50 bg-surface shadow-md transition-all duration-300 hover:shadow-lg group"
               >
-                <img
-                  src="/images/site/store-visitors-women.jpg"
-                  alt="Visitors exploring Global to Local store in Fontainhas"
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: '20% center' }}
-                />
+                <div className="relative aspect-[16/9.5] w-full overflow-hidden bg-surface-muted">
+                  <img
+                    src="/images/site/store-visitors-women.jpg"
+                    alt="Visitors and shoppers exploring Global to Local store in Fontainhas"
+                    loading="lazy"
+                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                  />
+                </div>
               </motion.div>
 
-              {/* Right Card: 3 Men (object-position: 70% center, sits 40px lower on desktop) */}
+              {/* Photo 2: All 4 Men completely visible */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="w-full h-[320px] md:w-[260px] md:h-[340px] md:aspect-[3/4] md:mt-[40px] shrink-0 overflow-hidden rounded-[16px] shadow-md bg-surface"
+                className="overflow-hidden rounded-2xl border border-border/50 bg-surface shadow-md transition-all duration-300 hover:shadow-lg group"
               >
-                <img
-                  src="/images/site/store-team-men.jpg"
-                  alt="Our team inside Global to Local Fontainhas"
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: '70% center' }}
-                />
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted">
+                  <img
+                    src="/images/site/store-team-men.jpg"
+                    alt="Our team and guests inside Global to Local Fontainhas"
+                    loading="lazy"
+                    className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                  />
+                </div>
               </motion.div>
             </div>
           </div>
