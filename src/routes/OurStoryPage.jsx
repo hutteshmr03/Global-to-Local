@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 import { TropicalSunIcon, CoastalWaveIcon, PalmLeafIcon } from '../components/common/Icons';
 import ShellDrift from '../components/common/ShellDrift';
 import StoreBanner from '../components/home/StoreBanner';
@@ -36,6 +37,36 @@ const stats = [
 ];
 
 export default function OurStoryPage() {
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const [videoError, setVideoError] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || videoError) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play().catch(() => {
+              // Ensure video is muted if autoplay is restricted by browser policy
+              video.muted = true;
+              setIsMuted(true);
+              video.play().catch(() => {});
+            });
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [videoError]);
+
   return (
     <main id="main" className="min-w-0 bg-ground">
       {/* 1. HERO SECTION */}
@@ -82,7 +113,7 @@ export default function OurStoryPage() {
       {/* 2. SOCIAL VENTURE GENESIS */}
       <section className="pt-6 pb-8 sm:pt-16 sm:pb-16 lg:py-28 bg-ground text-content border-t border-border/40">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
-          {/* Heading - in one row */}
+          {/* Heading - strictly in one row */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -90,7 +121,7 @@ export default function OurStoryPage() {
             transition={{ duration: 0.6 }}
             className="mb-8 sm:mb-12"
           >
-            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight text-content tracking-tight">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-3xl lg:text-[2.25rem] xl:text-[2.5rem] font-semibold leading-tight text-content tracking-tight md:whitespace-nowrap">
               Conceptualised during the pandemic, as a social venture
             </h2>
           </motion.div>
@@ -104,18 +135,60 @@ export default function OurStoryPage() {
             className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center"
           >
             {/* Left: Video */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-ink-deep shadow-lg">
-              <iframe
-                src="https://drive.google.com/file/d/1iAKFzXKggu2FCXk5zYDbGId4P_bIFKvz/preview"
-                title="Global to Local Story Video"
-                className="h-full w-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-ink-deep shadow-lg group">
+              {!videoError ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    playsInline
+                    loop
+                    muted={isMuted}
+                    controls
+                    onError={() => setVideoError(true)}
+                    className="h-full w-full object-cover"
+                    preload="auto"
+                  >
+                    <source src="/videos/our-story.mp4" type="video/mp4" />
+                  </video>
+                  {/* Quick sound toggle badge */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (videoRef.current) {
+                        const nextMuted = !isMuted;
+                        videoRef.current.muted = nextMuted;
+                        setIsMuted(nextMuted);
+                      }
+                    }}
+                    className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white hover:bg-black/80 transition-all cursor-pointer shadow-md select-none"
+                    aria-label={isMuted ? "Unmute video" : "Mute video"}
+                  >
+                    {isMuted ? (
+                      <>
+                        <VolumeX className="w-3.5 h-3.5 text-white" />
+                        <span>Unmute</span>
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-3.5 h-3.5 text-white animate-pulse" />
+                        <span>Mute</span>
+                      </>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <iframe
+                  src="https://drive.google.com/file/d/1iAKFzXKggu2FCXk5zYDbGId4P_bIFKvz/preview?autoplay=1"
+                  title="Global to Local Story Video"
+                  className="h-full w-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              )}
             </div>
 
             {/* Right: Story Text */}
-            <div className="space-y-6 text-base sm:text-lg text-content-muted leading-relaxed">
+            <div className="flex flex-col justify-center space-y-6 text-base sm:text-lg lg:text-[1.05rem] text-content-muted leading-relaxed">
               <p>
                 The brain child of Goan entrepreneur Asha Arondekar to support the local women of this tropical little state. Conceptualised during the pandemic as a sole social venture to support women and promote the forgotten essence of our serene state.
               </p>
@@ -124,7 +197,6 @@ export default function OurStoryPage() {
                 <strong className="font-semibold text-content">100+ Goan women financially independent</strong>{' '}
                 and creative while also assisting them in upgrading their skills to make them more confident, competent, and self sufficient individuals.
               </p>
-              <div className="h-px w-full bg-accent/40 my-6" />
             </div>
           </motion.div>
         </div>
