@@ -71,8 +71,12 @@ export default function AdminLayout() {
             <button
               type="button"
               onClick={async () => {
-                await logout();
-                navigate('/login');
+                try {
+                  await logout();
+                } finally {
+                  useAuthStore.setState({ user: null, isHydrating: false, isInitialized: true });
+                  navigate('/login', { replace: true });
+                }
               }}
               className="w-full inline-flex items-center justify-center gap-2 rounded-pill border border-border bg-ground py-2.5 text-xs font-semibold text-content hover:bg-surface transition-all min-h-[44px]"
             >
@@ -95,8 +99,12 @@ export default function AdminLayout() {
   ];
 
   const handleSignOut = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+    } finally {
+      useAuthStore.setState({ user: null, isHydrating: false, isInitialized: true });
+      navigate('/login', { replace: true });
+    }
   };
 
   return (

@@ -148,7 +148,10 @@ export default function AccountPage() {
     setIsLoggingOut(true);
     try {
       await logout();
+    } catch (err) {
+      console.warn('Logout notice:', err);
     } finally {
+      useAuthStore.setState({ user: null, isHydrating: false, isInitialized: true });
       navigate('/login', { replace: true });
     }
   };

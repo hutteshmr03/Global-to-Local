@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { apiFetch, setClientAuthTokens } from './api-client';
+import { apiFetch, setClientAuthTokens, clearClientAuthTokens } from './api-client';
 import { useCartStore } from './cart-store';
 
 // Rule 2: Delete any legacy fake localStorage customer registry or order storage
@@ -545,8 +545,13 @@ export const useAuthStore = create((set, get) => {
     }
 
     // 2. Immediately wipe client tokens and session synchronously so UI reacts instantly
-    persistUserSession(null);
-    clearClientAuthTokens();
+    try {
+      persistUserSession(null);
+    } catch {}
+    try {
+      clearClientAuthTokens();
+    } catch {}
+
     if (typeof localStorage !== 'undefined') {
       try {
         localStorage.removeItem('gtl_mock_auth_user_v1');
@@ -556,6 +561,8 @@ export const useAuthStore = create((set, get) => {
         localStorage.removeItem('gtl_csrf_token');
         localStorage.removeItem('gtl.cart.v1');
         localStorage.removeItem('gtl_cart_session_token');
+        localStorage.removeItem('gtl.customer.registry.v1');
+        localStorage.removeItem('gtl.customer.auth.v1');
       } catch {}
     }
 
@@ -568,10 +575,13 @@ export const useAuthStore = create((set, get) => {
       } catch {}
     }
 
+    // 4. Force synchronous store reset
     set({ user: null, isHydrating: false, isInitialized: true });
-    useCartStore.setState({ items: [], isLoggedIn: false });
+    try {
+      useCartStore.setState({ items: [], isLoggedIn: false });
+    } catch {}
 
-    // 4. Best-effort server notification with direct failover via apiFetch
+    // 5. Best-effort server notification with direct failover via apiFetch
     try {
       await apiFetch('/api/v1/auth/logout', {
         method: 'POST',
