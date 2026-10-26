@@ -156,43 +156,49 @@ export default function OurSocialCornerPage() {
             </p>
           </motion.div>
 
-          {/* 3 Review Cards */}
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {visitorsReviews.map((rev, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="relative overflow-hidden rounded-2xl border border-border bg-surface p-7 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-300"
-              >
-                <div>
-                  {/* 5 Stars */}
-                  <div className="flex gap-1 text-accent" role="img" aria-label="5 out of 5 stars">
-                    {[...Array(rev.stars)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
-                    ))}
+          {/* Review Cards */}
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {visitorsReviews.map((rev, idx) => {
+              const stars = Math.max(1, Math.min(5, Number(rev.stars || rev.rating || 5)));
+              const quote = rev.quote || rev.description || '';
+              const author = rev.author || rev.author_name || rev.name || 'Store Customer';
+              const role = rev.role || rev.author_location || rev.location || '';
+              return (
+                <motion.div
+                  key={rev.id || idx}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: (idx % 6) * 0.1 }}
+                  className="relative overflow-hidden rounded-2xl border border-border bg-surface p-7 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-300"
+                >
+                  <div>
+                    {/* Stars */}
+                    <div className="flex gap-1 text-accent" role="img" aria-label={`${stars} out of 5 stars`}>
+                      {[...Array(stars)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-current" />
+                      ))}
+                    </div>
+                    {/* Quote */}
+                    <blockquote className="mt-5 text-sm sm:text-base leading-relaxed text-content-muted">
+                      “{quote}”
+                    </blockquote>
                   </div>
-                  {/* Quote */}
-                  <blockquote className="mt-5 text-sm sm:text-base leading-relaxed text-content-muted">
-                    “{rev.quote}”
-                  </blockquote>
-                </div>
 
-                {/* Author */}
-                <div className="mt-6 border-t border-border/30 pt-4">
-                  <span className="block font-display text-sm sm:text-base font-semibold text-content">
-                    {rev.author}
-                  </span>
-                  {rev.role && (
-                    <span className="mt-0.5 block text-xs text-content-subtle">
-                      {rev.role}
+                  {/* Author */}
+                  <div className="mt-6 border-t border-border/30 pt-4">
+                    <span className="block font-display text-sm sm:text-base font-semibold text-content">
+                      {author}
                     </span>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                    {role && (
+                      <span className="mt-0.5 block text-xs text-content-subtle">
+                        {role}
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

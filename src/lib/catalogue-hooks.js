@@ -169,7 +169,52 @@ export function useFaqs(fallbackFaqs = []) {
   });
 }
 
-export function useReviews(source, fallbackList = fallbackReviews) {
+export const PRIMARY_VISITORS_REVIEWS = [
+  {
+    id: 'rev-001',
+    author: 'Gifty Abraham',
+    author_name: 'Gifty Abraham',
+    name: 'Gifty Abraham',
+    role: '',
+    location: '',
+    stars: 5,
+    rating: 5,
+    quote:
+      'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.',
+    description:
+      'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.',
+  },
+  {
+    id: 'rev-002',
+    author: 'Stedwick Fernandes',
+    author_name: 'Stedwick Fernandes',
+    name: 'Stedwick Fernandes',
+    role: '',
+    location: '',
+    stars: 5,
+    rating: 5,
+    quote:
+      "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+    description:
+      "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+  },
+  {
+    id: 'rev-003',
+    author: 'Swapna Pujari',
+    author_name: 'Swapna Pujari',
+    name: 'Swapna Pujari',
+    role: 'SilhouetteIndia',
+    location: 'SilhouetteIndia',
+    stars: 5,
+    rating: 5,
+    quote:
+      'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.',
+    description:
+      'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.',
+  },
+];
+
+export function useReviews(source, fallbackList = PRIMARY_VISITORS_REVIEWS) {
   return useQuery({
     queryKey: ['reviews', source || 'all'],
     queryFn: async () => {
@@ -188,6 +233,24 @@ export function useReviews(source, fallbackList = fallbackReviews) {
     },
     initialData: fallbackList,
     placeholderData: fallbackList,
+  });
+}
+
+export function useAdminReviews() {
+  return useQuery({
+    queryKey: ['admin-reviews'],
+    queryFn: async () => {
+      try {
+        const res = await apiFetch('/api/v1/admin/reviews');
+        if (res && Array.isArray(res.items) && res.items.length > 0) {
+          return res.items;
+        }
+        return PRIMARY_VISITORS_REVIEWS;
+      } catch {
+        return PRIMARY_VISITORS_REVIEWS;
+      }
+    },
+    initialData: PRIMARY_VISITORS_REVIEWS,
   });
 }
 

@@ -34,6 +34,7 @@ from backend.models import (
     ProductImage,
     Shipment,
     ShipmentStatus,
+    StoreReview,
     User,
     UserRole,
     UserSession,
@@ -1421,6 +1422,13 @@ def add_admin_order_note(
 # PRIORITY 5: CUSTOMERS & ENQUIRIES
 # =====================================================================
 
+class AdminReviewCreatePayload(BaseModel):
+    name: str = Field(..., min_length=1, max_length=120, description="Customer Name")
+    stars: int = Field(5, ge=1, le=5, description="Rating from 1 to 5 stars")
+    description: str = Field(..., min_length=1, description="Review description / quote")
+    location: Optional[str] = Field(None, max_length=120, description="Optional customer location or subtitle")
+
+
 class AdminCustomerStatusPayload(BaseModel):
     is_active: bool
 
@@ -1650,3 +1658,163 @@ def update_admin_enquiry_status(
         "enquiry_id": str(enquiry.id),
         "new_status": enquiry.status.value,
     }
+
+
+# =====================================================================
+# 7. CUSTOMER REVIEWS (ADMIN MANAGEMENT)
+# =====================================================================
+
+@router.get("/reviews")
+def list_admin_reviews(
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        rows = (
+            db.query(StoreReview)
+            .order_by(StoreReview.display_order.asc(), StoreReview.created_at.desc())
+            .all()
+        )
+    except Exception as e:
+        logger.warning(f"Error reading store_reviews: {e}")
+        rows = []
+
+    if not rows:
+        default_items = [
+            {
+                "id": "rev-001",
+                "name": "Gifty Abraham",
+                "author_name": "Gifty Abraham",
+                "author": "Gifty Abraham",
+                "stars": 5,
+                "rating": 5,
+                "description": "Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.",
+                "quote": "Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.",
+                "location": "",
+                "author_location": "",
+                "role": "",
+                "source": "Visitors' Book",
+                "is_approved": True,
+                "created_at": "2024-01-15T10:00:00Z",
+            },
+            {
+                "id": "rev-002",
+                "name": "Stedwick Fernandes",
+                "author_name": "Stedwick Fernandes",
+                "author": "Stedwick Fernandes",
+                "stars": 5,
+                "rating": 5,
+                "description": "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+                "quote": "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+                "location": "",
+                "author_location": "",
+                "role": "",
+                "source": "Visitors' Book",
+                "is_approved": True,
+                "created_at": "2024-01-20T14:30:00Z",
+            },
+            {
+                "id": "rev-003",
+                "name": "Swapna Pujari",
+                "author_name": "Swapna Pujari",
+                "author": "Swapna Pujari",
+                "stars": 5,
+                "rating": 5,
+                "description": "Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.",
+                "quote": "Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.",
+                "location": "SilhouetteIndia",
+                "author_location": "SilhouetteIndia",
+                "role": "SilhouetteIndia",
+                "source": "Visitors' Book",
+                "is_approved": True,
+                "created_at": "2024-02-05T09:15:00Z",
+            },
+        ]
+        return {"items": default_items, "total": len(default_items)}
+
+    items = [
+        {
+            "id": str(r.id),
+            "name": r.author_name,
+            "author_name": r.author_name,
+            "author": r.author_name,
+            "stars": r.rating,
+            "rating": r.rating,
+            "description": r.quote,
+            "quote": r.quote,
+            "location": r.author_location or "",
+            "author_location": r.author_location or "",
+            "role": r.author_location or "",
+            "source": r.source,
+            "is_approved": r.is_approved,
+            "created_at": safe_iso(r.created_at),
+        }
+        for r in rows
+    ]
+    return {"items": items, "total": len(items)}
+
+
+@router.post("/reviews", status_code=status.HTTP_201_CREATED)
+def create_admin_review(
+    payload: AdminReviewCreatePayload,
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        new_rev = StoreReview(
+            id=uuid.uuid4(),
+            author_name=payload.name.strip(),
+            rating=max(1, min(5, payload.stars)),
+            quote=payload.description.strip(),
+            author_location=payload.location.strip() if payload.location else None,
+            source="Visitors' Book",
+            is_approved=True,
+            is_featured=True,
+            display_order=0,
+            created_at=datetime.now(timezone.utc),
+        )
+        db.add(new_rev)
+        db.commit()
+        db.refresh(new_rev)
+        return {
+            "id": str(new_rev.id),
+            "name": new_rev.author_name,
+            "author_name": new_rev.author_name,
+            "author": new_rev.author_name,
+            "stars": new_rev.rating,
+            "rating": new_rev.rating,
+            "description": new_rev.quote,
+            "quote": new_rev.quote,
+            "location": new_rev.author_location or "",
+            "author_location": new_rev.author_location or "",
+            "role": new_rev.author_location or "",
+            "source": new_rev.source,
+            "is_approved": new_rev.is_approved,
+            "created_at": safe_iso(new_rev.created_at),
+        }
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to create review: {e}")
+        raise ProblemException(status_code=500, title="Database Error", detail=f"Failed to create review: {str(e)}")
+
+
+@router.delete("/reviews/{review_id}")
+def delete_admin_review(
+    review_id: str,
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        r_uuid = uuid.UUID(review_id)
+        rev = db.query(StoreReview).filter(StoreReview.id == r_uuid).first()
+        if rev:
+            db.delete(rev)
+            db.commit()
+            return {"status": "success", "message": "Review deleted successfully"}
+        return {"status": "success", "message": "Review already removed"}
+    except ValueError:
+        return {"status": "success", "message": "Review removed"}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to delete review: {e}")
+        raise ProblemException(status_code=500, title="Database Error", detail=f"Failed to delete review: {str(e)}")

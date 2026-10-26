@@ -8,6 +8,7 @@ const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
 const STORAGE_ADDRESSES = 'gtl_mock_addresses_v1';
 const STORAGE_ORDERS = 'gtl_mock_orders_v2';
+const STORAGE_REVIEWS = 'gtl_mock_reviews_v1';
 
 export const CATEGORY_PREFIXES = {
   'hand-crafted': 'CRFT',
@@ -370,6 +371,73 @@ export function resolveMockProduct(ref) {
   }
 
   return found;
+}
+
+
+export const DEFAULT_MOCK_REVIEWS = [
+  {
+    id: 'rev-001',
+    name: 'Gifty Abraham',
+    author: 'Gifty Abraham',
+    author_name: 'Gifty Abraham',
+    stars: 5,
+    rating: 5,
+    description: 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.',
+    quote: 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.',
+    location: '',
+    author_location: '',
+    role: '',
+    source: "Visitors' Book",
+    is_approved: true,
+    is_featured: true,
+    created_at: '2024-01-15T10:00:00Z',
+  },
+  {
+    id: 'rev-002',
+    name: 'Stedwick Fernandes',
+    author: 'Stedwick Fernandes',
+    author_name: 'Stedwick Fernandes',
+    stars: 5,
+    rating: 5,
+    description: "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+    quote: "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+    location: '',
+    author_location: '',
+    role: '',
+    source: "Visitors' Book",
+    is_approved: true,
+    is_featured: true,
+    created_at: '2024-01-20T14:30:00Z',
+  },
+  {
+    id: 'rev-003',
+    name: 'Swapna Pujari',
+    author: 'Swapna Pujari',
+    author_name: 'Swapna Pujari',
+    stars: 5,
+    rating: 5,
+    description: 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.',
+    quote: 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.',
+    location: 'SilhouetteIndia',
+    author_location: 'SilhouetteIndia',
+    role: 'SilhouetteIndia',
+    source: "Visitors' Book",
+    is_approved: true,
+    is_featured: true,
+    created_at: '2024-02-05T09:15:00Z',
+  },
+];
+
+export function initMockReviews() {
+  const existing = localStorage.getItem(STORAGE_REVIEWS);
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {}
+  }
+  localStorage.setItem(STORAGE_REVIEWS, JSON.stringify(DEFAULT_MOCK_REVIEWS));
+  return [...DEFAULT_MOCK_REVIEWS];
 }
 
 function initMockAddresses() {
@@ -1154,6 +1222,56 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   // -------------------------------------------------------------
   // 7. PUBLIC STORE FALLBACK (/api/v1/products, /categories)
   // -------------------------------------------------------------
+  
+  // -------------------------------------------------------------
+  // CUSTOMER REVIEWS (PUBLIC & ADMIN)
+  // -------------------------------------------------------------
+  if (pathname === '/api/v1/reviews' && method === 'GET') {
+    const reviews = initMockReviews();
+    return { items: reviews, total: reviews.length };
+  }
+
+  if (pathname === '/api/v1/admin/reviews' && method === 'GET') {
+    const reviews = initMockReviews();
+    return { items: reviews, total: reviews.length };
+  }
+
+  if (pathname === '/api/v1/admin/reviews' && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const reviews = initMockReviews();
+    const newReview = {
+      id: `rev-${Date.now()}`,
+      name: body.name || body.author || 'Store Customer',
+      author: body.name || body.author || 'Store Customer',
+      author_name: body.name || body.author || 'Store Customer',
+      stars: Math.max(1, Math.min(5, Number(body.stars || body.rating || 5))),
+      rating: Math.max(1, Math.min(5, Number(body.stars || body.rating || 5))),
+      description: body.description || body.quote || '',
+      quote: body.description || body.quote || '',
+      location: body.location || body.role || '',
+      author_location: body.location || body.role || '',
+      role: body.location || body.role || '',
+      source: "Visitors' Book",
+      is_approved: true,
+      is_featured: true,
+      created_at: new Date().toISOString(),
+    };
+    reviews.unshift(newReview);
+    localStorage.setItem(STORAGE_REVIEWS, JSON.stringify(reviews));
+    return newReview;
+  }
+
+  if (pathname.startsWith('/api/v1/admin/reviews/') && method === 'DELETE') {
+    const revId = pathname.replace('/api/v1/admin/reviews/', '').trim();
+    let reviews = initMockReviews();
+    reviews = reviews.filter((r) => r.id !== revId);
+    localStorage.setItem(STORAGE_REVIEWS, JSON.stringify(reviews));
+    return { status: 'success', message: 'Review deleted successfully' };
+  }
+
   if (pathname === '/api/v1/categories') {
     return { items: seedCategories };
   }

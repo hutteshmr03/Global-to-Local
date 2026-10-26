@@ -50,6 +50,7 @@ files_to_sync = [
     (f"{RAW_BASE}/backend/routers/catalogue.py", os.path.join(BASE_DIR, "backend", "routers", "catalogue.py")),
     (f"{RAW_BASE}/backend/routers/cart.py", os.path.join(BASE_DIR, "backend", "routers", "cart.py")),
     (f"{RAW_BASE}/backend/routers/admin.py", os.path.join(BASE_DIR, "backend", "routers", "admin.py")),
+    (f"{RAW_BASE}/backend/routers/content.py", os.path.join(BASE_DIR, "backend", "routers", "content.py")),
     (f"{RAW_BASE}/backend/routers/auth_account.py", os.path.join(BASE_DIR, "backend", "routers", "auth_account.py")),
     (f"{RAW_BASE}/backend/routers/checkout_orders.py", os.path.join(BASE_DIR, "backend", "routers", "checkout_orders.py")),
     # Frontend SPA build
@@ -61,6 +62,8 @@ files_to_sync = [
     (f"{RAW_BASE}/dist_live/assets/index-CkCWRL2I.js", os.path.join(PUBLIC_HTML, "assets", "index-CkCWRL2I.js")),
     (f"{RAW_BASE}/dist_live/assets/index-C8i-QcrF.js", os.path.join(PUBLIC_HTML, "assets", "index-C8i-QcrF.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dfh1zTft.css", os.path.join(PUBLIC_HTML, "assets", "index-Dfh1zTft.css")),
+    (f"{RAW_BASE}/dist_live/assets/index-ckv-SMNr.js", os.path.join(PUBLIC_HTML, "assets", "index-ckv-SMNr.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-DqRmjGQV.css", os.path.join(PUBLIC_HTML, "assets", "index-DqRmjGQV.css")),
     (f"{RAW_BASE}/dist_live/videos/our-story.mp4", os.path.join(PUBLIC_HTML, "videos", "our-story.mp4")),
     # Missing / Aliased catalog images
     (f"{RAW_BASE}/public/images/catalog/agarbatti-lavender-80-grams.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "agarbatti-lavender-80-grams.jpg")),
@@ -372,6 +375,39 @@ try:
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         """))
+        # F3. Ensure store_reviews table exists and retains the 3 default customer reviews
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS `store_reviews` (
+              `id` VARCHAR(36) NOT NULL,
+              `user_id` VARCHAR(36) DEFAULT NULL,
+              `product_id` VARCHAR(36) DEFAULT NULL,
+              `author_name` VARCHAR(120) NOT NULL,
+              `author_location` VARCHAR(120) DEFAULT NULL,
+              `rating` SMALLINT NOT NULL DEFAULT 5,
+              `quote` TEXT NOT NULL,
+              `source` VARCHAR(40) NOT NULL DEFAULT 'Visitors\' Book',
+              `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+              `is_approved` TINYINT(1) NOT NULL DEFAULT 1,
+              `display_order` SMALLINT NOT NULL DEFAULT 0,
+              `reviewed_on` DATE DEFAULT NULL,
+              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        """))
+
+        try:
+            rev_count = conn.execute(text("SELECT COUNT(*) FROM store_reviews")).scalar()
+            if rev_count == 0:
+                conn.execute(text("""
+                    INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order)
+                    VALUES 
+                    ('rev-001', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', 'Visitors\' Book', 1, 1, 1),
+                    ('rev-002', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny\'s house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', 'Visitors\' Book', 1, 1, 2),
+                    ('rev-003', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', 'Visitors\' Book', 1, 1, 3);
+                """))
+                print("[OK] Seeded 3 default customer reviews to store_reviews table.", flush=True)
+        except Exception as seed_err:
+            print(f"[NOTE] store_reviews seed check: {seed_err}", flush=True)
 
         # E. Set all 230 products to published, active, in_stock
         conn.execute(text("""

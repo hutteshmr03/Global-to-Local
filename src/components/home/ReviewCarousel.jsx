@@ -48,46 +48,52 @@ export default function ReviewCarousel() {
           </p>
         </motion.div>
 
-        {/* 3 Testimonial Cards */}
-        <div className="mt-14 grid gap-6 sm:gap-8 lg:grid-cols-3">
-          {reviews.map((review, idx) => (
-            <motion.div
-              key={review.author}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
-              className="h-full"
-            >
-              <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-border/40 bg-surface p-7 sm:p-8 shadow-xs transition-all duration-300 hover:border-accent/40 hover:shadow-md hover:-translate-y-1">
-                <div>
-                  {/* 5 Stars */}
-                  <div className="flex gap-1 text-accent" role="img" aria-label="5 out of 5 stars">
-                    {[...Array(review.rating)].map((_, starIdx) => (
-                      <Star key={starIdx} className="h-4 w-4 fill-current" />
-                    ))}
+        {/* Testimonial Cards */}
+        <div className="mt-14 grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {reviews.map((review, idx) => {
+            const stars = Math.max(1, Math.min(5, Number(review.stars || review.rating || 5)));
+            const quote = review.quote || review.description || '';
+            const author = review.author || review.author_name || review.name || 'Store Customer';
+            const role = review.role || review.author_location || review.location || '';
+            return (
+              <motion.div
+                key={review.id || review.author || idx}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: (idx % 6) * 0.1 }}
+                className="h-full"
+              >
+                <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-border/40 bg-surface p-7 sm:p-8 shadow-xs transition-all duration-300 hover:border-accent/40 hover:shadow-md hover:-translate-y-1">
+                  <div>
+                    {/* Stars */}
+                    <div className="flex gap-1 text-accent" role="img" aria-label={`${stars} out of 5 stars`}>
+                      {[...Array(stars)].map((_, starIdx) => (
+                        <Star key={starIdx} className="h-4 w-4 fill-current" />
+                      ))}
+                    </div>
+
+                    {/* Quote */}
+                    <blockquote className="mt-5 text-[0.9375rem] leading-relaxed text-content-muted">
+                      “{quote}”
+                    </blockquote>
                   </div>
 
-                  {/* Quote */}
-                  <blockquote className="mt-5 text-[0.9375rem] leading-relaxed text-content-muted">
-                    “{review.quote}”
-                  </blockquote>
-                </div>
-
-                {/* Author Info */}
-                <figcaption className="mt-6 border-t border-border/40 pt-5">
-                  <span className="block font-display text-base font-semibold text-content">
-                    {review.author}
-                  </span>
-                  {review.role && (
-                    <span className="mt-0.5 block text-xs text-content-subtle">
-                      {review.role}
+                  {/* Author Info */}
+                  <figcaption className="mt-6 border-t border-border/40 pt-5">
+                    <span className="block font-display text-base font-semibold text-content">
+                      {author}
                     </span>
-                  )}
-                </figcaption>
-              </div>
-            </motion.div>
-          ))}
+                    {role && (
+                      <span className="mt-0.5 block text-xs text-content-subtle">
+                        {role}
+                      </span>
+                    )}
+                  </figcaption>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
