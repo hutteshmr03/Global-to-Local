@@ -101,61 +101,10 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
 
 import shutil
 
-# --- STEP 1B: Precise Deployment & Other Site Restoration ---
-print("\n--- STEP 1B: Restoring Other Sites & Deploying Exclusively to Global to Local ---", flush=True)
-
-# 1. Restore rem.sumantcloud.com cleanly
-rem_dir = "/home/nrlnxfke/rem.sumantcloud.com"
-if os.path.exists(rem_dir):
-    try:
-        # Remove stray root index.html so index.php runs
-        rem_idx = os.path.join(rem_dir, "index.html")
-        if os.path.exists(rem_idx):
-            os.remove(rem_idx)
-        # Restore CodeIgniter .htaccess with error suppression for PHP 8.2
-        rem_ht = os.path.join(rem_dir, ".htaccess")
-        with open(rem_ht, "w", encoding="utf-8") as f:
-            f.write("""RewriteEngine On
-RewriteBase /
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
-
-<IfModule lsapi_module>
-  php_flag display_errors Off
-</IfModule>
-<IfModule mod_php.c>
-  php_flag display_errors Off
-</IfModule>
-""")
-        # In index.php, suppress PHP 8.2 deprecation warnings at top
-        rem_php = os.path.join(rem_dir, "index.php")
-        if os.path.exists(rem_php):
-            with open(rem_php, "r", encoding="utf-8", errors="ignore") as f:
-                php_content = f.read()
-            if "error_reporting(E_ALL & ~E_DEPRECATED" not in php_content:
-                # Prepend error suppression right after <?php
-                php_content = php_content.replace("<?php", "<?php\nerror_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE);\nini_set('display_errors', '0');\n", 1)
-                with open(rem_php, "w", encoding="utf-8") as f:
-                    f.write(php_content)
-        print("[OK] rem.sumantcloud.com completely restored to 100% normal operation.", flush=True)
-    except Exception as e:
-        print(f"[!] rem.sumantcloud.com notice: {e}", flush=True)
-
-# 2. Restore other sites (efarmer, akcon, pem, solana)
-for o_dir in ["/home/nrlnxfke/efarmer.co.in", "/home/nrlnxfke/akcon.in", "/home/nrlnxfke/pem.sumantcloud.com", "/home/nrlnxfke/solanafoundation.in"]:
-    if os.path.exists(o_dir):
-        try:
-            o_idx = os.path.join(o_dir, "index.html")
-            if os.path.exists(o_idx):
-                with open(o_idx, "r", encoding="utf-8", errors="ignore") as f:
-                    c = f.read(200)
-                if "Global to Local" in c:
-                    os.remove(o_idx)
-        except Exception:
-            pass
-
-# 3. Target Global to Local Document Roots Exclusively
+# --- STEP 1B: Deploy Exclusively to Global to Local Document Roots ---
+print("\n--- STEP 1B: Deploying Exclusively to Global to Local ---", flush=True)
+# --- STEP 1B: Deploy Exclusively to Global to Local Document Roots ---
+print("\n--- STEP 1B: Deploying Exclusively to Global to Local ---", flush=True)
 gtl_targets = []
 for p in ["/home/nrlnxfke/globaltolocal.in", "/home/nrlnxfke/public_html"]:
     if os.path.exists(p) and os.path.isdir(p):
@@ -459,9 +408,9 @@ if os.path.exists(BASE_DIR):
         print(f"[NOTE] Process kill notice: {e}", flush=True)
 
     log_file = os.path.join(BASE_DIR, "uvicorn.log")
-    cmd = f"cd {BASE_DIR} && nohup {PYTHON_BIN} -m uvicorn backend.main:app --host 127.0.0.1 --port 8008 --workers 1 > {log_file} 2>&1 &"
+    cmd = f"cd {BASE_DIR} && nohup {PYTHON_BIN} -u -m uvicorn backend.main:app --host 127.0.0.1 --port 8008 --workers 1 > {log_file} 2>&1 &"
     os.system(cmd)
-    time.sleep(4)
+    time.sleep(5)
     print("[OK] Uvicorn service restarted in background on port 8008.", flush=True)
 
 # 4. Comprehensive Live Health Checks (with retry)

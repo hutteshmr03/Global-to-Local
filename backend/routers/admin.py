@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
 from PIL import Image
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy import desc, func, or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from backend.core.errors import ProblemException
 from backend.core.providers import send_order_status_email
 from backend.database import get_db
