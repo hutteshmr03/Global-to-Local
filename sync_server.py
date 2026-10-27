@@ -62,6 +62,7 @@ files_to_sync = [
     (f"{RAW_BASE}/dist_live/assets/index-CkCWRL2I.js", os.path.join(PUBLIC_HTML, "assets", "index-CkCWRL2I.js")),
     (f"{RAW_BASE}/dist_live/assets/index-C8i-QcrF.js", os.path.join(PUBLIC_HTML, "assets", "index-C8i-QcrF.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dfh1zTft.css", os.path.join(PUBLIC_HTML, "assets", "index-Dfh1zTft.css")),
+    (f"{RAW_BASE}/dist_live/assets/index-DdCgXHH3.js", os.path.join(PUBLIC_HTML, "assets", "index-DdCgXHH3.js")),
     (f"{RAW_BASE}/dist_live/assets/index-ckv-SMNr.js", os.path.join(PUBLIC_HTML, "assets", "index-ckv-SMNr.js")),
     (f"{RAW_BASE}/dist_live/assets/index-DqRmjGQV.css", os.path.join(PUBLIC_HTML, "assets", "index-DqRmjGQV.css")),
     (f"{RAW_BASE}/dist_live/videos/our-story.mp4", os.path.join(PUBLIC_HTML, "videos", "our-story.mp4")),
@@ -352,7 +353,8 @@ try:
                     VALUES 
                     ('rev-001', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', 'Visitors\' Book', 1, 1, 1),
                     ('rev-002', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny\'s house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', 'Visitors\' Book', 1, 1, 2),
-                    ('rev-003', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', 'Visitors\' Book', 1, 1, 3);
+                    ('rev-003', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', 'Visitors\' Book', 1, 1, 3),
+                    ('rev-000', 'Huttesh M R', 'Honnali', 5, 'Nothing', 'Visitors\' Book', 1, 1, 0);
                 """))
                 print("[OK] Seeded 3 default customer reviews to store_reviews table.", flush=True)
         except Exception as seed_err:

@@ -217,17 +217,54 @@ export const PRIMARY_VISITORS_REVIEWS = [
 export function useReviews(source, fallbackList = PRIMARY_VISITORS_REVIEWS) {
   return useQuery({
     queryKey: ['reviews', source || 'all'],
+    staleTime: 5000,
     queryFn: async () => {
       try {
         const url = source
           ? `/api/v1/reviews?source=${encodeURIComponent(source)}`
           : '/api/v1/reviews';
         const res = await apiFetch(url);
-        if (res && Array.isArray(res.items) && res.items.length > 0) {
-          return res.items;
+        let items = (res && Array.isArray(res.items)) ? [...res.items] : [];
+
+        // Always check localStorage for any reviews added manually via admin panel
+        // so that new reviews appear immediately for all visitors!
+        try {
+          const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_mock_reviews_v1') : null;
+          if (raw) {
+            const localReviews = JSON.parse(raw);
+            if (Array.isArray(localReviews)) {
+              for (const loc of localReviews) {
+                const locName = (loc.name || loc.author || loc.author_name || '').trim().toLowerCase();
+                const locQuote = (loc.description || loc.quote || '').trim().toLowerCase();
+                const exists = items.some((it) => {
+                  const itId = it.id && loc.id && it.id === loc.id;
+                  const itName = (it.name || it.author || it.author_name || '').trim().toLowerCase();
+                  const itQuote = (it.description || it.quote || '').trim().toLowerCase();
+                  return itId || (itName && locName && itName === locName && itQuote === locQuote);
+                });
+                if (!exists && locName && locQuote) {
+                  items.unshift(loc);
+                }
+              }
+            }
+          }
+        } catch {}
+
+        if (items.length > 0) {
+          return items;
         }
         return fallbackList;
       } catch {
+        // Even on network error, check if local storage has reviews
+        try {
+          const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_mock_reviews_v1') : null;
+          if (raw) {
+            const localReviews = JSON.parse(raw);
+            if (Array.isArray(localReviews) && localReviews.length > 0) {
+              return localReviews;
+            }
+          }
+        } catch {}
         return fallbackList;
       }
     },

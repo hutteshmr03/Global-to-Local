@@ -144,7 +144,8 @@ export async function apiFetch(path, options = {}) {
 
   try {
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), 4500) : null;
+    const timeoutMs = (method !== 'GET' || path.startsWith('/api/v1/admin')) ? 15000 : 4500;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
     try {
       res = await fetch(primaryUrl, {
         ...fetchOptions,

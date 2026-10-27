@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { apiFetch } from '../../lib/api-client';
+import { queryClient } from '../../lib/catalogue-hooks';
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
@@ -95,6 +96,11 @@ export default function AdminReviews() {
       setLocation('');
       setStars(5);
 
+      // Invalidate customer reviews cache so home & social corner update immediately!
+      try {
+        queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      } catch {}
+
       setSuccessMsg('Review added successfully and published to live website!');
       setTimeout(() => setSuccessMsg(''), 5000);
     } catch (err) {
@@ -113,6 +119,9 @@ export default function AdminReviews() {
       });
       setReviews((prev) => prev.filter((r) => r.id !== deletingId));
       setDeletingId(null);
+      try {
+        queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      } catch {}
       setSuccessMsg('Review deleted successfully.');
       setTimeout(() => setSuccessMsg(''), 4000);
     } catch (err) {
