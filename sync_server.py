@@ -62,6 +62,8 @@ files_to_sync = [
     (f"{RAW_BASE}/dist_live/assets/index-CkCWRL2I.js", os.path.join(PUBLIC_HTML, "assets", "index-CkCWRL2I.js")),
     (f"{RAW_BASE}/dist_live/assets/index-C8i-QcrF.js", os.path.join(PUBLIC_HTML, "assets", "index-C8i-QcrF.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dfh1zTft.css", os.path.join(PUBLIC_HTML, "assets", "index-Dfh1zTft.css")),
+    (f"{RAW_BASE}/dist_live/assets/index-BiAX5iP0.js", os.path.join(PUBLIC_HTML, "assets", "index-BiAX5iP0.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-CAd-6c18.css", os.path.join(PUBLIC_HTML, "assets", "index-CAd-6c18.css")),
     (f"{RAW_BASE}/dist_live/assets/index-DdCgXHH3.js", os.path.join(PUBLIC_HTML, "assets", "index-DdCgXHH3.js")),
     (f"{RAW_BASE}/dist_live/assets/index-ckv-SMNr.js", os.path.join(PUBLIC_HTML, "assets", "index-ckv-SMNr.js")),
     (f"{RAW_BASE}/dist_live/assets/index-DqRmjGQV.css", os.path.join(PUBLIC_HTML, "assets", "index-DqRmjGQV.css")),

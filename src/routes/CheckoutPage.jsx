@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Check, AlertCircle, Building2, Copy, CheckCircle2, QrCode, Smartphone } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Truck, CreditCard, Lock, Plus, Minus, Trash2, Check, AlertCircle, Building2, Copy, CheckCircle2, QrCode, Smartphone } from 'lucide-react';
 import { useCartStore } from '../lib/cart-store';
 import { useAuthStore } from '../lib/auth-store';
 import { formatPrice, siteConfig } from '../lib/data';
@@ -20,6 +20,8 @@ export default function CheckoutPage() {
   const fetchMe = useAuthStore(state => state.fetchMe);
   const fetchOrders = useAuthStore(state => state.fetchOrders);
   const items = useCartStore(state => state.items);
+  const updateQty = useCartStore(state => state.updateQty);
+  const removeItem = useCartStore(state => state.removeItem);
   const clearCart = useCartStore(state => state.clearCart);
   const subtotal = useCartStore(state => state.getSubtotalPaise());
 
@@ -486,23 +488,76 @@ export default function CheckoutPage() {
                 Order Review ({items.length} items)
               </h2>
 
-              {/* Items Mini List */}
-              <div className="max-h-60 overflow-y-auto divide-y divide-border/20 pr-1">
+              {/* Items List with Interactive Stepper & Remove */}
+              <div className="max-h-80 overflow-y-auto divide-y divide-border/20 pr-1 -mr-1">
                 {items.map(({ product, qty }) => {
                   const itemPrice = product.price ?? product.price_paise ?? 0;
+                  const itemWeight = product.weight || product.size || product.unit || '';
                   const itemImg = (product.imageSrc && !product.imageSrc.endsWith('goan-themed-blue-mug.jpg'))
                     ? product.imageSrc
                     : (product.slug ? `/images/catalog/${product.slug}.jpg` : (product.image_url || '/images/catalog/goan-themed-blue-mug.jpg'));
                   return (
-                    <div key={product.id} className="py-3 flex justify-between items-center text-sm">
-                      <div className="flex items-center gap-3">
-                        <img src={itemImg} alt="" className="h-10 w-10 rounded object-cover" />
-                        <div>
-                          <p className="font-semibold text-content line-clamp-1 max-w-[180px]">{product.name}</p>
-                          <p className="text-xs text-content-muted">Qty: {qty} × <span className="font-sans font-medium tabular-nums">{formatPrice(itemPrice)}</span></p>
+                    <div key={product.id} className="py-3.5 first:pt-0 last:pb-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <img
+                            src={itemImg}
+                            alt={product.name}
+                            className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl object-cover shrink-0 border border-border/40 shadow-2xs"
+                          />
+                          <div className="min-w-0">
+                            <p className="font-semibold text-content text-sm sm:text-base line-clamp-1">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-content-muted mt-0.5">
+                              {itemWeight ? `${itemWeight} · ` : ''}
+                              <span className="font-sans font-medium text-content">{formatPrice(itemPrice)}</span>
+                            </p>
+                          </div>
                         </div>
+
+                        <span className="font-sans font-bold tabular-nums tracking-tight text-content text-sm sm:text-base whitespace-nowrap shrink-0">
+                          {formatPrice(itemPrice * qty)}
+                        </span>
                       </div>
-                      <span className="font-sans font-bold tabular-nums tracking-tight text-content">{formatPrice(itemPrice * qty)}</span>
+
+                      {/* Stepper + Dustbin Button (matches Bag Page) */}
+                      <div className="flex items-center gap-2 sm:gap-2.5 mt-2.5 ml-[60px] sm:ml-[68px]">
+                        <div className="flex items-center rounded-pill border border-border bg-ground px-2 sm:px-2.5 py-0.5 shadow-xs">
+                          <button
+                            type="button"
+                            onClick={() => updateQty(product.id, qty - 1)}
+                            className="p-1 text-content hover:text-accent transition-colors cursor-pointer"
+                            aria-label="Decrease quantity"
+                            title="Decrease quantity"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="px-2 sm:px-2.5 text-xs sm:text-sm font-bold text-content min-w-[20px] text-center font-sans tabular-nums">
+                            {qty}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQty(product.id, qty + 1)}
+                            disabled={qty >= 20}
+                            className="p-1 text-content hover:text-accent disabled:opacity-30 transition-colors cursor-pointer"
+                            aria-label="Increase quantity"
+                            title="Increase quantity"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => removeItem(product.id)}
+                          className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-content-muted hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
+                          title="Remove item"
+                          aria-label={`Remove ${product.name} from order`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
