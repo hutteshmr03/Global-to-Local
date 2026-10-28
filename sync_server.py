@@ -56,6 +56,8 @@ files_to_sync = [
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
+    (f"{RAW_BASE}/dist_live/assets/index-D54AN8nY.js", os.path.join(PUBLIC_HTML, "assets", "index-D54AN8nY.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-DWNOFrAu.css", os.path.join(PUBLIC_HTML, "assets", "index-DWNOFrAu.css")),
     (f"{RAW_BASE}/dist_live/assets/index-CPpLMMtf.js", os.path.join(PUBLIC_HTML, "assets", "index-CPpLMMtf.js")),
     (f"{RAW_BASE}/dist_live/assets/index-DWNOFrAu.css", os.path.join(PUBLIC_HTML, "assets", "index-DWNOFrAu.css")),
     (f"{RAW_BASE}/dist_live/assets/index-BfF58AxT.js", os.path.join(PUBLIC_HTML, "assets", "index-BfF58AxT.js")),

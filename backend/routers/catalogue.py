@@ -87,7 +87,7 @@ def get_category_detail(slug: str, db: Session = Depends(get_db)):
 @router.get("/products")
 def list_products(
     page: int = Query(1, ge=1),
-    page_size: int = Query(24, ge=1, le=60),
+    page_size: int = Query(24, ge=1, le=300),
     category: Optional[str] = Query(None, description="Category slug filter"),
     shelf: Optional[str] = Query(None, description="Alias for category slug filter"),
     maker: Optional[str] = Query(None, description="Maker slug filter"),

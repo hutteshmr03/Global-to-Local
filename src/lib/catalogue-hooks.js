@@ -64,9 +64,10 @@ export function useAllProducts() {
         return fallbackProducts;
       }
     },
-    initialData: () => fallbackProducts,
     placeholderData: () => fallbackProducts,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 15 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -89,9 +90,10 @@ export function useCategoryProducts(categorySlug) {
         return fallback;
       }
     },
-    initialData: () => fallback,
     placeholderData: () => fallback,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 15 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     enabled: Boolean(categorySlug),
   });
 }

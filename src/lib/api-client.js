@@ -257,13 +257,22 @@ export async function apiFetch(path, options = {}) {
 export async function fetchAllCatalogueProducts() {
   try {
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Catalogue fetch timeout')), 4500)
+      setTimeout(() => reject(new Error('Catalogue fetch timeout')), 15000)
     );
 
     const fetchPromise = (async () => {
+      try {
+        const singlePage = await apiFetch('/api/v1/products?page=1&page_size=250');
+        if (singlePage && Array.isArray(singlePage.items) && singlePage.items.length > 0) {
+          if ((singlePage.meta?.total_pages || 1) <= 1) {
+            return singlePage.items;
+          }
+        }
+      } catch {}
+
       const firstPage = await apiFetch('/api/v1/products?page=1&page_size=60');
-      const items = [...(firstPage.items || [])];
-      const totalPages = firstPage.meta?.total_pages || 1;
+      const items = [...(firstPage?.items || [])];
+      const totalPages = firstPage?.meta?.total_pages || 1;
       if (totalPages > 1) {
         const remainingPromises = [];
         for (let p = 2; p <= totalPages; p++) {
