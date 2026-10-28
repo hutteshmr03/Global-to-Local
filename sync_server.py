@@ -56,6 +56,8 @@ files_to_sync = [
     # Frontend SPA build
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
     (f"{RAW_BASE}/dist_live/.htaccess", os.path.join(PUBLIC_HTML, ".htaccess")),
+    (f"{RAW_BASE}/dist_live/assets/index-C0rdsC_7.js", os.path.join(PUBLIC_HTML, "assets", "index-C0rdsC_7.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-DpGDvanq.css", os.path.join(PUBLIC_HTML, "assets", "index-DpGDvanq.css")),
     (f"{RAW_BASE}/dist_live/assets/index-Bh5neXQr.js", os.path.join(PUBLIC_HTML, "assets", "index-Bh5neXQr.js")),
     (f"{RAW_BASE}/dist_live/assets/index-B-YUcDvM.js", os.path.join(PUBLIC_HTML, "assets", "index-B-YUcDvM.js")),
     (f"{RAW_BASE}/dist_live/assets/index-YR4CaeLA.js", os.path.join(PUBLIC_HTML, "assets", "index-YR4CaeLA.js")),
@@ -68,6 +70,7 @@ files_to_sync = [
     (f"{RAW_BASE}/dist_live/assets/index-ckv-SMNr.js", os.path.join(PUBLIC_HTML, "assets", "index-ckv-SMNr.js")),
     (f"{RAW_BASE}/dist_live/assets/index-DqRmjGQV.css", os.path.join(PUBLIC_HTML, "assets", "index-DqRmjGQV.css")),
     (f"{RAW_BASE}/dist_live/videos/our-story.mp4", os.path.join(PUBLIC_HTML, "videos", "our-story.mp4")),
+    (f"{RAW_BASE}/dist_live/videos/our-story.mp4", os.path.join(PUBLIC_HTML, "videos", "Our Story.mp4")),
     # Missing / Aliased catalog images
     (f"{RAW_BASE}/public/images/catalog/agarbatti-lavender-80-grams.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "agarbatti-lavender-80-grams.jpg")),
     (f"{RAW_BASE}/public/images/catalog/agarbatti--lavender-80-grams.jpg", os.path.join(PUBLIC_HTML, "images", "catalog", "agarbatti--lavender-80-grams.jpg")),
@@ -134,6 +137,17 @@ for g_root in gtl_targets:
             os.makedirs(dst_site, exist_ok=True)
             for sf in os.listdir(src_site):
                 shutil.copy2(os.path.join(src_site, sf), os.path.join(dst_site, sf))
+
+        # Ensure videos are synced to g_root
+        src_videos = os.path.join(PUBLIC_HTML, "videos")
+        dst_videos = os.path.join(g_root, "videos")
+        if os.path.exists(src_videos):
+            os.makedirs(dst_videos, exist_ok=True)
+            for vf in os.listdir(src_videos):
+                sv = os.path.join(src_videos, vf)
+                dv = os.path.join(dst_videos, vf)
+                if os.path.isfile(sv):
+                    shutil.copy2(sv, dv)
         print(f"[OK] Successfully deployed build & reverse proxy to: {g_root}", flush=True)
     except Exception as g_err:
         print(f"[!] Notice on {g_root}: {g_err}", flush=True)

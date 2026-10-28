@@ -33,4 +33,13 @@ for legacy in legacy_bundles:
     shutil.copy2(os.path.join(live_assets, new_js), alias_dst)
     print(f"Aliased {new_js} -> {legacy}")
 
+# Copy videos
+live_videos = os.path.join(live_dir, 'videos')
+os.makedirs(live_videos, exist_ok=True)
+for v in ['our-story.mp4', 'Our Story.mp4']:
+    vp = os.path.join('public', 'videos', v)
+    if os.path.exists(vp):
+        shutil.copy2(vp, os.path.join(live_videos, v))
+        print(f"Copied {v} to {live_videos}")
+
 print("Assets successfully aligned in dist_live/")

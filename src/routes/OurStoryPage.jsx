@@ -39,11 +39,10 @@ const stats = [
 export default function OurStoryPage() {
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
-  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || videoError) return;
+    if (!video) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -65,7 +64,7 @@ export default function OurStoryPage() {
 
     observer.observe(video);
     return () => observer.disconnect();
-  }, [videoError]);
+  }, []);
 
   return (
     <main id="main" className="min-w-0 bg-ground">
@@ -135,56 +134,45 @@ export default function OurStoryPage() {
             className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center"
           >
             {/* Left: Video */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-ink-deep shadow-lg group">
-              {!videoError ? (
-                <>
-                  <video
-                    ref={videoRef}
-                    playsInline
-                    loop
-                    muted={isMuted}
-                    controls
-                    onError={() => setVideoError(true)}
-                    className="h-full w-full object-cover"
-                    preload="auto"
-                  >
-                    <source src="/videos/our-story.mp4" type="video/mp4" />
-                  </video>
-                  {/* Quick sound toggle badge */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (videoRef.current) {
-                        const nextMuted = !isMuted;
-                        videoRef.current.muted = nextMuted;
-                        setIsMuted(nextMuted);
-                      }
-                    }}
-                    className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white hover:bg-black/80 transition-all cursor-pointer shadow-md select-none"
-                    aria-label={isMuted ? "Unmute video" : "Mute video"}
-                  >
-                    {isMuted ? (
-                      <>
-                        <VolumeX className="w-3.5 h-3.5 text-white" />
-                        <span>Unmute</span>
-                      </>
-                    ) : (
-                      <>
-                        <Volume2 className="w-3.5 h-3.5 text-white animate-pulse" />
-                        <span>Mute</span>
-                      </>
-                    )}
-                  </button>
-                </>
-              ) : (
-                <iframe
-                  src="https://drive.google.com/file/d/1iAKFzXKggu2FCXk5zYDbGId4P_bIFKvz/preview?autoplay=1"
-                  title="Global to Local Story Video"
-                  className="h-full w-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              )}
+            <div className="relative w-full max-w-[380px] aspect-[9/16] mx-auto lg:mx-0 overflow-hidden rounded-2xl border border-border bg-black shadow-xl group flex items-center justify-center">
+              <video
+                ref={videoRef}
+                playsInline
+                loop
+                muted={isMuted}
+                controls
+                className="h-full w-full object-cover"
+                preload="metadata"
+              >
+                <source src="/videos/our-story.mp4" type="video/mp4" />
+                <source src="/videos/Our%20Story.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              {/* Quick sound toggle badge */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (videoRef.current) {
+                    const nextMuted = !isMuted;
+                    videoRef.current.muted = nextMuted;
+                    setIsMuted(nextMuted);
+                  }
+                }}
+                className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90 transition-all cursor-pointer shadow-md select-none"
+                aria-label={isMuted ? "Unmute video" : "Mute video"}
+              >
+                {isMuted ? (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-white" />
+                    <span>Unmute</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-white animate-pulse" />
+                    <span>Mute</span>
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Right: Story Text */}

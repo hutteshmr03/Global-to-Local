@@ -13,6 +13,12 @@
   RewriteRule ^ index.html [L]
 </IfModule>
 
+# Video MIME Types and Streaming Support
+<IfModule mod_mime.c>
+  AddType video/mp4 .mp4
+  AddType video/webm .webm
+</IfModule>
+
 # Never cache HTML / SPA entrypoint so latest builds are served immediately
 <FilesMatch "\.(html|htm)$">
   <IfModule mod_headers.c>
