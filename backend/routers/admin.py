@@ -849,6 +849,54 @@ def update_admin_product_details(
         "product": prod_dict,
     }
 
+@router.delete("/products/{product_id}")
+def delete_admin_product(
+    product_id: str,
+    request: Request,
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    product = get_admin_product_by_id(product_id, db)
+    if not product or product.deleted_at is not None:
+        raise ProblemException(status_code=404, title="Product Not Found", detail="Product does not exist or has already been deleted.")
+
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    before_state = {
+        "id": str(product.id),
+        "name": product.name,
+        "sku": product.sku,
+        "slug": product.slug,
+        "is_active": product.is_active,
+        "status": product.status,
+    }
+
+    now = datetime.now(timezone.utc)
+    product.deleted_at = now
+    product.is_active = False
+    product.status = "archived"
+    product.availability = AvailabilityState.archived
+    if product.inventory:
+        product.inventory.on_hand = 0
+
+    safe_log_audit(
+        db=db,
+        actor_user_id=admin.id,
+        action="product.delete",
+        entity_type="product",
+        entity_id=str(product.id),
+        before_state=before_state,
+        after_state={"deleted_at": now.isoformat(), "is_active": False, "status": "archived"},
+        ip_address=client_ip,
+    )
+
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"Product '{product.name}' was successfully deleted.",
+        "product_id": str(product.id),
+    }
+
 
 @router.patch("/products/{product_id}/price")
 def update_product_price(

@@ -178,6 +178,10 @@ export default function AdminProducts() {
   const [newRupees, setNewRupees] = useState('');
   const [stockOption, setStockOption] = useState('IN_STOCK');
   const [reason, setReason] = useState('');
+
+  // Delete Product Confirmation State
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState('');
@@ -376,6 +380,27 @@ export default function AdminProducts() {
       alert('Failed to load price history');
     } finally {
       setHistoryLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!productToDelete) return;
+    setDeleteLoading(true);
+    setError('');
+    try {
+      await apiFetch(`/api/v1/admin/products/${productToDelete.id}`, {
+        method: 'DELETE',
+      });
+      setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['collection'] });
+      setToastMessage(`Product "${productToDelete.name}" was deleted successfully.`);
+      setProductToDelete(null);
+    } catch (err) {
+      setError(err?.detail || err?.message || 'Failed to delete product.');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -876,6 +901,16 @@ export default function AdminProducts() {
                           >
                             <History className="w-4 h-4" />
                           </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setProductToDelete(p)}
+                            className="p-1.5 rounded-full text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors border border-transparent hover:border-rose-200"
+                            title="Delete product"
+                            aria-label={`Delete ${p.name}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -970,6 +1005,16 @@ export default function AdminProducts() {
                       aria-label={`Price history for ${p.name}`}
                     >
                       <History className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setProductToDelete(p)}
+                      className="p-2.5 rounded-pill border border-rose-200 bg-rose-50/60 text-rose-600 hover:bg-rose-600 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer shadow-xs"
+                      title="Delete product"
+                      aria-label={`Delete ${p.name}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -1580,6 +1625,75 @@ export default function AdminProducts() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-deep/60 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-3xl border border-border bg-surface p-6 sm:p-7 shadow-2xl space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-serif font-bold text-content">Delete Product</h3>
+                  <p className="text-xs text-content-muted">This will remove the product from your store.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => !deleteLoading && setProductToDelete(null)}
+                disabled={deleteLoading}
+                className="p-1 text-content-subtle hover:text-content min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer disabled:opacity-50"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-rose-100 bg-rose-50/50 p-4 space-y-2">
+              <p className="text-xs text-content leading-relaxed">
+                Are you sure you want to delete <span className="font-bold text-rose-950">"{productToDelete.name}"</span>?
+              </p>
+              <p className="text-[11px] text-content-muted">
+                SKU: <span className="font-mono font-medium">{productToDelete.sku}</span> &bull; Shelf: <span>{productToDelete.category_name}</span>
+              </p>
+              <p className="text-[11px] text-rose-600 font-medium">
+                &bull; This product will no longer appear in the catalog, search, or customer shop.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setProductToDelete(null)}
+                disabled={deleteLoading}
+                className="px-4 py-2.5 rounded-pill border border-border text-xs font-semibold text-content hover:bg-surface-muted transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProduct}
+                disabled={deleteLoading}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-pill bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {deleteLoading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Product</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
