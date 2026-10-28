@@ -110,83 +110,85 @@ export default function OurStoryPage() {
       </section>
 
       {/* 2. SOCIAL VENTURE GENESIS */}
-      <section className="pt-6 pb-6 sm:pt-10 sm:pb-10 lg:pt-12 lg:pb-10 bg-ground text-content border-t border-border/40">
+      <section className="pt-6 pb-6 sm:pt-10 sm:pb-10 lg:pt-12 lg:pb-12 bg-ground text-content border-t border-border/40">
         <div className="mx-auto w-full px-5 sm:px-8 lg:px-12 max-w-shell">
-          {/* Heading - strictly in one row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-6 sm:mb-8"
-          >
-            <h2 className="font-display text-2xl sm:text-3xl md:text-3xl lg:text-[2.25rem] xl:text-[2.5rem] font-semibold leading-tight text-content tracking-tight md:whitespace-nowrap">
-              Conceptualised during the pandemic, as a social venture
-            </h2>
-          </motion.div>
+          <div className="max-w-5xl mx-auto">
+            {/* Heading - strictly in one row */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mb-6 sm:mb-8 lg:mb-10"
+            >
+              <h2 className="font-display text-2xl sm:text-3xl md:text-3xl lg:text-[2.15rem] xl:text-[2.35rem] font-semibold leading-tight text-content tracking-tight md:whitespace-nowrap">
+                Conceptualised during the pandemic, as a social venture
+              </h2>
+            </motion.div>
 
-          {/* Video on Left, Story on Right */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center"
-          >
-            {/* Left: Video */}
-            <div className="relative w-full max-w-[380px] aspect-[9/16] mx-auto lg:mx-0 overflow-hidden rounded-2xl border border-border bg-black shadow-xl group flex items-center justify-center">
-              <video
-                ref={videoRef}
-                playsInline
-                loop
-                muted={isMuted}
-                controls
-                className="h-full w-full object-cover"
-                preload="metadata"
-              >
-                <source src="/videos/our-story.mp4" type="video/mp4" />
-                <source src="/videos/Our%20Story.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              {/* Quick sound toggle badge */}
-              <button
-                type="button"
-                onClick={() => {
-                  if (videoRef.current) {
-                    const nextMuted = !isMuted;
-                    videoRef.current.muted = nextMuted;
-                    setIsMuted(nextMuted);
-                  }
-                }}
-                className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90 transition-all cursor-pointer shadow-md select-none"
-                aria-label={isMuted ? "Unmute video" : "Mute video"}
-              >
-                {isMuted ? (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5 text-white" />
-                    <span>Unmute</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 text-white animate-pulse" />
-                    <span>Mute</span>
-                  </>
-                )}
-              </button>
-            </div>
+            {/* Video on Left, Story on Right */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="grid grid-cols-1 lg:grid-cols-[360px_1fr] xl:grid-cols-[380px_1fr] gap-8 lg:gap-12 xl:gap-16 items-center"
+            >
+              {/* Left: Video */}
+              <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[9/16] mx-auto lg:mx-0 overflow-hidden rounded-2xl border border-border bg-black shadow-xl group flex items-center justify-center">
+                <video
+                  ref={videoRef}
+                  playsInline
+                  loop
+                  muted={isMuted}
+                  controls
+                  className="h-full w-full object-cover"
+                  preload="metadata"
+                >
+                  <source src="/videos/our-story.mp4" type="video/mp4" />
+                  <source src="/videos/Our%20Story.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+                {/* Quick sound toggle badge */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoRef.current) {
+                      const nextMuted = !isMuted;
+                      videoRef.current.muted = nextMuted;
+                      setIsMuted(nextMuted);
+                    }
+                  }}
+                  className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90 transition-all cursor-pointer shadow-md select-none"
+                  aria-label={isMuted ? "Unmute video" : "Mute video"}
+                >
+                  {isMuted ? (
+                    <>
+                      <VolumeX className="w-3.5 h-3.5 text-white" />
+                      <span>Unmute</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-3.5 h-3.5 text-white animate-pulse" />
+                      <span>Mute</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
-            {/* Right: Story Text */}
-            <div className="flex flex-col justify-center space-y-6 text-base sm:text-lg lg:text-[1.05rem] text-content-muted leading-relaxed">
-              <p>
-                The brain child of Goan entrepreneur Asha Arondekar to support the local women of this tropical little state. Conceptualised during the pandemic as a sole social venture to support women and promote the forgotten essence of our serene state.
-              </p>
-              <p>
-                Since its inception five years ago, we have gone on to make{' '}
-                <strong className="font-semibold text-content">100+ Goan women financially independent</strong>{' '}
-                and creative while also assisting them in upgrading their skills to make them more confident, competent, and self sufficient individuals.
-              </p>
-            </div>
-          </motion.div>
+              {/* Right: Story Text */}
+              <div className="flex flex-col justify-center space-y-6 text-base sm:text-lg lg:text-[1.125rem] text-content-muted leading-relaxed">
+                <p>
+                  The brain child of Goan entrepreneur Asha Arondekar to support the local women of this tropical little state. Conceptualised during the pandemic as a sole social venture to support women and promote the forgotten essence of our serene state.
+                </p>
+                <p>
+                  Since its inception five years ago, we have gone on to make{' '}
+                  <strong className="font-semibold text-content">100+ Goan women financially independent</strong>{' '}
+                  and creative while also assisting them in upgrading their skills to make them more confident, competent, and self sufficient individuals.
+                </p>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
