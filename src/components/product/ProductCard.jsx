@@ -68,8 +68,11 @@ export default function ProductCard({ product, priority = false }) {
   const displayWeight = product.weight || product.unit_label || 'piece';
   const displayDesc = product.shortDescription || product.short_description || product.description || 'Authentic Goan specialty made with local ingredients.';
 
-  const availableQty = product.available_quantity ?? product.availableQuantity ?? 100;
-  const isSoldOut = availableQty <= 0;
+  const isSoldOut =
+    product.inStock === false ||
+    product.availability === 'out_of_stock' ||
+    (product.available_quantity !== undefined && product.available_quantity <= 0) ||
+    (product.stock_qty !== undefined && product.stock_qty <= 0);
 
   return (
     <div className="group relative flex flex-col justify-between rounded-xl bg-surface border border-border/40 p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -90,8 +93,8 @@ export default function ProductCard({ product, priority = false }) {
             className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
           />
           {isSoldOut && (
-            <span className="absolute top-2 right-2 rounded bg-ink-deep/80 px-2 py-1 text-[11px] font-semibold text-white backdrop-blur-xs">
-              Sold Out
+            <span className="absolute top-2 right-2 rounded-full bg-rose-700 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-md">
+              OUT OF STOCK
             </span>
           )}
         </div>
@@ -145,11 +148,21 @@ export default function ProductCard({ product, priority = false }) {
           type="button"
           onClick={handleQuickAdd}
           disabled={isSoldOut}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2.5 text-xs font-semibold disabled:opacity-40 transition-all cursor-pointer shadow-xs active:scale-[0.98] bg-[#3D2C22] text-white hover:bg-[#2A1E17]"
-          aria-label={`Add ${product.name} to cart`}
+          className={`mt-3 flex w-full items-center justify-center gap-1.5 rounded-pill py-2.5 text-xs font-semibold transition-all shadow-xs ${
+            isSoldOut
+              ? 'bg-neutral-200 text-neutral-500 cursor-not-allowed border border-neutral-300 font-bold uppercase tracking-wider shadow-none select-none'
+              : 'bg-[#3D2C22] text-white hover:bg-[#2A1E17] cursor-pointer active:scale-[0.98]'
+          }`}
+          aria-label={isSoldOut ? `${product.name} is out of stock` : `Add ${product.name} to cart`}
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add to Cart</span>
+          {isSoldOut ? (
+            <span>OUT OF STOCK</span>
+          ) : (
+            <>
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add to Cart</span>
+            </>
+          )}
         </button>
       )}
     </div>

@@ -120,6 +120,11 @@ export const useCartStore = create((set, get) => ({
       return;
     }
 
+    if (product.inStock === false || product.availability === 'out_of_stock' || (product.available_quantity !== undefined && product.available_quantity <= 0) || (product.stock_qty !== undefined && product.stock_qty <= 0)) {
+      set({ cartError: 'This product is currently out of stock.' });
+      return;
+    }
+
     const prevItems = get().items;
     const isLoggedIn = get().isLoggedIn;
     const existing = prevItems.find(

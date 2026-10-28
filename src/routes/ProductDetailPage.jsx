@@ -73,6 +73,12 @@ export default function ProductDetailPage() {
     categoryMakerMap[category?.slug] ||
     'Goan makers';
 
+  const isSoldOut =
+    product.inStock === false ||
+    product.availability === 'out_of_stock' ||
+    (product.available_quantity !== undefined && product.available_quantity <= 0) ||
+    (product.stock_qty !== undefined && product.stock_qty <= 0);
+
   const handleAddToCart = (e) => {
     if (e) {
       const rect = e.currentTarget.getBoundingClientRect();
@@ -187,20 +193,30 @@ export default function ProductDetailPage() {
 
             {/* Availability Status */}
             <div className="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold">
-              <div className="flex items-center gap-2 text-[#3D2C22]">
-                <Check className="w-4 h-4 text-[#3D2C22] shrink-0 stroke-[2.5]" />
-                <span>In stock and ready to dispatch from Fontainhas</span>
-              </div>
+              {isSoldOut ? (
+                <div className="flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-200 px-3.5 py-1.5 rounded-pill shadow-xs">
+                  <span className="h-2 w-2 rounded-full bg-rose-600 shrink-0" />
+                  <span className="font-bold tracking-wide">OUT OF STOCK</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-[#3D2C22]">
+                  <Check className="w-4 h-4 text-[#3D2C22] shrink-0 stroke-[2.5]" />
+                  <span>In stock and ready to dispatch from Fontainhas</span>
+                </div>
+              )}
             </div>
 
             {/* Stepper and Add To Cart Button */}
             <div className="mt-7 flex items-center gap-2.5 sm:gap-3.5">
-              {/* Stepper (Compact on mobile, left side) */}
-              <div className="flex h-11 sm:h-12 w-28 sm:w-36 shrink-0 items-center justify-between rounded-pill border border-border/80 bg-surface px-2.5 sm:px-4 shadow-xs">
+              {/* Stepper (Disabled if Sold Out) */}
+              <div className={`flex h-11 sm:h-12 w-28 sm:w-36 shrink-0 items-center justify-between rounded-pill border border-border/80 bg-surface px-2.5 sm:px-4 shadow-xs ${
+                isSoldOut ? 'opacity-40 pointer-events-none select-none' : ''
+              }`}>
                 <button
                   type="button"
+                  disabled={isSoldOut}
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  className="p-1 text-content hover:text-accent transition-colors cursor-pointer active:scale-90"
+                  className="p-1 text-content hover:text-accent transition-colors cursor-pointer active:scale-90 disabled:opacity-40"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="w-3.5 h-3.5" />
@@ -208,8 +224,8 @@ export default function ProductDetailPage() {
                 <span className="font-sans text-xs sm:text-sm font-bold text-content select-none">{qty}</span>
                 <button
                   type="button"
+                  disabled={isSoldOut || qty >= 20}
                   onClick={() => setQty(Math.min(20, qty + 1))}
-                  disabled={qty >= 20}
                   className="p-1 text-content hover:text-accent disabled:opacity-30 transition-colors cursor-pointer active:scale-90"
                   aria-label="Increase quantity"
                 >
@@ -217,31 +233,40 @@ export default function ProductDetailPage() {
                 </button>
               </div>
 
-              {/* Add to Cart Button (Right side, fills remaining space) */}
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={product.inStock === false}
-                className={`flex-1 flex h-11 sm:h-12 items-center justify-center gap-1.5 sm:gap-2 rounded-pill px-3 sm:px-8 text-xs sm:text-base font-bold text-white disabled:opacity-40 transition-all shadow-md hover:shadow-lg cursor-pointer whitespace-nowrap active:scale-[0.99] ${
-                  isAdded
-                    ? 'bg-palm hover:bg-palm scale-[1.01]'
-                    : 'bg-[#3D2C22] hover:bg-[#2A1E17]'
-                }`}
-              >
-                {isAdded ? (
-                  <>
-                    <Check className="w-4 h-4 stroke-[3] shrink-0" />
-                    <span>Added to Cart!</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                    <span className="font-sans font-bold tabular-nums truncate">
-                      Add to Cart · {formatPrice((product.price ?? product.price_paise ?? 0) * qty)}
-                    </span>
-                  </>
-                )}
-              </button>
+              {/* Add to Cart Button */}
+              {isSoldOut ? (
+                <button
+                  type="button"
+                  disabled
+                  className="flex-1 flex h-11 sm:h-12 items-center justify-center gap-1.5 rounded-pill px-3 sm:px-8 text-xs sm:text-sm font-bold uppercase tracking-wider bg-neutral-200 text-neutral-500 cursor-not-allowed border border-neutral-300 shadow-none select-none"
+                >
+                  <span>OUT OF STOCK</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className={`flex-1 flex h-11 sm:h-12 items-center justify-center gap-1.5 sm:gap-2 rounded-pill px-3 sm:px-8 text-xs sm:text-base font-bold text-white transition-all shadow-md hover:shadow-lg cursor-pointer whitespace-nowrap active:scale-[0.99] ${
+                    isAdded
+                      ? 'bg-palm hover:bg-palm scale-[1.01]'
+                      : 'bg-[#3D2C22] hover:bg-[#2A1E17]'
+                  }`}
+                >
+                  {isAdded ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[3] shrink-0" />
+                      <span>Added to Cart!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                      <span className="font-sans font-bold tabular-nums truncate">
+                        Add to Cart · {formatPrice((product.price ?? product.price_paise ?? 0) * qty)}
+                      </span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
             {/* Reassurance Badges */}

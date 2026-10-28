@@ -322,6 +322,7 @@ def list_admin_products(
             "price_formatted": f"₹{p.price_paise / 100:.2f}".rstrip("0").rstrip("."),
             "stock_qty": inv.on_hand if inv else 50,
             "reserved_qty": inv.reserved if inv else 0,
+            "availability": p.availability.value if hasattr(p.availability, "value") else str(p.availability or ("in_stock" if (inv.on_hand if inv else 50) > 0 else "out_of_stock")),
             "is_active": p.is_active,
             "status": "published" if p.is_active else "draft",
             "category_name": p.category.name if p.category else "Uncategorized",
@@ -818,6 +819,7 @@ def update_admin_product_details(
         "price_formatted": f"₹{product.price_paise / 100:.2f}".rstrip("0").rstrip("."),
         "stock_qty": inv.on_hand if inv else 50,
         "reserved_qty": inv.reserved if inv else 0,
+        "availability": product.availability.value if hasattr(product.availability, "value") else str(product.availability or ("in_stock" if (inv.on_hand if inv else 50) > 0 else "out_of_stock")),
         "is_active": product.is_active,
         "status": "published" if product.is_active else "draft",
         "category_name": product.category.name if product.category else "Uncategorized",
@@ -1023,6 +1025,10 @@ def update_product_stock(
 
     inv.on_hand = new_stock
     inv.updated_at = datetime.now(timezone.utc)
+    if new_stock <= 0:
+        product.availability = AvailabilityState.out_of_stock
+    else:
+        product.availability = AvailabilityState.in_stock
     db.commit()
 
     return {

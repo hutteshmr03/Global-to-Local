@@ -176,7 +176,7 @@ export default function AdminProducts() {
   // Inline Price & Stock Edit Modal State
   const [editingProduct, setEditingProduct] = useState(null);
   const [newRupees, setNewRupees] = useState('');
-  const [newStock, setNewStock] = useState('');
+  const [stockOption, setStockOption] = useState('IN_STOCK');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editError, setEditError] = useState('');
@@ -239,7 +239,8 @@ export default function AdminProducts() {
   const handleOpenEdit = (prod) => {
     setEditingProduct(prod);
     setNewRupees((prod.price_paise / 100).toString());
-    setNewStock((prod.stock_qty ?? 50).toString());
+    const isCurrentlyInStock = (prod.stock_qty ?? 50) > 0 && prod.availability !== 'out_of_stock';
+    setStockOption(isCurrentlyInStock ? 'IN_STOCK' : 'OUT_OF_STOCK');
     setReason('');
     setEditError('');
     setEditSuccess('');
@@ -256,12 +257,6 @@ export default function AdminProducts() {
       return;
     }
 
-    const stockVal = parseInt(newStock, 10);
-    if (isNaN(stockVal) || stockVal < 0) {
-      setEditError('Stock must be zero or a positive number.');
-      return;
-    }
-
     if (!reason.trim()) {
       setEditError('A non-empty reason is required for the audit trail.');
       return;
@@ -270,12 +265,15 @@ export default function AdminProducts() {
     const newPaise = Math.round(val * 100);
     const oldPaise = editingProduct.price_paise;
     const oldStock = editingProduct.stock_qty ?? 50;
+    const wasInStock = oldStock > 0 && editingProduct.availability !== 'out_of_stock';
+    const isNowInStock = stockOption === 'IN_STOCK';
+    const stockVal = isNowInStock ? (oldStock > 0 ? oldStock : 50) : 0;
 
     const priceChanged = newPaise !== oldPaise;
-    const stockChanged = stockVal !== oldStock;
+    const stockChanged = isNowInStock !== wasInStock;
 
     if (!priceChanged && !stockChanged) {
-      setEditError('No changes detected in price or stock.');
+      setEditError('No changes detected in price or stock status.');
       return;
     }
 
@@ -309,7 +307,7 @@ export default function AdminProducts() {
 
       const msgs = [];
       if (priceChanged) msgs.push(`Price: ₹${val.toFixed(2).replace(/\.00$/, '')}`);
-      if (stockChanged) msgs.push(`Stock: ${stockVal} on hand`);
+      if (stockChanged) msgs.push(`Stock: ${isNowInStock ? 'IN STOCK' : 'OUT OF STOCK'}`);
       setEditSuccess(`${msgs.join(' & ')} updated successfully.`);
 
       // Update local state
@@ -318,13 +316,21 @@ export default function AdminProducts() {
           p.id === editingProduct.id
             ? {
                 ...p,
-                price_paise: newPaise,
+                price_paise: priceChanged ? newPaise : p.price_paise,
                 price_formatted: `₹${val}`,
                 stock_qty: stockVal,
+                availability: isNowInStock ? 'in_stock' : 'out_of_stock',
               }
             : p
         )
       );
+
+      setEditingProduct((prev) => ({
+        ...prev,
+        price_paise: priceChanged ? newPaise : prev.price_paise,
+        stock_qty: stockVal,
+        availability: isNowInStock ? 'in_stock' : 'out_of_stock',
+      }));
 
       // Invalidate customer queries
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -806,9 +812,17 @@ export default function AdminProducts() {
 
                       {/* Stock */}
                       <td className="py-3 px-4">
-                        <span className="font-sans font-semibold text-content tabular-nums">
-                          {p.stock_qty} on hand
-                        </span>
+                        {(p.stock_qty <= 0 || p.availability === 'out_of_stock') ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                            <span className="h-1.5 w-1.5 rounded-full bg-rose-600" />
+                            <span>Out of Stock</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                            <span>In Stock</span>
+                          </span>
+                        )}
                         {p.reserved_qty > 0 && (
                           <p className="text-[10px] text-accent">({p.reserved_qty} reserved)</p>
                         )}
@@ -912,13 +926,18 @@ export default function AdminProducts() {
                         ₹{((p.price_paise || 0) / 100).toLocaleString('en-IN')}
                       </span>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-1.5">
                       <span className="text-content-muted">Stock: </span>
-                      <span className="font-semibold text-content tabular-nums">
-                        {p.stock_qty} on hand
-                      </span>
-                      {p.reserved_qty > 0 && (
-                        <span className="text-[10px] text-accent ml-1">({p.reserved_qty} reserved)</span>
+                      {(p.stock_qty <= 0 || p.availability === 'out_of_stock') ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                          <span className="h-1.5 w-1.5 rounded-full bg-rose-600" />
+                          <span>Out of Stock</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                          <span>In Stock</span>
+                        </span>
                       )}
                     </div>
                   </div>
@@ -1410,29 +1429,61 @@ export default function AdminProducts() {
                   )}
                 </div>
 
-                {/* 2. In-Hand Stock Editing */}
-                <div className="border-t border-border/40 pt-3 space-y-1.5">
-                  <div className="flex justify-between text-xs">
+                {/* 2. Stock Availability Editing */}
+                <div className="border-t border-border/40 pt-3 space-y-2.5">
+                  <div className="flex justify-between items-center text-xs">
                     <span className="font-semibold text-content-muted">Current Stock:</span>
-                    <span className="font-bold text-content tabular-nums">
-                      {editingProduct.stock_qty ?? 50} units on hand
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider border ${
+                        (editingProduct.stock_qty ?? 50) > 0 && editingProduct.availability !== 'out_of_stock'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                          : 'bg-rose-50 text-rose-700 border-rose-300'
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          (editingProduct.stock_qty ?? 50) > 0 && editingProduct.availability !== 'out_of_stock'
+                            ? 'bg-emerald-600'
+                            : 'bg-rose-600'
+                        }`}
+                      />
+                      {(editingProduct.stock_qty ?? 50) > 0 && editingProduct.availability !== 'out_of_stock'
+                        ? 'IN STOCK'
+                        : 'OUT OF STOCK'}
                     </span>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-content mb-1">
-                      New In-Hand Stock (units) *
+                    <label className="block text-xs font-semibold text-content mb-1.5">
+                      Change Stock Status *
                     </label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="0"
-                      required
-                      value={newStock}
-                      onChange={(e) => setNewStock(e.target.value)}
-                      placeholder="e.g. 50"
-                      className="w-full rounded-pill border border-border bg-surface py-2 px-4 text-sm font-bold text-content outline-none focus:border-palm shadow-2xs tabular-nums"
-                    />
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setStockOption('IN_STOCK')}
+                        className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-bold transition-all border cursor-pointer ${
+                          stockOption === 'IN_STOCK'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-600/20'
+                            : 'bg-surface text-content-muted border-border hover:border-emerald-500 hover:text-emerald-700'
+                        }`}
+                      >
+                        <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                        <span>IN STOCK</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setStockOption('OUT_OF_STOCK')}
+                        className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-bold transition-all border cursor-pointer ${
+                          stockOption === 'OUT_OF_STOCK'
+                            ? 'bg-rose-600 text-white border-rose-600 shadow-sm ring-2 ring-rose-600/20'
+                            : 'bg-surface text-content-muted border-border hover:border-rose-500 hover:text-rose-700'
+                        }`}
+                      >
+                        <span className="h-2 w-2 rounded-full bg-rose-300" />
+                        <span>OUT OF STOCK</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
