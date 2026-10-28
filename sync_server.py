@@ -111,45 +111,49 @@ import shutil
 
 # --- STEP 1B: Deploy Exclusively to Global to Local Document Roots ---
 print("\n--- STEP 1B: Deploying Exclusively to Global to Local ---", flush=True)
-# --- STEP 1B: Deploy Exclusively to Global to Local Document Roots ---
-print("\n--- STEP 1B: Deploying Exclusively to Global to Local ---", flush=True)
 gtl_targets = []
 for p in ["/home/nrlnxfke/globaltolocal.in", "/home/nrlnxfke/public_html"]:
     if os.path.exists(p) and os.path.isdir(p):
-        gtl_targets.append(p)
+        try:
+            # Only add if it is not the exact same directory as PUBLIC_HTML
+            if os.path.realpath(p) != os.path.realpath(PUBLIC_HTML):
+                gtl_targets.append(p)
+        except Exception:
+            pass
 
-print(f"[*] Deploying exclusively to Global to Local roots: {gtl_targets}", flush=True)
+print(f"[*] Additional Global to Local secondary roots to sync: {gtl_targets}", flush=True)
 for g_root in gtl_targets:
     try:
-        shutil.copy2(os.path.join(PUBLIC_HTML, "index.html"), os.path.join(g_root, "index.html"))
-        shutil.copy2(os.path.join(PUBLIC_HTML, ".htaccess"), os.path.join(g_root, ".htaccess"))
-        g_assets = os.path.join(g_root, "assets")
-        os.makedirs(g_assets, exist_ok=True)
+        def safe_copy(src_f, dst_f):
+            if os.path.exists(src_f) and os.path.isfile(src_f):
+                if not os.path.exists(dst_f) or os.path.realpath(src_f) != os.path.realpath(dst_f):
+                    os.makedirs(os.path.dirname(dst_f), exist_ok=True)
+                    shutil.copy2(src_f, dst_f)
+
+        safe_copy(os.path.join(PUBLIC_HTML, "index.html"), os.path.join(g_root, "index.html"))
+        safe_copy(os.path.join(PUBLIC_HTML, ".htaccess"), os.path.join(g_root, ".htaccess"))
+        
+        # Sync assets
         src_assets = os.path.join(PUBLIC_HTML, "assets")
         if os.path.exists(src_assets):
+            g_assets = os.path.join(g_root, "assets")
             for af in os.listdir(src_assets):
-                sa = os.path.join(src_assets, af)
-                da = os.path.join(g_assets, af)
-                if os.path.isfile(sa):
-                    shutil.copy2(sa, da)
-        # Ensure images/site are synced to g_root
+                safe_copy(os.path.join(src_assets, af), os.path.join(g_assets, af))
+                
+        # Sync images/site
         src_site = os.path.join(PUBLIC_HTML, "images", "site")
-        dst_site = os.path.join(g_root, "images", "site")
         if os.path.exists(src_site):
-            os.makedirs(dst_site, exist_ok=True)
+            dst_site = os.path.join(g_root, "images", "site")
             for sf in os.listdir(src_site):
-                shutil.copy2(os.path.join(src_site, sf), os.path.join(dst_site, sf))
+                safe_copy(os.path.join(src_site, sf), os.path.join(dst_site, sf))
 
-        # Ensure videos are synced to g_root
+        # Sync videos
         src_videos = os.path.join(PUBLIC_HTML, "videos")
-        dst_videos = os.path.join(g_root, "videos")
         if os.path.exists(src_videos):
-            os.makedirs(dst_videos, exist_ok=True)
+            dst_videos = os.path.join(g_root, "videos")
             for vf in os.listdir(src_videos):
-                sv = os.path.join(src_videos, vf)
-                dv = os.path.join(dst_videos, vf)
-                if os.path.isfile(sv):
-                    shutil.copy2(sv, dv)
+                safe_copy(os.path.join(src_videos, vf), os.path.join(dst_videos, vf))
+                
         print(f"[OK] Successfully deployed build & reverse proxy to: {g_root}", flush=True)
     except Exception as g_err:
         print(f"[!] Notice on {g_root}: {g_err}", flush=True)
