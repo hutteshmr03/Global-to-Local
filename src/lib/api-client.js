@@ -5,7 +5,7 @@
 
 import { handleMockBackend } from './mock-backend';
 
-const RENDER_BACKEND_URL = 'https://global-to-local.onrender.com';
+// Live backend served on local port 8008 via web server proxy
 
 let inMemoryCsrfToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_csrf_token') : null;
 let inMemoryAccessToken = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_access_token') : null;
@@ -134,10 +134,8 @@ export async function apiFetch(path, options = {}) {
     window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1';
 
-  // In production (globaltolocal.in), call Render directly so LiteSpeed proxy never hangs for 15+ seconds
-  const primaryUrl = isHostedDomain && path.startsWith('/api')
-    ? `${RENDER_BACKEND_URL}${path}`
-    : path;
+  // Call relative endpoint path which Apache/LiteSpeed proxies directly to Python backend on port 8008
+  const primaryUrl = path;
 
   let res = null;
   let networkFailed = false;
@@ -158,16 +156,7 @@ export async function apiFetch(path, options = {}) {
     networkFailed = true;
   }
 
-  // Dual-tier failover: If direct Render call failed, try local endpoint
-  if ((networkFailed || !res || !res.ok) && isHostedDomain && primaryUrl !== path) {
-    try {
-      const fallbackRes = await fetch(path, fetchOptions);
-      if (fallbackRes && fallbackRes.ok) {
-        res = fallbackRes;
-        networkFailed = false;
-      }
-    } catch {}
-  }
+  // Primary call is already local origin relative path
 
   // Standalone fallback: Only when backend server is completely unreachable (networkFailed)
   // or proxy gateway failed (444, 502, 503, 504 on hosted preview environments).

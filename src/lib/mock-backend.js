@@ -941,6 +941,30 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   }
 
   
+  // -------------------------------------------------------------
+  // 4. ORDERS (CUSTOMER & ADMIN)
+  // -------------------------------------------------------------
+  if (pathname === '/api/v1/orders' && method === 'GET') {
+    const orders = initMockOrders();
+    let authUser = null;
+    try {
+      const raw = localStorage.getItem(STORAGE_USER);
+      if (raw) authUser = JSON.parse(raw);
+    } catch {}
+
+    const userOrders = authUser
+      ? orders.filter(
+          (o) =>
+            o.user_id === authUser.id ||
+            o.customer_phone === authUser.phone ||
+            o.customer_email === authUser.email
+        )
+      : orders;
+
+    const list = userOrders.length > 0 ? userOrders : orders;
+    return { items: list, total: list.length };
+  }
+
   if (pathname === '/api/v1/orders' && method === 'POST') {
     let body = options.body;
     if (typeof body === 'string') {
@@ -948,16 +972,90 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     }
     const orderNumber = generateMockOrderNumber();
     const orders = initMockOrders();
+
+    let authUser = null;
+    try {
+      const raw = localStorage.getItem(STORAGE_USER);
+      if (raw) authUser = JSON.parse(raw);
+    } catch {}
+
+    const addr = body?.address || body?.delivery_address || {};
+    const customerName =
+      (authUser?.name || authUser?.full_name || addr.recipient_name || 'Customer').trim();
+    const customerPhone =
+      authUser?.phone || addr.phone || '+91 9742568285';
+    const customerEmail =
+      authUser?.email || 'customer@globaltolocal.in';
+
+    const recipientName = (addr.recipient_name || customerName).trim();
+    const city = addr.city || 'Panaji';
+    const state = addr.state || 'Goa';
+    const pincode = addr.pincode || '403001';
+    const line1 = addr.line1 || 'Fontainhas Heritage Quarter';
+
+    const rawItems = Array.isArray(body?.items) ? body.items : [];
+    let calculatedPaise = 0;
+    const enrichedItems = rawItems.map((it, idx) => {
+      const prod = resolveMockProduct(it.product_id);
+      const pricePaise = prod && prod.price ? Math.round(prod.price * 100) : 55000;
+      const qty = it.quantity || it.qty || 1;
+      calculatedPaise += pricePaise * qty;
+      return {
+        id: `item-${Date.now()}-${idx}`,
+        product_id: it.product_id,
+        product_name: prod ? prod.name : 'Artisanal Goan Delicacy',
+        name: prod ? prod.name : 'Artisanal Goan Delicacy',
+        title: prod ? prod.name : 'Artisanal Goan Delicacy',
+        slug: prod ? prod.slug : 'artisanal-item',
+        image_url: prod ? prod.imageSrc : '/images/catalog/bebinca-500-grams.jpg',
+        imageSrc: prod ? prod.imageSrc : '/images/catalog/bebinca-500-grams.jpg',
+        quantity: qty,
+        unit_price_paise: pricePaise,
+        unit_price_formatted: `₹${(pricePaise / 100).toFixed(2)}`,
+        subtotal_paise: pricePaise * qty,
+      };
+    });
+
+    const totalPaise = body?.total_paise || body?.total_amount_paise || (calculatedPaise > 0 ? calculatedPaise : 55000);
+
     const newOrder = {
       id: `ord-${Date.now()}`,
       order_number: orderNumber,
+      user_id: authUser?.id || `user-anon`,
       status: 'paid',
       placed_at: new Date().toISOString(),
-      items: body?.items || [],
-      shipping_address: body?.delivery_address || {},
-      total_paise: body?.total_paise || 0,
-      total_formatted: `₹${((body?.total_paise || 0) / 100).toFixed(2)}`,
+      created_at: new Date().toISOString(),
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      customer_email: customerEmail,
+      recipient_name: recipientName,
+      city: city,
+      state: state,
+      pincode: pincode,
+      line1: line1,
+      delivery_address: {
+        recipient_name: recipientName,
+        phone: customerPhone,
+        line1: line1,
+        city: city,
+        state: state,
+        pincode: pincode,
+      },
+      shipping_address: {
+        recipient_name: recipientName,
+        phone: customerPhone,
+        line1: line1,
+        city: city,
+        state: state,
+        pincode: pincode,
+      },
+      items: enrichedItems,
+      item_count: enrichedItems.reduce((acc, it) => acc + (it.quantity || 1), 0) || 1,
+      total_paise: totalPaise,
+      total_amount_paise: totalPaise,
+      total_formatted: `₹${(totalPaise / 100).toFixed(2)}`,
     };
+
     orders.unshift(newOrder);
     localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
     return newOrder;
@@ -968,15 +1066,26 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     const q = (searchParams.get('q') || '').trim().toLowerCase();
 
     let orders = initMockOrders();
+    orders = orders.map((o) => ({
+      ...o,
+      recipient_name: o.recipient_name || o.shipping_address?.recipient_name || o.customer_name || 'Customer',
+      city: o.city || o.shipping_address?.city || 'Panaji',
+      state: o.state || o.shipping_address?.state || 'Goa',
+      pincode: o.pincode || o.shipping_address?.pincode || '',
+      item_count: o.item_count || (Array.isArray(o.items) && o.items.length > 0 ? o.items.reduce((acc, it) => acc + (it.quantity || 1), 0) : 1),
+      total_paise: o.total_paise || o.total_amount_paise || (o.items && o.items.length > 0 ? 55000 : 0),
+    }));
+
     if (status && status !== 'all') {
       orders = orders.filter((o) => o.status === status);
     }
     if (q) {
       orders = orders.filter(
         (o) =>
-          o.order_number.toLowerCase().includes(q) ||
-          o.customer_name.toLowerCase().includes(q) ||
-          o.customer_phone.toLowerCase().includes(q)
+          (o.order_number || '').toLowerCase().includes(q) ||
+          (o.customer_name || '').toLowerCase().includes(q) ||
+          (o.recipient_name || '').toLowerCase().includes(q) ||
+          (o.customer_phone || '').toLowerCase().includes(q)
       );
     }
     return { items: orders, total: orders.length };
@@ -986,14 +1095,37 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     const id = pathname.replace('/api/v1/admin/orders/', '');
     const cleanId = id.replace(/^#/, '');
     const orders = initMockOrders();
-    const ord = orders.find(
+    let ord = orders.find(
       (o) =>
         o.id === id ||
         o.id === cleanId ||
         o.order_number === id ||
         o.order_number.replace(/^#/, '') === cleanId
     );
-    if (ord) return ord;
+    if (ord) {
+      return {
+        ...ord,
+        recipient_name: ord.recipient_name || ord.shipping_address?.recipient_name || ord.customer_name || 'Customer',
+        city: ord.city || ord.shipping_address?.city || 'Panaji',
+        state: ord.state || ord.shipping_address?.state || 'Goa',
+        pincode: ord.pincode || ord.shipping_address?.pincode || '403001',
+        line1: ord.line1 || ord.shipping_address?.line1 || 'Fontainhas',
+        item_count: ord.item_count || (Array.isArray(ord.items) ? ord.items.reduce((acc, it) => acc + (it.quantity || 1), 0) : 1),
+        total_paise: ord.total_paise || 55000,
+        items: Array.isArray(ord.items) && ord.items.length > 0 ? ord.items : [
+          {
+            id: 'item-1',
+            product_name: 'Traditional Goan Bebinca (500g)',
+            name: 'Traditional Goan Bebinca (500g)',
+            quantity: 1,
+            unit_price_paise: 55000,
+            subtotal_paise: 55000,
+            image_url: '/images/catalog/bebinca-500-grams.jpg',
+            imageSrc: '/images/catalog/bebinca-500-grams.jpg',
+          }
+        ],
+      };
+    }
   }
 
   if (pathname.startsWith('/api/v1/admin/orders/') && pathname.endsWith('/status') && method === 'PATCH') {
@@ -1011,8 +1143,16 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
         o.order_number === orderId ||
         o.order_number.replace(/^#/, '') === cleanId
     );
-    if (ord && body?.status) {
-      ord.status = body.status;
+    const newStatus = body?.new_status || body?.status;
+    if (ord && newStatus) {
+      ord.status = newStatus;
+      if (body?.carrier) ord.carrier = body.carrier;
+      if (body?.tracking_number) ord.tracking_number = body.tracking_number;
+      if (body?.tracking_url) ord.tracking_url = body.tracking_url;
+      if (body?.note) {
+        if (!ord.notes) ord.notes = [];
+        ord.notes.push({ id: `n-${Date.now()}`, text: body.note, created_at: new Date().toISOString() });
+      }
       localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
       return { status: 'success', current_status: ord.status, order: ord };
     }

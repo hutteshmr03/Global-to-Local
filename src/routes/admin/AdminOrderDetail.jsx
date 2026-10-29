@@ -130,6 +130,7 @@ export default function AdminOrderDetail() {
         method: 'PATCH',
         body: {
           new_status: targetStatus,
+          status: targetStatus,
           carrier: targetStatus === 'shipped' ? (carrier || 'Delhivery Express') : undefined,
           tracking_number: targetStatus === 'shipped' ? (trackingNumber || undefined) : undefined,
           tracking_url: targetStatus === 'shipped' ? (trackingUrl || undefined) : undefined,
