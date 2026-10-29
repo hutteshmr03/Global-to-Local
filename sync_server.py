@@ -91,12 +91,12 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
-    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-C7v29TNE.css", os.path.join(PUBLIC_HTML, "assets", "index-C7v29TNE.css")),
+    (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-CnxDYW35.css", os.path.join(PUBLIC_HTML, "assets", "index-CnxDYW35.css")),
     (f"{RAW_BASE}/dist_live/assets/index-CX86KhWA.js", os.path.join(PUBLIC_HTML, "assets", "index-CX86KhWA.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dd9xhh54.js", os.path.join(PUBLIC_HTML, "assets", "index-Dd9xhh54.js")),
     (f"{RAW_BASE}/dist_live/assets/index-DzociDw5.js", os.path.join(PUBLIC_HTML, "assets", "index-DzociDw5.js")),
@@ -382,13 +382,13 @@ for r_dir in [PUBLIC_HTML] + gtl_targets:
                     shutil.copy2(sandalwood_file, dest_img)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")
 if os.path.exists(primary_bundle):
     all_asset_dirs = [os.path.join(PUBLIC_HTML, "assets")] + [os.path.join(g, "assets") for g in gtl_targets]
     for adir in all_asset_dirs:
         if os.path.exists(adir):
             for fn in os.listdir(adir):
-                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-D-ZFfTN9.js":
+                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-BC7S-BuO.js":
                     try:
                         shutil.copy2(primary_bundle, os.path.join(adir, fn))
                     except Exception:

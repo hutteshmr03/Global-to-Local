@@ -40,10 +40,16 @@ export default function OrderConfirmationPage() {
     }
   };
 
-  const statusLabel =
-    !order?.statusLabel || order.statusLabel === 'Pending Payment'
-      ? 'Preparing for dispatch'
-      : order.statusLabel;
+  const getStatusLabel = (ord) => {
+    const st = String(ord?.status || '').toLowerCase().trim();
+    if (st === 'delivered') return 'Delivered';
+    if (st === 'shipped') return 'Shipped via Courier';
+    if (st === 'packed') return 'Packed at Fontainhas';
+    if (st === 'cancelled') return 'Cancelled';
+    return ord?.statusLabel || 'Preparing for dispatch';
+  };
+
+  const statusLabel = getStatusLabel(order);
 
   const badgeLabel =
     order?.status === 'cancelled'

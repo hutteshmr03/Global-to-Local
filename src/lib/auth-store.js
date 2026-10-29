@@ -26,13 +26,26 @@ function mapServerOrderToUiOrder(order) {
       });
 
   const addr = order.shipping_address || order.address || {};
+  const statusStr = String(order.status || 'paid').toLowerCase().trim();
+
+  const statusLabelMap = {
+    pending_payment: 'Pending Payment',
+    paid: 'Preparing for dispatch',
+    packed: 'Packed at Fontainhas',
+    shipped: 'Shipped via Courier',
+    delivered: 'Delivered',
+    cancelled: 'Cancelled',
+  };
+
+  const statusLabel = order.statusLabel || order.status_label || statusLabelMap[statusStr] || 'Preparing for dispatch';
 
   return {
     id: order.order_number || order.id,
     uuid: order.uuid,
     orderNumber: order.order_number || order.id,
     date: placedDate,
-    status: order.status || 'pending_payment',
+    status: statusStr,
+    statusLabel: statusLabel,
     canCancel: Boolean(order.can_cancel),
     cancelNotice: order.cancel_notice || null,
     subtotalPaise: order.subtotal_paise ?? order.subtotal ?? 0,

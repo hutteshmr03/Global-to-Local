@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
-import { User, Package, MapPin, LogOut, ArrowRight, ShieldCheck, Plus, Check, Trash2, X, Edit2 } from 'lucide-react';
+import { User, Package, MapPin, LogOut, ArrowRight, ShieldCheck, Plus, Check, Trash2, X, Edit2, Truck } from 'lucide-react';
 import { useAuthStore } from '../lib/auth-store';
 import { formatPrice } from '../lib/data';
 
@@ -302,10 +302,47 @@ export default function AccountPage() {
                             <span className="text-[10px] font-bold uppercase tracking-wider text-content-muted">Date</span>
                             <p className="text-xs font-semibold text-content">{order.date}</p>
                           </div>
-                          <div className="inline-flex items-center gap-1.5 rounded-pill bg-palm/15 border border-palm/25 text-palm px-3 py-1 text-xs font-bold">
-                            <Package className="w-3.5 h-3.5" />
-                            <span>{(!order.statusLabel || order.statusLabel === 'Pending Payment') ? 'Preparing for dispatch' : order.statusLabel}</span>
-                          </div>
+                          {(() => {
+                            const st = String(order?.status || '').toLowerCase().trim();
+                            if (st === 'delivered') {
+                              return (
+                                <div className="inline-flex items-center gap-1.5 rounded-pill bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 px-3 py-1 text-xs font-bold">
+                                  <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                                  <span>Delivered</span>
+                                </div>
+                              );
+                            }
+                            if (st === 'shipped') {
+                              return (
+                                <div className="inline-flex items-center gap-1.5 rounded-pill bg-blue-500/15 border border-blue-500/30 text-blue-800 px-3 py-1 text-xs font-bold">
+                                  <Truck className="w-3.5 h-3.5 text-blue-600" />
+                                  <span>Shipped</span>
+                                </div>
+                              );
+                            }
+                            if (st === 'packed') {
+                              return (
+                                <div className="inline-flex items-center gap-1.5 rounded-pill bg-amber-500/15 border border-amber-500/30 text-amber-800 px-3 py-1 text-xs font-bold">
+                                  <Package className="w-3.5 h-3.5 text-amber-600" />
+                                  <span>Packed</span>
+                                </div>
+                              );
+                            }
+                            if (st === 'cancelled') {
+                              return (
+                                <div className="inline-flex items-center gap-1.5 rounded-pill bg-rose-500/15 border border-rose-500/30 text-rose-800 px-3 py-1 text-xs font-bold">
+                                  <X className="w-3.5 h-3.5 text-rose-600" />
+                                  <span>Cancelled</span>
+                                </div>
+                              );
+                            }
+                            return (
+                              <div className="inline-flex items-center gap-1.5 rounded-pill bg-palm/15 border border-palm/25 text-palm px-3 py-1 text-xs font-bold">
+                                <Package className="w-3.5 h-3.5" />
+                                <span>{order.statusLabel || 'Preparing for dispatch'}</span>
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         {/* Order Items */}
