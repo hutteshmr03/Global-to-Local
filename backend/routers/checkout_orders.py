@@ -846,7 +846,6 @@ def create_order(
             with db.begin_nested():
                 db.add(
                     StockMovement(
-                        id=str(uuid.uuid4()),
                         product_id=prod.id,
                         delta=-qty,
                         reason=StockMovementReason.order_reserved,
@@ -865,7 +864,6 @@ def create_order(
         with db.begin_nested():
             db.add(
                 OrderStatusEvent(
-                    id=str(uuid.uuid4()),
                     order_id=order.id,
                     from_status=None,
                     to_status=OrderStatus.paid,

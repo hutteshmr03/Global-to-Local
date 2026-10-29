@@ -93,17 +93,18 @@ def safe_log_audit(
     ip_address: str,
 ) -> None:
     try:
-        audit_entry = AuditLog(
-            actor_user_id=actor_user_id,
-            action=action,
-            entity_type=entity_type,
-            entity_id=str(entity_id),
-            before_state=before_state,
-            after_state=after_state,
-            ip_address=ip_address,
-        )
-        db.add(audit_entry)
-        db.flush()
+        with db.begin_nested():
+            audit_entry = AuditLog(
+                actor_user_id=actor_user_id,
+                action=action,
+                entity_type=entity_type,
+                entity_id=str(entity_id),
+                before_state=before_state,
+                after_state=after_state,
+                ip_address=ip_address,
+            )
+            db.add(audit_entry)
+            db.flush()
     except Exception as e:
         logger.warning(f"Could not record audit log: {e}")
 
@@ -902,8 +903,9 @@ def create_admin_product(
     )
     db.add(price_change)
 
-    # 10. Create AuditLog row
-    audit = AuditLog(
+    # 10. Create AuditLog row (safe)
+    safe_log_audit(
+        db=db,
         actor_user_id=admin.id,
         action="product.create",
         entity_type="product",
@@ -923,7 +925,6 @@ def create_admin_product(
         },
         ip_address=client_ip,
     )
-    db.add(audit)
     db.commit()
     db.refresh(product)
 
@@ -1075,24 +1076,21 @@ def update_admin_product_details(
                 )
 
     product.updated_at = datetime.now(timezone.utc)
-    try:
-        audit = AuditLog(
-            actor_user_id=admin.id,
-            action="product.update",
-            entity_type="product",
-            entity_id=str(product.id),
-            before_state=before_state,
-            after_state={
-                "name": product.name,
-                "sku": product.sku,
-                "slug": product.slug,
-                "is_active": product.is_active,
-            },
-            ip_address=client_ip,
-        )
-        db.add(audit)
-    except Exception:
-        pass
+    safe_log_audit(
+        db=db,
+        actor_user_id=admin.id,
+        action="product.update",
+        entity_type="product",
+        entity_id=str(product.id),
+        before_state=before_state,
+        after_state={
+            "name": product.name,
+            "sku": product.sku,
+            "slug": product.slug,
+            "is_active": product.is_active,
+        },
+        ip_address=client_ip,
+    )
     db.commit()
     db.refresh(product)
 
@@ -1211,18 +1209,19 @@ def update_product_price(
 
     # 1. Record in dedicated price_changes table safely
     try:
-        price_change = PriceChange(
-            id=uuid.uuid4(),
-            product_id=product.id,
-            admin_user_id=admin.id,
-            old_paise=old_price,
-            new_paise=new_price,
-            reason=payload.reason.strip(),
-            ip=client_ip,
-            created_at=datetime.now(timezone.utc),
-        )
-        db.add(price_change)
-        db.flush()
+        with db.begin_nested():
+            price_change = PriceChange(
+                id=uuid.uuid4(),
+                product_id=product.id,
+                admin_user_id=admin.id,
+                old_paise=old_price,
+                new_paise=new_price,
+                reason=payload.reason.strip(),
+                ip=client_ip,
+                created_at=datetime.now(timezone.utc),
+            )
+            db.add(price_change)
+            db.flush()
     except Exception as e:
         logger.warning(f"Could not record price change: {e}")
 
@@ -1299,7 +1298,8 @@ def toggle_product_status(
     old_active = product.is_active
     old_status = getattr(product, "status", "published")
 
-    audit_entry = AuditLog(
+    safe_log_audit(
+        db=db,
         actor_user_id=admin.id,
         action="toggle_status",
         entity_type="product_status",
@@ -1308,7 +1308,6 @@ def toggle_product_status(
         after_state={"is_active": new_is_active, "status": new_status_str},
         ip_address=client_ip,
     )
-    db.add(audit_entry)
 
     product.is_active = new_is_active
     product.status = new_status_str
@@ -1634,7 +1633,6 @@ def update_admin_order_status(
     try:
         with db.begin_nested():
             event = OrderStatusEvent(
-                id=str(uuid.uuid4()),
                 order_id=order.id,
                 from_status=old_status_val,
                 to_status=target_status_str,
@@ -1893,7 +1891,8 @@ def toggle_admin_customer_status(
     new_status = payload.is_active
     client_ip = request.client.host if request.client else "127.0.0.1"
 
-    audit_entry = AuditLog(
+    safe_log_audit(
+        db=db,
         actor_user_id=admin.id,
         action="customer_status_change",
         entity_type="customer",
@@ -1902,7 +1901,6 @@ def toggle_admin_customer_status(
         after_state={"is_active": new_status},
         ip_address=client_ip,
     )
-    db.add(audit_entry)
 
     user.is_active = new_status
     user.updated_at = datetime.now(timezone.utc)

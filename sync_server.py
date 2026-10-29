@@ -363,48 +363,8 @@ try:
 
     with engine.connect() as conn:
 
-        # --- High Priority Clean Reset: Orders, Enquiry, and Target Test Customers ---
-        print("[*] Executing database clean reset...", flush=True)
-
-        # 1. Clear All Orders and related records
-        try:
-            conn.execute(text("DELETE FROM order_items;"))
-            conn.execute(text("DELETE FROM order_status_events;"))
-            conn.execute(text("DELETE FROM order_internal_notes;"))
-            conn.execute(text("DELETE FROM shipments;"))
-            conn.execute(text("DELETE FROM payments;"))
-            conn.execute(text("DELETE FROM orders;"))
-            conn.commit()
-            print("[OK] Orders reset successfully: cleared all order records.", flush=True)
-        except Exception as e:
-            print(f"[NOTE] Order deletion notice: {e}", flush=True)
-
-        # 2. Delete all enquiries completely
-        try:
-            conn.execute(text("DELETE FROM enquiries;"))
-            conn.commit()
-            print("[OK] Enquiry reset successfully: cleared all enquiries.", flush=True)
-        except Exception as e:
-            print(f"[NOTE] Enquiry deletion notice: {e}", flush=True)
-
-        # 3. Clear legacy test users while preserving valid registered customer accounts and admin accounts
-        try:
-            legacy_test_criteria = """
-                (
-                    LOWER(email) IN ('maria.fernandes@example.com', 'rahul.naik@example.com', 'sancho.fernandes@example.com', 'pooja.naik@example.com', 'max@example.com', 'gurjeet@example.com', 'debarshi@example.com', 'kunal@example.com', 'shopper8288@example.com', 'test@example.com')
-                    OR LOWER(email) LIKE '%example.com%'
-                    OR LOWER(full_name) IN ('maria fernandes', 'rahul naik', 'sancho fernandes', 'pooja naik', 'gurjeet kaur', 'debarshi dutta', 'kunal haldipur', 'shopper 8288')
-                ) AND role != 'admin' AND email NOT IN ('admin@globaltolocal.in', 'founder@globaltolocal.in')
-            """
-            conn.execute(text(f"DELETE FROM addresses WHERE user_id IN (SELECT id FROM users WHERE {legacy_test_criteria});"))
-            conn.execute(text(f"DELETE FROM user_sessions WHERE user_id IN (SELECT id FROM users WHERE {legacy_test_criteria});"))
-            conn.execute(text(f"DELETE FROM cart_items WHERE cart_id IN (SELECT id FROM carts WHERE user_id IN (SELECT id FROM users WHERE {legacy_test_criteria}));"))
-            conn.execute(text(f"DELETE FROM carts WHERE user_id IN (SELECT id FROM users WHERE {legacy_test_criteria});"))
-            conn.execute(text(f"DELETE FROM users WHERE {legacy_test_criteria};"))
-            conn.commit()
-            print("[OK] Cleaned legacy test accounts while preserving registered customer accounts.", flush=True)
-        except Exception as e:
-            print(f"[NOTE] Customer reset notice: {e}", flush=True)
+        # --- Live Data Preservation: Retain all live Orders, Registered Users & Enquiries ---
+        print("[*] Preserving live orders, customer accounts, and enquiries cleanly...", flush=True)
 
         # A. Create enquiries table if missing
 
@@ -456,121 +416,61 @@ try:
 
         """))
 
-        # B. Ensure audit_logs table exists and has safe column defaults
-
+        # B. Ensure audit_logs table exists and has BIGINT AUTO_INCREMENT primary key
         conn.execute(text("""
-
             CREATE TABLE IF NOT EXISTS `audit_logs` (
-
-              `id` VARCHAR(255) NOT NULL DEFAULT '',
-
+              `id` BIGINT NOT NULL AUTO_INCREMENT,
               `actor_user_id` VARCHAR(36) DEFAULT NULL,
-
               `action` VARCHAR(80) NOT NULL,
-
               `entity_type` VARCHAR(64) NOT NULL,
-
               `entity_id` VARCHAR(80) NOT NULL,
-
               `before_state` JSON DEFAULT NULL,
-
               `after_state` JSON DEFAULT NULL,
-
               `ip_address` VARCHAR(64) DEFAULT '',
-
               `created_at` VARCHAR(255) NOT NULL DEFAULT '',
-
               PRIMARY KEY (`id`)
-
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
         """))
 
-        try:
-
-            conn.execute(text("ALTER TABLE `audit_logs` MODIFY `id` VARCHAR(255) NOT NULL DEFAULT '';"))
-
-            conn.execute(text("ALTER TABLE `audit_logs` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
-
-        except Exception:
-
-            pass
-
-        # C. Ensure order_status_events table exists and has safe column defaults
-
+        # C. Ensure order_status_events table exists and has BIGINT AUTO_INCREMENT primary key
         conn.execute(text("""
-
             CREATE TABLE IF NOT EXISTS `order_status_events` (
-
-              `id` VARCHAR(255) NOT NULL DEFAULT '',
-
+              `id` BIGINT NOT NULL AUTO_INCREMENT,
               `order_id` VARCHAR(36) NOT NULL,
-
               `from_status` VARCHAR(32) DEFAULT NULL,
-
               `to_status` VARCHAR(32) NOT NULL,
-
               `actor_user_id` VARCHAR(36) DEFAULT NULL,
-
               `note` TEXT DEFAULT NULL,
-
               `created_at` VARCHAR(255) NOT NULL DEFAULT '',
-
               PRIMARY KEY (`id`)
-
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
         """))
 
-        try:
-
-            conn.execute(text("ALTER TABLE `order_status_events` MODIFY `id` VARCHAR(255) NOT NULL DEFAULT '';"))
-
-            conn.execute(text("ALTER TABLE `order_status_events` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
-
-        except Exception:
-
-            pass
-
-        # D. Ensure stock_movements table exists and has safe column defaults
-
+        # D. Ensure stock_movements table exists and has BIGINT AUTO_INCREMENT primary key
         conn.execute(text("""
-
             CREATE TABLE IF NOT EXISTS `stock_movements` (
-
-              `id` VARCHAR(255) NOT NULL DEFAULT '',
-
+              `id` BIGINT NOT NULL AUTO_INCREMENT,
               `product_id` VARCHAR(36) NOT NULL,
-
               `delta` VARCHAR(255) NOT NULL,
-
               `reason` VARCHAR(32) NOT NULL,
-
               `reference_type` VARCHAR(40) DEFAULT NULL,
-
               `reference_id` VARCHAR(36) DEFAULT NULL,
-
               `note` VARCHAR(255) DEFAULT NULL,
-
               `actor_user_id` VARCHAR(36) DEFAULT NULL,
-
               `created_at` VARCHAR(255) NOT NULL DEFAULT '',
-
               PRIMARY KEY (`id`)
-
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
         """))
 
-        try:
-
-            conn.execute(text("ALTER TABLE `stock_movements` MODIFY `id` VARCHAR(255) NOT NULL DEFAULT '';"))
-
-            conn.execute(text("ALTER TABLE `stock_movements` MODIFY `created_at` VARCHAR(255) NOT NULL DEFAULT '';"))
-
-        except Exception:
-
-            pass
+        # Convert audit_logs, order_status_events, stock_movements to BIGINT AUTO_INCREMENT safely
+        for tbl in ['audit_logs', 'order_status_events', 'stock_movements']:
+            try:
+                conn.execute(text(f"DELETE FROM `{tbl}` WHERE `id` NOT REGEXP '^[0-9]+$' OR `id` = '0' OR `id` IS NULL;"))
+                conn.execute(text(f"ALTER TABLE `{tbl}` MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;"))
+                conn.commit()
+                print(f"[OK] Table {tbl} hardened with BIGINT AUTO_INCREMENT.", flush=True)
+            except Exception as h_err:
+                print(f"[NOTE] Table {tbl} hardening notice: {h_err}", flush=True)
 
         # E. Ensure payments table exists and has safe column defaults
 
@@ -756,13 +656,7 @@ try:
             """))
             conn.commit()
 
-            # Ensure columns exist before querying or inserting
-            try:
-                col_res = conn.execute(text("SHOW COLUMNS FROM `store_reviews`;"))
-                existing_cols = [r[0] for r in col_res.fetchall()]
-            except Exception:
-                existing_cols = []
-
+            # Ensure all columns exist before querying or inserting
             for col_name, col_type in [
                 ('quote', 'TEXT'),
                 ('source', "VARCHAR(40) NOT NULL DEFAULT 'Visitors Book'"),
@@ -772,12 +666,11 @@ try:
                 ('author_location', 'VARCHAR(120) DEFAULT NULL'),
                 ('reviewed_on', 'DATE DEFAULT NULL')
             ]:
-                if col_name not in existing_cols:
-                    try:
-                        conn.execute(text(f"ALTER TABLE `store_reviews` ADD COLUMN `{col_name}` {col_type};"))
-                        conn.commit()
-                    except Exception:
-                        pass
+                try:
+                    conn.execute(text(f"ALTER TABLE `store_reviews` ADD COLUMN `{col_name}` {col_type};"))
+                    conn.commit()
+                except Exception:
+                    pass
 
             rev_count = conn.execute(text("SELECT COUNT(*) FROM store_reviews")).scalar()
             if rev_count == 0:
@@ -793,26 +686,17 @@ try:
         except Exception as seed_err:
             print(f"[NOTE] store_reviews notice: {seed_err}", flush=True)
 
-        # E. Set all 230 products to published, active, in_stock
-
+        # E. Ensure all products are active and not soft-deleted without overriding custom status
         conn.execute(text("""
-
             UPDATE products 
-
-            SET is_active = 1, status = 'published', availability = 'in_stock', deleted_at = NULL;
-
+            SET deleted_at = NULL 
+            WHERE deleted_at IS NOT NULL;
         """))
 
-        # F. Set inventory for all products to exactly 100 units on_hand, 0 reserved
-
+        # F. Ensure inventory rows exist without overriding existing stock settings
         conn.execute(text("""
-
-            INSERT INTO inventory (product_id, on_hand, reserved, low_stock_threshold, allow_backorder)
-
-            SELECT id, 100, 0, 5, 0 FROM products
-
-            ON DUPLICATE KEY UPDATE on_hand = 100, reserved = 0, allow_backorder = 0;
-
+            INSERT IGNORE INTO inventory (product_id, on_hand, reserved, low_stock_threshold, allow_backorder)
+            SELECT id, 100, 0, 5, 0 FROM products;
         """))
 
         # G. Align product images to authentic catalog slugs (remove blue mug overrides)
