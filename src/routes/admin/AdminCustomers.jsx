@@ -44,15 +44,17 @@ export default function AdminCustomers() {
       const clean = raw.filter((c) => {
         const name = (c.name || c.full_name || '').toLowerCase();
         const email = (c.email || '').toLowerCase();
-        const phone = String(c.phone || '');
         return (
+          !name.includes('maria fernandes') &&
+          !name.includes('rahul naik') &&
+          !name.includes('sancho fernandes') &&
+          !name.includes('pooja naik') &&
+          !name.includes('max') &&
+          !email.includes('example.com') &&
           !name.includes('gurjeet') &&
           !email.includes('gurjeet') &&
-          !phone.includes('7528978986') &&
           !name.includes('debarshi') &&
-          !phone.includes('8017478429') &&
           !name.includes('kunal') &&
-          !phone.includes('9167797261') &&
           !name.includes('shopper 8288') &&
           !name.includes('test user') &&
           !(name.includes('test') && !name.includes('attest'))

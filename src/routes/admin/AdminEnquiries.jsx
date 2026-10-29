@@ -99,7 +99,13 @@ export default function AdminEnquiries() {
       const res = await apiFetch(`/api/v1/admin/enquiries?${params.toString()}`);
       const raw = res.items || [];
       const clean = raw.filter(
-        (e) => !e.name?.toLowerCase().includes('huttesha') && e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com'
+        (e) =>
+          !e.name?.toLowerCase().includes('huttesha') &&
+          !e.name?.toLowerCase().includes('taj exotica') &&
+          !e.name?.toLowerCase().includes('ananya') &&
+          e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com' &&
+          e.email?.toLowerCase() !== 'procurement@tajexotica.com' &&
+          e.email?.toLowerCase() !== 'ananya.d@gmail.com'
       );
       setEnquiries(clean);
       setTotal(clean.length);

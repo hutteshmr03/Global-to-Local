@@ -3,69 +3,29 @@ import { products as seedProducts, categories as seedCategories } from './data';
 // --- AUTO PURGE LEGACY TEST DATA FROM LOCALSTORAGE ---
 if (typeof localStorage !== 'undefined') {
   try {
-    ['gtl_mock_orders_v1', 'gtl_mock_orders_v2', 'gtl_mock_orders_v3'].forEach((k) => localStorage.removeItem(k));
-    localStorage.setItem('gtl_mock_orders_v4', JSON.stringify([]));
+    ['gtl_mock_orders_v1', 'gtl_mock_orders_v2', 'gtl_mock_orders_v3', 'gtl_mock_orders_v4'].forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem('gtl_mock_orders_v5', JSON.stringify([]));
   } catch {}
 
   try {
-    ['gtl_mock_enquiries_v1', 'gtl_mock_enquiries_v2', 'gtl_mock_enquiries_v3'].forEach((k) => {
-      const raw = localStorage.getItem(k);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          const clean = parsed.filter(
-            (e) => !e.name?.toLowerCase().includes('huttesha') && e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com'
-          );
-          localStorage.setItem('gtl_mock_enquiries_v4', JSON.stringify(clean));
-        }
-      }
-      if (k !== 'gtl_mock_enquiries_v4') localStorage.removeItem(k);
-    });
-    if (!localStorage.getItem('gtl_mock_enquiries_v4')) {
-      localStorage.setItem('gtl_mock_enquiries_v4', JSON.stringify([]));
-    }
+    ['gtl_mock_enquiries_v1', 'gtl_mock_enquiries_v2', 'gtl_mock_enquiries_v3', 'gtl_mock_enquiries_v4'].forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem('gtl_mock_enquiries_v5', JSON.stringify([]));
   } catch {}
 
   try {
-    ['gtl_mock_customers_v1', 'gtl_mock_customers_v2', 'gtl_mock_customers_v3'].forEach((k) => {
-      const raw = localStorage.getItem(k);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          const clean = parsed.filter((c) => {
-            const name = (c.name || c.full_name || '').toLowerCase();
-            const email = (c.email || '').toLowerCase();
-            const phone = String(c.phone || '');
-            return (
-              !name.includes('gurjeet') &&
-              !email.includes('gurjeet') &&
-              !phone.includes('7528978986') &&
-              !name.includes('debarshi') &&
-              !phone.includes('8017478429') &&
-              !name.includes('kunal') &&
-              !phone.includes('9167797261') &&
-              !name.includes('shopper 8288') &&
-              !name.includes('test user') &&
-              !(name.includes('test') && !name.includes('attest'))
-            );
-          });
-          localStorage.setItem('gtl_mock_customers_v4', JSON.stringify(clean));
-        }
-      }
-      if (k !== 'gtl_mock_customers_v4') localStorage.removeItem(k);
-    });
+    ['gtl_mock_customers_v1', 'gtl_mock_customers_v2', 'gtl_mock_customers_v3', 'gtl_mock_customers_v4'].forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem('gtl_mock_customers_v5', JSON.stringify([]));
   } catch {}
 }
 
-// LocalStorage Keys
 const STORAGE_USER = 'gtl_mock_auth_user_v1';
 const STORAGE_PRODUCTS = 'gtl_mock_products_v3';
-const STORAGE_CUSTOMERS = 'gtl_mock_customers_v4';
-const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v4';
+const STORAGE_CUSTOMERS = 'gtl_mock_customers_v5';
+const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v5';
 const STORAGE_NEWS = 'gtl_mock_news_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
 const STORAGE_ADDRESSES = 'gtl_mock_addresses_v1';
-const STORAGE_ORDERS = 'gtl_mock_orders_v4';
+const STORAGE_ORDERS = 'gtl_mock_orders_v5';
 const STORAGE_REVIEWS = 'gtl_mock_reviews_v1';
 
 export const CATEGORY_PREFIXES = {
@@ -214,18 +174,19 @@ function initMockCustomers() {
     try {
       const parsed = JSON.parse(existing);
       if (Array.isArray(parsed)) {
-        const clean = parsed.filter((c) => {
+        const clean = parsed.filter(c => {
           const name = (c.name || c.full_name || '').toLowerCase();
           const email = (c.email || '').toLowerCase();
-          const phone = String(c.phone || '');
           return (
+            !name.includes('maria fernandes') &&
+            !name.includes('rahul naik') &&
+            !name.includes('sancho fernandes') &&
+            !name.includes('pooja naik') &&
+            !name.includes('max') &&
+            !email.includes('example.com') &&
             !name.includes('gurjeet') &&
-            !email.includes('gurjeet') &&
-            !phone.includes('7528978986') &&
             !name.includes('debarshi') &&
-            !phone.includes('8017478429') &&
             !name.includes('kunal') &&
-            !phone.includes('9167797261') &&
             !name.includes('shopper 8288') &&
             !name.includes('test user') &&
             !(name.includes('test') && !name.includes('attest'))
@@ -236,38 +197,7 @@ function initMockCustomers() {
       }
     } catch {}
   }
-
-  const initial = [
-    {
-      id: 'cust-1',
-      name: 'Amol Arondekar',
-      full_name: 'Amol Arondekar',
-      email: 'amol.arondekar@example.com',
-      phone: '9326510950',
-      orders_count: 0,
-      total_spent_paise: 0,
-      city: 'Panaji',
-      state: 'Goa',
-      pincode: '403001',
-      is_active: true,
-      created_at: '2026-10-22T10:00:00Z',
-    },
-    {
-      id: 'cust-2',
-      name: 'sejal k',
-      full_name: 'sejal k',
-      email: 'sejal.k@example.com',
-      phone: '9764940674',
-      orders_count: 0,
-      total_spent_paise: 0,
-      city: 'Panaji',
-      state: 'Goa',
-      pincode: '403001',
-      is_active: true,
-      created_at: '2026-10-22T12:00:00Z',
-    },
-  ];
-
+  const initial = [];
   localStorage.setItem(STORAGE_CUSTOMERS, JSON.stringify(initial));
   return initial;
 }
@@ -328,7 +258,13 @@ function initMockEnquiries() {
       const parsed = JSON.parse(existing);
       if (Array.isArray(parsed)) {
         const clean = parsed.filter(
-          (e) => !e.name?.toLowerCase().includes('huttesha') && e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com'
+          (e) =>
+            !e.name?.toLowerCase().includes('huttesha') &&
+            !e.name?.toLowerCase().includes('taj exotica') &&
+            !e.name?.toLowerCase().includes('ananya') &&
+            e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com' &&
+            e.email?.toLowerCase() !== 'procurement@tajexotica.com' &&
+            e.email?.toLowerCase() !== 'ananya.d@gmail.com'
         );
         localStorage.setItem(STORAGE_ENQUIRIES, JSON.stringify(clean));
         return clean;

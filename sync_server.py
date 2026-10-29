@@ -91,6 +91,7 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/assets/index-CX86KhWA.js", os.path.join(PUBLIC_HTML, "assets", "index-CX86KhWA.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dd9xhh54.js", os.path.join(PUBLIC_HTML, "assets", "index-Dd9xhh54.js")),
     (f"{RAW_BASE}/dist_live/assets/index-DzociDw5.js", os.path.join(PUBLIC_HTML, "assets", "index-DzociDw5.js")),
     (f"{RAW_BASE}/dist_live/assets/index-CWMtFyP2.js", os.path.join(PUBLIC_HTML, "assets", "index-CWMtFyP2.js")),
@@ -192,7 +193,7 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
     try:
         # SMART SKIP: If video or image already exists and is healthy (>1000 bytes), skip download to speed up sync!
         is_large_static = fname.endswith(('.mp4', '.jpg', '.jpeg', '.png'))
-        is_old_bundle = fname.startswith('index-') and fname not in ('index-Dd9xhh54.js', 'index-DzociDw5.js', 'index-CWMtFyP2.js', 'index-BlTtjZ_W.css')
+        is_old_bundle = fname.startswith('index-') and fname not in ('index-CX86KhWA.js', 'index-Dd9xhh54.js', 'index-DzociDw5.js', 'index-CWMtFyP2.js', 'index-BlTtjZ_W.css')
         if (is_large_static or is_old_bundle) and os.path.exists(dest) and os.path.getsize(dest) > 1000:
             print(f" [CACHE HIT - ALREADY DOWNLOADED] ({os.path.getsize(dest)} bytes)", flush=True)
             continue
@@ -350,56 +351,23 @@ try:
         except Exception as e:
             print(f"[NOTE] Order deletion notice: {e}", flush=True)
 
-        # 2. Delete test enquiry 'HUTTESHA SWAMY M R'
+        # 2. Delete all enquiries completely
         try:
-            conn.execute(text("""
-                DELETE FROM enquiries 
-                WHERE LOWER(name) LIKE '%huttesha%' 
-                   OR LOWER(email) = 'mrhuttesh003@gmail.com';
-            """))
+            conn.execute(text("DELETE FROM enquiries;"))
             conn.commit()
-            print("[OK] Enquiry reset successfully: cleared test enquiry (HUTTESHA SWAMY M R).", flush=True)
+            print("[OK] Enquiry reset successfully: cleared all enquiries.", flush=True)
         except Exception as e:
             print(f"[NOTE] Enquiry deletion notice: {e}", flush=True)
 
-        # 3. Delete specific customers: Gurjeet kaur, Debarshi Dutta, KUNAL HALDIPUR, Shopper 8288, test user
+        # 3. Delete all customer accounts completely (preserving admins)
         try:
-            target_clause = """
-                role = 'customer' AND (
-                    LOWER(COALESCE(full_name, '')) LIKE '%gurjeet kaur%'
-                    OR LOWER(COALESCE(email, '')) LIKE '%gurjeetbhangu43%'
-                    OR phone LIKE '%7528978986%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%debarshi dutta%'
-                    OR phone LIKE '%8017478429%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%kunal haldipur%'
-                    OR phone LIKE '%9167797261%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%shopper 8288%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%test user%'
-                    OR (LOWER(COALESCE(full_name, '')) LIKE '%test%' AND role = 'customer')
-                )
-            """
-            conn.execute(text(f"""
-                DELETE FROM addresses 
-                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
-            """))
-            conn.execute(text(f"""
-                DELETE FROM user_sessions 
-                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
-            """))
-            conn.execute(text(f"""
-                DELETE FROM cart_items 
-                WHERE cart_id IN (SELECT id FROM carts WHERE user_id IN (SELECT id FROM users WHERE {target_clause}));
-            """))
-            conn.execute(text(f"""
-                DELETE FROM carts 
-                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
-            """))
-            conn.execute(text(f"""
-                DELETE FROM users 
-                WHERE {target_clause};
-            """))
+            conn.execute(text("DELETE FROM addresses WHERE user_id IN (SELECT id FROM users WHERE role = 'customer');"))
+            conn.execute(text("DELETE FROM user_sessions WHERE user_id IN (SELECT id FROM users WHERE role = 'customer');"))
+            conn.execute(text("DELETE FROM cart_items WHERE cart_id IN (SELECT id FROM carts WHERE user_id IN (SELECT id FROM users WHERE role = 'customer'));"))
+            conn.execute(text("DELETE FROM carts WHERE user_id IN (SELECT id FROM users WHERE role = 'customer');"))
+            conn.execute(text("DELETE FROM users WHERE role = 'customer';"))
             conn.commit()
-            print("[OK] Customer reset successfully: removed requested test customers while preserving valid customers and admins.", flush=True)
+            print("[OK] Customer reset successfully: cleared all customer accounts while preserving admin accounts.", flush=True)
         except Exception as e:
             print(f"[NOTE] Customer deletion notice: {e}", flush=True)
 
