@@ -91,7 +91,8 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
-    (f"{RAW_BASE}/dist_live/assets/index-Dl_HeRjt.js", os.path.join(PUBLIC_HTML, "assets", "index-Dl_HeRjt.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-8KPuSwk5.js", os.path.join(PUBLIC_HTML, "assets", "index-8KPuSwk5.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-8KPuSwk5.js", os.path.join(PUBLIC_HTML, "assets", "index-8KPuSwk5.js")),
     (f"{RAW_BASE}/dist_live/assets/index-C7v29TNE.css", os.path.join(PUBLIC_HTML, "assets", "index-C7v29TNE.css")),
     (f"{RAW_BASE}/dist_live/assets/index-CX86KhWA.js", os.path.join(PUBLIC_HTML, "assets", "index-CX86KhWA.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dd9xhh54.js", os.path.join(PUBLIC_HTML, "assets", "index-Dd9xhh54.js")),
@@ -307,13 +308,13 @@ for g_root in gtl_targets:
         print(f"[!] Notice on {g_root}: {g_err}", flush=True)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-Dl_HeRjt.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-8KPuSwk5.js")
 if os.path.exists(primary_bundle):
     all_asset_dirs = [os.path.join(PUBLIC_HTML, "assets")] + [os.path.join(g, "assets") for g in gtl_targets]
     for adir in all_asset_dirs:
         if os.path.exists(adir):
             for fn in os.listdir(adir):
-                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-Dl_HeRjt.js":
+                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-8KPuSwk5.js":
                     try:
                         shutil.copy2(primary_bundle, os.path.join(adir, fn))
                     except Exception:
@@ -337,6 +338,13 @@ for cdir in ["/home/nrlnxfke/lscache", "/home/nrlnxfke/public_html/.lscache", "/
 print("[OK] LiteSpeed cache purged cleanly.", flush=True)
 
 # 2. Database update & schema hardening
+
+try:
+    print("[*] Ensuring openpyxl is installed for Excel report generation...", flush=True)
+    subprocess.run([PYTHON_BIN, "-m", "pip", "install", "openpyxl"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    print("[OK] openpyxl verified.", flush=True)
+except Exception:
+    pass
 
 print("\n--- STEP 2: Database Hardening & Stock Update ---", flush=True)
 

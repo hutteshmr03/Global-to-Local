@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import datetime, timezone, time
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
+from fastapi.responses import StreamingResponse, Response
 from PIL import Image
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy import desc, func, or_
@@ -206,6 +207,290 @@ def get_admin_dashboard(
         "new_enquiries_count": new_enquiries_count,
         "recent_orders": formatted_recent,
     }
+
+
+# =====================================================================
+# PRIORITY 2B: MONTHLY EXPORT REPORT (.XLSX)
+# =====================================================================
+
+@router.get("/reports/monthly-export")
+def export_monthly_report(
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Export comprehensive monthly business performance report starting from 00:00:00
+    on the 1st day of the current month up to datetime.now(timezone.utc) in formatted .xlsx format.
+    """
+    now = datetime.now(timezone.utc)
+    month_start = datetime(now.year, now.month, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+    # 1. Orders placed this month
+    orders = (
+        db.query(Order)
+        .options(
+            joinedload(Order.items),
+            joinedload(Order.user),
+            joinedload(Order.address),
+            joinedload(Order.payment),
+            joinedload(Order.shipment),
+        )
+        .filter(Order.placed_at >= month_start, Order.placed_at <= now)
+        .order_by(Order.placed_at.desc())
+        .all()
+    )
+
+    # 2. All catalog products & inventory
+    products = (
+        db.query(Product)
+        .options(joinedload(Product.category), joinedload(Product.inventory))
+        .filter(Product.deleted_at.is_(None))
+        .order_by(Product.name.asc())
+        .all()
+    )
+
+    # 3. New registered customers this month
+    new_customers = (
+        db.query(User)
+        .filter(
+            User.role == UserRole.customer,
+            User.created_at >= month_start,
+            User.created_at <= now,
+        )
+        .order_by(User.created_at.desc())
+        .all()
+    )
+
+    paid_statuses = [OrderStatus.paid, OrderStatus.packed, OrderStatus.shipped, OrderStatus.delivered]
+    revenue_paise = sum(o.total_paise for o in orders if o.status in paid_statuses)
+    total_items_sold = sum(
+        sum(item.quantity for item in o.items)
+        for o in orders
+        if o.status in paid_statuses
+    )
+
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+
+        wb = openpyxl.Workbook()
+
+        header_fill = PatternFill(start_color="3D2C22", end_color="3D2C22", fill_type="solid")
+        header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        bold_font = Font(name="Calibri", size=11, bold=True)
+        regular_font = Font(name="Calibri", size=10)
+        thin_border = Border(
+            left=Side(style="thin", color="D9D9D9"),
+            right=Side(style="thin", color="D9D9D9"),
+            top=Side(style="thin", color="D9D9D9"),
+            bottom=Side(style="thin", color="D9D9D9"),
+        )
+
+        # ----------------- Sheet 1: Monthly Summary -----------------
+        ws_summary = wb.active
+        ws_summary.title = "Monthly Summary"
+        ws_summary.views.sheetView[0].showGridLines = True
+
+        summary_rows = [
+            ("GLOBAL TO LOCAL — MONTHLY PERFORMANCE REPORT", ""),
+            ("Store Location", "Tarcar Mansion, Fontainhas, Panaji, Goa 403001"),
+            ("Generated At (UTC)", now.strftime("%Y-%m-%d %H:%M:%S")),
+            ("Report Period", f"{month_start.strftime('%Y-%m-%d 00:00:00')} to {now.strftime('%Y-%m-%d %H:%M:%S')} UTC"),
+            ("", ""),
+            ("Performance Indicator", "Value"),
+            ("Total Orders Placed", len(orders)),
+            ("Delivered Orders", sum(1 for o in orders if o.status == OrderStatus.delivered)),
+            ("In-Transit / Shipped Orders", sum(1 for o in orders if o.status == OrderStatus.shipped)),
+            ("Packed Orders", sum(1 for o in orders if o.status == OrderStatus.packed)),
+            ("Paid / Processing Orders", sum(1 for o in orders if o.status == OrderStatus.paid)),
+            ("Cancelled Orders", sum(1 for o in orders if o.status == OrderStatus.cancelled)),
+            ("Total Net Revenue", f"₹{(revenue_paise / 100):,.2f}"),
+            ("Total Product Units Sold", total_items_sold),
+            ("New Registered Customers", len(new_customers)),
+            ("Active Catalog Products", len([p for p in products if p.is_active])),
+        ]
+
+        for r_idx, row in enumerate(summary_rows, start=1):
+            ws_summary.append(row)
+            c1 = ws_summary.cell(row=r_idx, column=1)
+            c2 = ws_summary.cell(row=r_idx, column=2)
+            if r_idx == 1:
+                c1.font = Font(name="Calibri", size=13, bold=True, color="3D2C22")
+            elif r_idx == 6:
+                c1.font = header_font
+                c1.fill = header_fill
+                c2.font = header_font
+                c2.fill = header_fill
+            elif r_idx > 6:
+                c1.font = bold_font
+                c2.font = regular_font
+                c1.border = thin_border
+                c2.border = thin_border
+
+        # ----------------- Sheet 2: Orders & Revenue -----------------
+        ws_orders = wb.create_sheet(title="Orders & Revenue")
+        ws_orders.views.sheetView[0].showGridLines = True
+        order_headers = [
+            "Order #", "Placed At (UTC)", "Status", "Customer Name",
+            "Customer Phone", "City", "State", "Items Count",
+            "Order Total (₹)", "Payment Method"
+        ]
+        ws_orders.append(order_headers)
+        for col_num in range(1, len(order_headers) + 1):
+            cell = ws_orders.cell(row=1, column=col_num)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        for o in orders:
+            placed_str = o.placed_at.strftime("%Y-%m-%d %H:%M") if o.placed_at else ""
+            recipient = ""
+            phone = ""
+            city = ""
+            state = ""
+            if o.address:
+                recipient = o.address.recipient_name or ""
+                phone = o.address.phone or ""
+                city = o.address.city or ""
+                state = o.address.state or ""
+            elif o.shipping_address_snapshot:
+                recipient = o.shipping_address_snapshot.get("recipient_name") or o.shipping_address_snapshot.get("name") or ""
+                phone = o.shipping_address_snapshot.get("phone") or ""
+                city = o.shipping_address_snapshot.get("city") or ""
+                state = o.shipping_address_snapshot.get("state") or ""
+            elif o.user:
+                recipient = o.user.full_name or ""
+                phone = o.user.phone or ""
+
+            items_cnt = sum(i.quantity for i in o.items)
+            tot_rupees = (o.total_paise or 0) / 100.0
+            pm = o.payment.provider if o.payment else "Razorpay / Online"
+
+            row_vals = [
+                o.order_number, placed_str, o.status.value, recipient,
+                phone, city, state, items_cnt, tot_rupees, pm
+            ]
+            ws_orders.append(row_vals)
+            cur_row = ws_orders.max_row
+            for col_num in range(1, len(row_vals) + 1):
+                c = ws_orders.cell(row=cur_row, column=col_num)
+                c.font = regular_font
+                c.border = thin_border
+                if col_num == 9:
+                    c.number_format = "₹#,##0.00"
+
+        # ----------------- Sheet 3: Items Sold -----------------
+        ws_items = wb.create_sheet(title="Items Sold")
+        ws_items.views.sheetView[0].showGridLines = True
+        item_headers = [
+            "Order #", "SKU", "Product Name", "Unit Price (₹)",
+            "Quantity Sold", "Line Total (₹)", "Order Status"
+        ]
+        ws_items.append(item_headers)
+        for col_num in range(1, len(item_headers) + 1):
+            cell = ws_items.cell(row=1, column=col_num)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        for o in orders:
+            for item in o.items:
+                unit_price = (item.unit_price_paise or 0) / 100.0
+                line_tot = (item.line_total_paise or 0) / 100.0
+                ws_items.append([
+                    o.order_number,
+                    item.sku_snapshot,
+                    item.name_snapshot,
+                    unit_price,
+                    item.quantity,
+                    line_tot,
+                    o.status.value,
+                ])
+                cur_row = ws_items.max_row
+                for col_num in range(1, len(item_headers) + 1):
+                    c = ws_items.cell(row=cur_row, column=col_num)
+                    c.font = regular_font
+                    c.border = thin_border
+                    if col_num in [4, 6]:
+                        c.number_format = "₹#,##0.00"
+
+        # ----------------- Sheet 4: Stock & Inventory -----------------
+        ws_stock = wb.create_sheet(title="Inventory & Stock")
+        ws_stock.views.sheetView[0].showGridLines = True
+        stock_headers = ["SKU", "Product Name", "Shelf / Category", "Unit Price (₹)", "On Hand Stock", "Status"]
+        ws_stock.append(stock_headers)
+        for col_num in range(1, len(stock_headers) + 1):
+            cell = ws_stock.cell(row=1, column=col_num)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        for p in products:
+            shelf_name = p.category.name if p.category else ""
+            price_val = (p.price_paise or 0) / 100.0
+            on_hand = p.inventory.on_hand if p.inventory else 0
+            stat = "Active" if p.is_active else "Inactive"
+            ws_stock.append([p.sku, p.name, shelf_name, price_val, on_hand, stat])
+            cur_row = ws_stock.max_row
+            for col_num in range(1, len(stock_headers) + 1):
+                c = ws_stock.cell(row=cur_row, column=col_num)
+                c.font = regular_font
+                c.border = thin_border
+                if col_num == 4:
+                    c.number_format = "₹#,##0.00"
+
+        # Auto-fit column widths across all sheets
+        for sheet in wb.worksheets:
+            for col in sheet.columns:
+                max_len = 0
+                col_letter = get_column_letter(col[0].column)
+                for cell in col:
+                    val = str(cell.value or "")
+                    if len(val) > max_len:
+                        max_len = len(val)
+                sheet.column_dimensions[col_letter].width = max(max_len + 3, 12)
+
+        buf = io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+
+        filename = f"GTL_Monthly_Report_{now.strftime('%b_%Y')}.xlsx"
+        return StreamingResponse(
+            buf,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Access-Control-Expose-Headers": "Content-Disposition",
+            },
+        )
+    except Exception as e:
+        logger.warning(f"Excel report generation exception, falling back to CSV: {e}")
+        import csv
+        buf_csv = io.StringIO()
+        writer = csv.writer(buf_csv)
+        writer.writerow(["GLOBAL TO LOCAL — MONTHLY REPORT", now.strftime("%Y-%m-%d %H:%M:%S UTC")])
+        writer.writerow(["Period", f"{month_start} to {now}"])
+        writer.writerow([])
+        writer.writerow(["Order #", "Placed At", "Status", "Items Count", "Order Total (INR)"])
+        for o in orders:
+            writer.writerow([
+                o.order_number,
+                safe_iso(o.placed_at),
+                o.status.value,
+                sum(i.quantity for i in o.items),
+                (o.total_paise or 0) / 100.0
+            ])
+
+        filename = f"GTL_Monthly_Report_{now.strftime('%b_%Y')}.csv"
+        return Response(
+            content=buf_csv.getvalue().encode("utf-8"),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Access-Control-Expose-Headers": "Content-Disposition",
+            },
+        )
 
 
 # =====================================================================

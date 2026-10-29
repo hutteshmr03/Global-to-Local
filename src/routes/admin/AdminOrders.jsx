@@ -11,6 +11,7 @@ import {
   RefreshCw,
   ChevronRight,
   Filter,
+  Download,
 } from 'lucide-react';
 import { apiFetch } from '../../lib/api-client';
 
@@ -73,6 +74,7 @@ export default function AdminOrders() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [error, setError] = useState('');
   const [total, setTotal] = useState(0);
+  const [exporting, setExporting] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -104,6 +106,113 @@ export default function AdminOrders() {
     }
   };
 
+  const downloadClientSideReport = () => {
+    const now = new Date();
+    const monthYear = now.toLocaleString('en-US', { month: 'short', year: 'numeric' }).replace(' ', '_');
+    const firstDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0));
+    
+    let csv = 'GLOBAL TO LOCAL — MONTHLY PERFORMANCE REPORT\r\n';
+    csv += 'Store: Tarcar Mansion Fontainhas Panaji Goa 403001\r\n';
+    csv += `Report Generated: ${now.toISOString()}\r\n`;
+    csv += `Reporting Window: ${firstDay.toISOString()} to ${now.toISOString()}\r\n\r\n`;
+    
+    csv += '--- MONTHLY SUMMARY ---\r\n';
+    csv += `Total Orders Placed,${orders.length}\r\n`;
+    const rev = orders.reduce((s, o) => s + (o.total_paise || 0), 0);
+    csv += `Total Revenue (INR),₹${(rev / 100).toFixed(2)}\r\n\r\n`;
+
+    csv += '--- ORDERS & REVENUE ---\r\n';
+    csv += 'Order Number,Placed At,Customer Name,Phone,City,Status,Items Count,Total (INR)\r\n';
+    orders.forEach((o) => {
+      const name = (o.customer_name || o.recipient_name || 'Customer').replace(/,/g, ' ');
+      const phone = o.customer_phone || '';
+      const city = (o.city || '').replace(/,/g, ' ');
+      const stat = o.status || 'paid';
+      const count = o.items_count || (o.items ? o.items.length : 1);
+      const tot = ((o.total_paise || 0) / 100).toFixed(2);
+      csv += `${o.order_number},${o.placed_at || ''},${name},${phone},${city},${stat},${count},${tot}\r\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `GTL_Monthly_Report_${monthYear}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleExportReport = async () => {
+    setExporting(true);
+    try {
+      const isHosted =
+        typeof window !== 'undefined' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1';
+      
+      const primaryUrl = isHosted
+        ? 'https://global-to-local.onrender.com/api/v1/admin/reports/monthly-export'
+        : '/api/v1/admin/reports/monthly-export';
+
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_access_token') : null;
+      let res = null;
+
+      try {
+        res = await fetch(primaryUrl, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, text/csv',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+      } catch (e) {}
+
+      if ((!res || !res.ok) && isHosted && primaryUrl !== '/api/v1/admin/reports/monthly-export') {
+        try {
+          res = await fetch('/api/v1/admin/reports/monthly-export', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, text/csv',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+        } catch (e) {}
+      }
+
+      if (res && res.ok) {
+        const blob = await res.blob();
+        const disposition = res.headers.get('content-disposition') || '';
+        let filename = 'GTL_Monthly_Report.xlsx';
+        const match = disposition.match(/filename="?([^";]+)"?/);
+        if (match && match[1]) {
+          filename = match[1];
+        } else {
+          const now = new Date();
+          const monthStr = now.toLocaleString('en-US', { month: 'short', year: 'numeric' }).replace(' ', '_');
+          filename = `GTL_Monthly_Report_${monthStr}.xlsx`;
+        }
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        downloadClientSideReport();
+      }
+    } catch (err) {
+      downloadClientSideReport();
+    } finally {
+      setExporting(false);
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchOrders();
@@ -118,15 +227,30 @@ export default function AdminOrders() {
         <div>
           <h1 className="font-sans text-2xl sm:text-3xl text-content font-bold">Orders Management</h1>
         </div>
-        <button
-          onClick={fetchOrders}
-          disabled={loading}
-          className="inline-flex items-center gap-2 self-start sm:self-auto px-3.5 py-2 rounded-xl border border-border bg-surface hover:bg-ground text-content text-sm transition-colors shadow-xs cursor-pointer"
-          title="Refresh orders list"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={handleExportReport}
+            disabled={exporting}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-palm hover:bg-palm-shade text-white text-sm font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            title="Export monthly performance report starting from 1st of month to current second (.xlsx)"
+          >
+            {exporting ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            <span>Export Monthly Report (.xlsx)</span>
+          </button>
+          <button
+            onClick={fetchOrders}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-surface hover:bg-ground text-content text-sm transition-colors shadow-xs cursor-pointer"
+            title="Refresh orders list"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}

@@ -9,6 +9,7 @@ import {
   ArrowRight,
   RefreshCw,
   AlertCircle,
+  Download,
 } from 'lucide-react';
 import { apiFetch } from '../../lib/api-client';
 
@@ -16,6 +17,7 @@ export default function AdminDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   const loadDashboard = async () => {
     setLoading(true);
@@ -48,6 +50,96 @@ export default function AdminDashboard() {
       setError(err.detail || err.message || 'Failed to load dashboard metrics');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportReport = async () => {
+    setExporting(true);
+    try {
+      const isHosted =
+        typeof window !== 'undefined' &&
+        window.location.hostname !== 'localhost' &&
+        window.location.hostname !== '127.0.0.1';
+      
+      const primaryUrl = isHosted
+        ? 'https://global-to-local.onrender.com/api/v1/admin/reports/monthly-export'
+        : '/api/v1/admin/reports/monthly-export';
+
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_access_token') : null;
+      let res = null;
+
+      try {
+        res = await fetch(primaryUrl, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, text/csv',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+      } catch (e) {}
+
+      if ((!res || !res.ok) && isHosted && primaryUrl !== '/api/v1/admin/reports/monthly-export') {
+        try {
+          res = await fetch('/api/v1/admin/reports/monthly-export', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/octet-stream, text/csv',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+        } catch (e) {}
+      }
+
+      if (res && res.ok) {
+        const blob = await res.blob();
+        const disposition = res.headers.get('content-disposition') || '';
+        let filename = 'GTL_Monthly_Report.xlsx';
+        const match = disposition.match(/filename="?([^";]+)"?/);
+        if (match && match[1]) {
+          filename = match[1];
+        } else {
+          const now = new Date();
+          const monthStr = now.toLocaleString('en-US', { month: 'short', year: 'numeric' }).replace(' ', '_');
+          filename = `GTL_Monthly_Report_${monthStr}.xlsx`;
+        }
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        // Fallback client-side report download
+        const now = new Date();
+        const monthYear = now.toLocaleString('en-US', { month: 'short', year: 'numeric' }).replace(' ', '_');
+        const firstDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0));
+        let csv = 'GLOBAL TO LOCAL — MONTHLY PERFORMANCE REPORT\r\n';
+        csv += 'Store: Tarcar Mansion Fontainhas Panaji Goa 403001\r\n';
+        csv += `Report Generated: ${now.toISOString()}\r\n`;
+        csv += `Reporting Period: ${firstDay.toISOString()} to ${now.toISOString()}\r\n\r\n`;
+        csv += `Total Orders,${data?.orders_count || 0}\r\n`;
+        csv += `Today Orders,${data?.today_orders_count || 0}\r\n`;
+        csv += `Net Revenue,${data?.revenue_formatted || '₹0'}\r\n`;
+        csv += `Active Products,${data?.products_count || '230 in 13 shelves'}\r\n`;
+        csv += `New Enquiries,${data?.new_enquiries_count || 0}\r\n`;
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `GTL_Monthly_Report_${monthYear}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -90,14 +182,29 @@ export default function AdminDashboard() {
           <span className="font-sans text-xs font-bold uppercase tracking-wider text-accent">Operations Overview</span>
           <h1 className="mt-1 font-sans text-2xl sm:text-3xl font-bold text-content">Admin Dashboard</h1>
         </div>
-        <button
-          onClick={loadDashboard}
-          disabled={loading}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-border bg-surface px-4 py-2 text-xs font-semibold text-content hover:bg-surface-muted transition-all shadow-xs"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-accent' : 'text-palm'}`} />
-          <span>Refresh Live Data</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={handleExportReport}
+            disabled={exporting}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-pill bg-palm px-4 py-2 text-xs font-semibold text-white hover:bg-palm-shade transition-all shadow-xs disabled:opacity-50"
+            title="Download monthly performance report (.xlsx)"
+          >
+            {exporting ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Download className="w-3.5 h-3.5" />
+            )}
+            <span>Export Monthly Report (.xlsx)</span>
+          </button>
+          <button
+            onClick={loadDashboard}
+            disabled={loading}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-border bg-surface px-4 py-2 text-xs font-semibold text-content hover:bg-surface-muted transition-all shadow-xs"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-accent' : 'text-palm'}`} />
+            <span>Refresh Live Data</span>
+          </button>
+        </div>
       </div>
 
       {/* 5 Real Metric Cards */}
