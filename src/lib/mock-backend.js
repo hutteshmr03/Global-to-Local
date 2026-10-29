@@ -1,14 +1,71 @@
 import { products as seedProducts, categories as seedCategories } from './data';
 
+// --- AUTO PURGE LEGACY TEST DATA FROM LOCALSTORAGE ---
+if (typeof localStorage !== 'undefined') {
+  try {
+    ['gtl_mock_orders_v1', 'gtl_mock_orders_v2', 'gtl_mock_orders_v3'].forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem('gtl_mock_orders_v4', JSON.stringify([]));
+  } catch {}
+
+  try {
+    ['gtl_mock_enquiries_v1', 'gtl_mock_enquiries_v2', 'gtl_mock_enquiries_v3'].forEach((k) => {
+      const raw = localStorage.getItem(k);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter(
+            (e) => !e.name?.toLowerCase().includes('huttesha') && e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com'
+          );
+          localStorage.setItem('gtl_mock_enquiries_v4', JSON.stringify(clean));
+        }
+      }
+      if (k !== 'gtl_mock_enquiries_v4') localStorage.removeItem(k);
+    });
+    if (!localStorage.getItem('gtl_mock_enquiries_v4')) {
+      localStorage.setItem('gtl_mock_enquiries_v4', JSON.stringify([]));
+    }
+  } catch {}
+
+  try {
+    ['gtl_mock_customers_v1', 'gtl_mock_customers_v2', 'gtl_mock_customers_v3'].forEach((k) => {
+      const raw = localStorage.getItem(k);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter((c) => {
+            const name = (c.name || c.full_name || '').toLowerCase();
+            const email = (c.email || '').toLowerCase();
+            const phone = String(c.phone || '');
+            return (
+              !name.includes('gurjeet') &&
+              !email.includes('gurjeet') &&
+              !phone.includes('7528978986') &&
+              !name.includes('debarshi') &&
+              !phone.includes('8017478429') &&
+              !name.includes('kunal') &&
+              !phone.includes('9167797261') &&
+              !name.includes('shopper 8288') &&
+              !name.includes('test user') &&
+              !(name.includes('test') && !name.includes('attest'))
+            );
+          });
+          localStorage.setItem('gtl_mock_customers_v4', JSON.stringify(clean));
+        }
+      }
+      if (k !== 'gtl_mock_customers_v4') localStorage.removeItem(k);
+    });
+  } catch {}
+}
+
 // LocalStorage Keys
 const STORAGE_USER = 'gtl_mock_auth_user_v1';
 const STORAGE_PRODUCTS = 'gtl_mock_products_v3';
-const STORAGE_CUSTOMERS = 'gtl_mock_customers_v2';
-const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v1';
+const STORAGE_CUSTOMERS = 'gtl_mock_customers_v4';
+const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v4';
 const STORAGE_NEWS = 'gtl_mock_news_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
 const STORAGE_ADDRESSES = 'gtl_mock_addresses_v1';
-const STORAGE_ORDERS = 'gtl_mock_orders_v2';
+const STORAGE_ORDERS = 'gtl_mock_orders_v4';
 const STORAGE_REVIEWS = 'gtl_mock_reviews_v1';
 
 export const CATEGORY_PREFIXES = {
@@ -155,80 +212,59 @@ function initMockCustomers() {
   const existing = localStorage.getItem(STORAGE_CUSTOMERS);
   if (existing) {
     try {
-      return JSON.parse(existing);
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed)) {
+        const clean = parsed.filter((c) => {
+          const name = (c.name || c.full_name || '').toLowerCase();
+          const email = (c.email || '').toLowerCase();
+          const phone = String(c.phone || '');
+          return (
+            !name.includes('gurjeet') &&
+            !email.includes('gurjeet') &&
+            !phone.includes('7528978986') &&
+            !name.includes('debarshi') &&
+            !phone.includes('8017478429') &&
+            !name.includes('kunal') &&
+            !phone.includes('9167797261') &&
+            !name.includes('shopper 8288') &&
+            !name.includes('test user') &&
+            !(name.includes('test') && !name.includes('attest'))
+          );
+        });
+        localStorage.setItem(STORAGE_CUSTOMERS, JSON.stringify(clean));
+        return clean;
+      }
     } catch {}
   }
 
   const initial = [
     {
       id: 'cust-1',
-      name: 'Maria Fernandes',
-      full_name: 'Maria Fernandes',
-      email: 'maria.fernandes@example.com',
-      phone: '+91 98221 23456',
-      orders_count: 2,
-      total_spent_paise: 170000,
+      name: 'Amol Arondekar',
+      full_name: 'Amol Arondekar',
+      email: 'amol.arondekar@example.com',
+      phone: '9326510950',
+      orders_count: 0,
+      total_spent_paise: 0,
       city: 'Panaji',
       state: 'Goa',
       pincode: '403001',
       is_active: true,
-      created_at: '2026-09-29T10:00:00Z',
+      created_at: '2026-10-22T10:00:00Z',
     },
     {
       id: 'cust-2',
-      name: 'Rahul Naik',
-      full_name: 'Rahul Naik',
-      email: 'rahul.naik@example.com',
-      phone: '+91 98909 87654',
-      orders_count: 2,
-      total_spent_paise: 182000,
-      city: 'Margao',
-      state: 'Goa',
-      pincode: '403601',
-      is_active: true,
-      created_at: '2026-10-04T12:00:00Z',
-    },
-    {
-      id: 'cust-3',
-      name: 'Sancho Fernandes',
-      full_name: 'Sancho Fernandes',
-      email: 'sancho.fernandes@example.com',
-      phone: '+91 98221 45012',
-      orders_count: 1,
-      total_spent_paise: 104000,
+      name: 'sejal k',
+      full_name: 'sejal k',
+      email: 'sejal.k@example.com',
+      phone: '9764940674',
+      orders_count: 0,
+      total_spent_paise: 0,
       city: 'Panaji',
       state: 'Goa',
       pincode: '403001',
       is_active: true,
-      created_at: '2026-10-10T14:00:00Z',
-    },
-    {
-      id: 'cust-4',
-      name: 'Pooja Naik',
-      full_name: 'Pooja Naik',
-      email: 'pooja.naik@example.com',
-      phone: '+91 98765 43210',
-      orders_count: 1,
-      total_spent_paise: 78000,
-      city: 'Margao',
-      state: 'Goa',
-      pincode: '403601',
-      is_active: true,
-      created_at: '2026-10-12T09:00:00Z',
-    },
-    {
-      id: 'cust-5',
-      name: 'Max',
-      full_name: 'Max',
-      email: 'max@example.com',
-      phone: '+91 97425 68876',
-      orders_count: 1,
-      total_spent_paise: 26000,
-      city: 'Mapusa',
-      state: 'Goa',
-      pincode: '403507',
-      is_active: true,
-      created_at: '2026-10-14T08:00:00Z',
+      created_at: '2026-10-22T12:00:00Z',
     },
   ];
 
@@ -290,7 +326,13 @@ function initMockEnquiries() {
   if (existing) {
     try {
       const parsed = JSON.parse(existing);
-      if (Array.isArray(parsed)) return parsed.filter(e => !e.name?.toLowerCase().includes('huttesha') && e.email !== 'mrhuttesh003@gmail.com');
+      if (Array.isArray(parsed)) {
+        const clean = parsed.filter(
+          (e) => !e.name?.toLowerCase().includes('huttesha') && e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com'
+        );
+        localStorage.setItem(STORAGE_ENQUIRIES, JSON.stringify(clean));
+        return clean;
+      }
     } catch {}
   }
   const initial = [];
@@ -496,12 +538,38 @@ function initMockOrders() {
   if (existing) {
     try {
       const parsed = JSON.parse(existing);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        const clean = parsed.filter(
+          (o) =>
+            o.order_number &&
+            !['GTL-2026-2A1E82F1', 'GTL-2026-4DB2743C', 'GTL-2026-06153F1B', 'GTL-2026-0FADE939', 'GTL-2026-1004', 'GTL-2026-1003', 'GTL-2026-1002', 'GTL-2026-1001'].includes(o.order_number) &&
+            !String(o.order_number).startsWith('GTL-2026-100')
+        );
+        localStorage.setItem(STORAGE_ORDERS, JSON.stringify(clean));
+        return clean;
+      }
     } catch {}
   }
   const initial = [];
   localStorage.setItem(STORAGE_ORDERS, JSON.stringify(initial));
   return initial;
+}
+
+export function generateMockOrderNumber() {
+  const year = new Date().getFullYear();
+  const orders = initMockOrders();
+  const prefix = `GTL-${year}-`;
+  let maxSeq = 7232;
+  orders.forEach((o) => {
+    if (o.order_number && o.order_number.startsWith(prefix)) {
+      const suffix = o.order_number.replace(prefix, '');
+      const num = parseInt(suffix, 10);
+      if (!isNaN(num) && num > maxSeq) {
+        maxSeq = num;
+      }
+    }
+  });
+  return `GTL-${year}-${maxSeq + 1}`;
 }
 
 /**
@@ -616,16 +684,25 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
   // -------------------------------------------------------------
   if (pathname === '/api/v1/admin/dashboard' && method === 'GET') {
     const products = initMockProducts();
+    const orders = initMockOrders();
     const enquiries = initMockEnquiries();
+
+    const revenue = orders
+      .filter((o) => ['paid', 'packed', 'shipped', 'delivered'].includes(o.status))
+      .reduce((sum, o) => sum + (o.total_paise || 0), 0);
 
     return {
       status: 'success',
+      revenue_paise: revenue,
+      revenue_formatted: `₹${(revenue / 100).toLocaleString('en-IN')}`,
+      orders_count: orders.length,
       today_orders_count: 0,
-      pending_orders_count: 0,
-      revenue_paise: 0,
+      pending_orders_count: orders.filter((o) => ['paid', 'packed'].includes(o.status)).length,
       products_count: products.filter((p) => p.is_active).length,
+      low_stock_count: products.filter((p) => p.stock_qty <= 5).length,
       new_enquiries_count: enquiries.filter((e) => e.status === 'new').length,
-      recent_orders: [],
+      pending_enquiries_count: enquiries.filter((e) => e.status === 'new').length,
+      recent_orders: orders.slice(0, 5),
     };
   }
 
@@ -874,6 +951,29 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
       pending_enquiries_count: enquiries.filter((e) => e.status === 'new').length,
       recent_orders: orders.slice(0, 5),
     };
+  }
+
+  
+  if (pathname === '/api/v1/orders' && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const orderNumber = generateMockOrderNumber();
+    const orders = initMockOrders();
+    const newOrder = {
+      id: `ord-${Date.now()}`,
+      order_number: orderNumber,
+      status: 'paid',
+      placed_at: new Date().toISOString(),
+      items: body?.items || [],
+      shipping_address: body?.delivery_address || {},
+      total_paise: body?.total_paise || 0,
+      total_formatted: `₹${((body?.total_paise || 0) / 100).toFixed(2)}`,
+    };
+    orders.unshift(newOrder);
+    localStorage.setItem(STORAGE_ORDERS, JSON.stringify(orders));
+    return newOrder;
   }
 
   if (pathname === '/api/v1/admin/orders' && method === 'GET') {

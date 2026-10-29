@@ -91,6 +91,7 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/assets/index-DzociDw5.js", os.path.join(PUBLIC_HTML, "assets", "index-DzociDw5.js")),
     (f"{RAW_BASE}/dist_live/assets/index-CWMtFyP2.js", os.path.join(PUBLIC_HTML, "assets", "index-CWMtFyP2.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BlTtjZ_W.css", os.path.join(PUBLIC_HTML, "assets", "index-BlTtjZ_W.css")),
     (f"{RAW_BASE}/dist_live/assets/index-C8ButpBZ.js", os.path.join(PUBLIC_HTML, "assets", "index-C8ButpBZ.js")),
@@ -190,7 +191,7 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
     try:
         # SMART SKIP: If video or image already exists and is healthy (>1000 bytes), skip download to speed up sync!
         is_large_static = fname.endswith(('.mp4', '.jpg', '.jpeg', '.png'))
-        is_old_bundle = fname.startswith('index-') and fname not in ('index-C8ButpBZ.js', 'index-BlTtjZ_W.css')
+        is_old_bundle = fname.startswith('index-') and fname not in ('index-DzociDw5.js', 'index-BlTtjZ_W.css')
         if (is_large_static or is_old_bundle) and os.path.exists(dest) and os.path.getsize(dest) > 1000:
             print(f" [CACHE HIT - ALREADY DOWNLOADED] ({os.path.getsize(dest)} bytes)", flush=True)
             continue
