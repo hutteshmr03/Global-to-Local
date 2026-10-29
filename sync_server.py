@@ -332,6 +332,75 @@ try:
 
     with engine.connect() as conn:
 
+        # --- High Priority Clean Reset: Orders, Enquiry, and Target Test Customers ---
+        print("[*] Executing database clean reset...", flush=True)
+
+        # 1. Clear All Orders and related records
+        try:
+            conn.execute(text("DELETE FROM order_items;"))
+            conn.execute(text("DELETE FROM order_status_events;"))
+            conn.execute(text("DELETE FROM order_internal_notes;"))
+            conn.execute(text("DELETE FROM shipments;"))
+            conn.execute(text("DELETE FROM payments;"))
+            conn.execute(text("DELETE FROM orders;"))
+            conn.commit()
+            print("[OK] Orders reset successfully: cleared all order records.", flush=True)
+        except Exception as e:
+            print(f"[NOTE] Order deletion notice: {e}", flush=True)
+
+        # 2. Delete test enquiry 'HUTTESHA SWAMY M R'
+        try:
+            conn.execute(text("""
+                DELETE FROM enquiries 
+                WHERE LOWER(name) LIKE '%huttesha%' 
+                   OR LOWER(email) = 'mrhuttesh003@gmail.com';
+            """))
+            conn.commit()
+            print("[OK] Enquiry reset successfully: cleared test enquiry (HUTTESHA SWAMY M R).", flush=True)
+        except Exception as e:
+            print(f"[NOTE] Enquiry deletion notice: {e}", flush=True)
+
+        # 3. Delete specific customers: Gurjeet kaur, Debarshi Dutta, KUNAL HALDIPUR, Shopper 8288, test user
+        try:
+            target_clause = """
+                role = 'customer' AND (
+                    LOWER(COALESCE(full_name, '')) LIKE '%gurjeet kaur%'
+                    OR LOWER(COALESCE(email, '')) LIKE '%gurjeetbhangu43%'
+                    OR phone LIKE '%7528978986%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%debarshi dutta%'
+                    OR phone LIKE '%8017478429%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%kunal haldipur%'
+                    OR phone LIKE '%9167797261%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%shopper 8288%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%test user%'
+                    OR (LOWER(COALESCE(full_name, '')) LIKE '%test%' AND role = 'customer')
+                )
+            """
+            conn.execute(text(f"""
+                DELETE FROM addresses 
+                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
+            """))
+            conn.execute(text(f"""
+                DELETE FROM user_sessions 
+                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
+            """))
+            conn.execute(text(f"""
+                DELETE FROM cart_items 
+                WHERE cart_id IN (SELECT id FROM carts WHERE user_id IN (SELECT id FROM users WHERE {target_clause}));
+            """))
+            conn.execute(text(f"""
+                DELETE FROM carts 
+                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
+            """))
+            conn.execute(text(f"""
+                DELETE FROM users 
+                WHERE {target_clause};
+            """))
+            conn.commit()
+            print("[OK] Customer reset successfully: removed requested test customers while preserving valid customers and admins.", flush=True)
+        except Exception as e:
+            print(f"[NOTE] Customer deletion notice: {e}", flush=True)
+
         # A. Create enquiries table if missing
 
         conn.execute(text("""
@@ -661,70 +730,40 @@ try:
         """))
 
         # F3. Ensure store_reviews table exists and retains the 3 default customer reviews
-
-        conn.execute(text("""
-
-            CREATE TABLE IF NOT EXISTS `store_reviews` (
-
-              `id` VARCHAR(36) NOT NULL,
-
-              `user_id` VARCHAR(36) DEFAULT NULL,
-
-              `product_id` VARCHAR(36) DEFAULT NULL,
-
-              `author_name` VARCHAR(120) NOT NULL,
-
-              `author_location` VARCHAR(120) DEFAULT NULL,
-
-              `rating` SMALLINT NOT NULL DEFAULT 5,
-
-              `quote` TEXT NOT NULL,
-
-              `source` VARCHAR(40) NOT NULL DEFAULT 'Visitors\' Book',
-
-              `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
-
-              `is_approved` TINYINT(1) NOT NULL DEFAULT 1,
-
-              `display_order` SMALLINT NOT NULL DEFAULT 0,
-
-              `reviewed_on` DATE DEFAULT NULL,
-
-              `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-              PRIMARY KEY (`id`)
-
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-        """))
-
         try:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS `store_reviews` (
+                  `id` VARCHAR(36) NOT NULL,
+                  `user_id` VARCHAR(36) DEFAULT NULL,
+                  `product_id` VARCHAR(36) DEFAULT NULL,
+                  `author_name` VARCHAR(120) NOT NULL,
+                  `author_location` VARCHAR(120) DEFAULT NULL,
+                  `rating` SMALLINT NOT NULL DEFAULT 5,
+                  `quote` TEXT NOT NULL,
+                  `source` VARCHAR(40) NOT NULL DEFAULT 'Visitors Book',
+                  `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+                  `is_approved` TINYINT(1) NOT NULL DEFAULT 1,
+                  `display_order` SMALLINT NOT NULL DEFAULT 0,
+                  `reviewed_on` DATE DEFAULT NULL,
+                  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """))
+            conn.commit()
 
             rev_count = conn.execute(text("SELECT COUNT(*) FROM store_reviews")).scalar()
-
             if rev_count == 0:
-
                 conn.execute(text("""
-
                     INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order)
-
                     VALUES 
-
-                    ('rev-001', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', 'Visitors\' Book', 1, 1, 1),
-
-                    ('rev-002', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny\'s house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', 'Visitors\' Book', 1, 1, 2),
-
-                    ('rev-003', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', 'Visitors\' Book', 1, 1, 3),
-
-                    ('rev-000', 'Huttesh M R', 'Honnali', 5, 'Nothing', 'Visitors\' Book', 1, 1, 0);
-
+                    ('rev-001', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', 'Visitors Book', 1, 1, 1),
+                    ('rev-002', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', 'Visitors Book', 1, 1, 2),
+                    ('rev-003', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', 'Visitors Book', 1, 1, 3);
                 """))
-
-                print("[OK] Seeded 3 default customer reviews to store_reviews table.", flush=True)
-
+                conn.commit()
+                print("[OK] Seeded default customer reviews to store_reviews table.", flush=True)
         except Exception as seed_err:
-
-            print(f"[NOTE] store_reviews seed check: {seed_err}", flush=True)
+            print(f"[NOTE] store_reviews notice: {seed_err}", flush=True)
 
         # E. Set all 230 products to published, active, in_stock
 
@@ -735,72 +774,6 @@ try:
             SET is_active = 1, status = 'published', availability = 'in_stock', deleted_at = NULL;
 
         """))
-
-        # --- Clean Reset: Orders, Enquiry, and Specified Customers ---
-        print("[*] Executing database clean reset...", flush=True)
-
-        # 1. Clear All Orders and related records
-        try:
-            conn.execute(text("DELETE FROM order_items;"))
-            conn.execute(text("DELETE FROM order_status_events;"))
-            conn.execute(text("DELETE FROM order_internal_notes;"))
-            conn.execute(text("DELETE FROM shipments;"))
-            conn.execute(text("DELETE FROM payments;"))
-            conn.execute(text("DELETE FROM orders;"))
-            print("[OK] Cleared all order records.", flush=True)
-        except Exception as e:
-            print(f"[NOTE] Order deletion notice: {e}", flush=True)
-
-        # 2. Delete test enquiry 'HUTTESHA SWAMY M R'
-        try:
-            conn.execute(text("""
-                DELETE FROM enquiries 
-                WHERE LOWER(name) LIKE '%huttesha%' 
-                   OR LOWER(email) = 'mrhuttesh003@gmail.com';
-            """))
-            print("[OK] Cleared test enquiry (HUTTESHA SWAMY M R).", flush=True)
-        except Exception as e:
-            print(f"[NOTE] Enquiry deletion notice: {e}", flush=True)
-
-        # 3. Delete specific customers: Gurjeet kaur, Debarshi Dutta, KUNAL HALDIPUR, Shopper 8288, test user
-        try:
-            target_clause = """
-                role = 'customer' AND (
-                    LOWER(COALESCE(full_name, '')) LIKE '%gurjeet kaur%'
-                    OR LOWER(COALESCE(email, '')) LIKE '%gurjeetbhangu43%'
-                    OR phone LIKE '%7528978986%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%debarshi dutta%'
-                    OR phone LIKE '%8017478429%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%kunal haldipur%'
-                    OR phone LIKE '%9167797261%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%shopper 8288%'
-                    OR LOWER(COALESCE(full_name, '')) LIKE '%test user%'
-                    OR (LOWER(COALESCE(full_name, '')) LIKE '%test%' AND role = 'customer')
-                )
-            """
-            conn.execute(text(f"""
-                DELETE FROM addresses 
-                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
-            """))
-            conn.execute(text(f"""
-                DELETE FROM user_sessions 
-                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
-            """))
-            conn.execute(text(f"""
-                DELETE FROM cart_items 
-                WHERE cart_id IN (SELECT id FROM carts WHERE user_id IN (SELECT id FROM users WHERE {target_clause}));
-            """))
-            conn.execute(text(f"""
-                DELETE FROM carts 
-                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
-            """))
-            conn.execute(text(f"""
-                DELETE FROM users 
-                WHERE {target_clause};
-            """))
-            print("[OK] Removed requested test customers while preserving valid customers and admins.", flush=True)
-        except Exception as e:
-            print(f"[NOTE] Customer deletion notice: {e}", flush=True)
 
         # F. Set inventory for all products to exactly 100 units on_hand, 0 reserved
 
