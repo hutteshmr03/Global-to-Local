@@ -16,6 +16,17 @@ import {
 } from 'lucide-react';
 import { apiFetch } from '../../lib/api-client';
 
+const formatCustomerDate = (dt) => {
+  if (!dt || typeof dt !== 'string' || dt.startsWith('0000') || isNaN(new Date(dt).getTime())) {
+    return 'Recent';
+  }
+  return new Date(dt).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
 export default function AdminCustomers() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -199,13 +210,7 @@ export default function AdminCustomers() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {customers.map((c) => {
-                    const regDate = c.created_at
-                      ? new Date(c.created_at).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })
-                      : '—';
+                    const regDate = formatCustomerDate(c.created_at);
 
                     return (
                       <tr key={c.id} className="hover:bg-ground/40 transition-colors">
@@ -283,13 +288,7 @@ export default function AdminCustomers() {
             {/* Mobile Stacked Card View (< 768px) */}
             <div className="md:hidden divide-y divide-border/60">
               {customers.map((c) => {
-                const regDate = c.created_at
-                  ? new Date(c.created_at).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })
-                  : '—';
+                const regDate = formatCustomerDate(c.created_at);
 
                 return (
                   <div key={c.id} className="p-4 space-y-3">
@@ -410,11 +409,7 @@ export default function AdminCustomers() {
                         {customerDetail.phone && <p>Phone: {customerDetail.phone}</p>}
                         <p>
                           Member since:{' '}
-                          {customerDetail.created_at
-                            ? new Date(customerDetail.created_at).toLocaleDateString('en-IN', {
-                                dateStyle: 'medium',
-                              })
-                            : '—'}
+                          {formatCustomerDate(customerDetail.created_at)}
                         </p>
                       </div>
                     </div>

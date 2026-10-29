@@ -45,7 +45,7 @@ from backend.models import (
 
 
 def safe_iso(dt: Any) -> Optional[str]:
-    if not dt:
+    if not dt or str(dt).startswith("0000-00-00"):
         return None
     if hasattr(dt, "isoformat"):
         return dt.isoformat()
@@ -1878,11 +1878,18 @@ def toggle_admin_customer_status(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
+    cid = str(customer_id).strip()
+    u_uuid = None
     try:
-        u_uuid = uuid.UUID(customer_id)
-        user = db.query(User).filter(User.id == u_uuid, User.role == UserRole.customer).first()
-    except ValueError:
-        user = None
+        u_uuid = uuid.UUID(cid)
+    except Exception:
+        pass
+
+    user = None
+    if u_uuid:
+        user = db.query(User).filter(or_(User.id == u_uuid, User.id == str(u_uuid), User.id == cid), User.role == UserRole.customer).first()
+    else:
+        user = db.query(User).filter(User.id == cid, User.role == UserRole.customer).first()
 
     if not user:
         raise ProblemException(status_code=404, title="Customer Not Found", detail="Customer does not exist.")
@@ -1905,11 +1912,15 @@ def toggle_admin_customer_status(
     user.is_active = new_status
     user.updated_at = datetime.now(timezone.utc)
 
-    # If deactivated, revoke all active sessions immediately so caller is blocked at once
+    # If deactivated, revoke all active sessions safely
     if not new_status:
-        db.query(UserSession).filter(UserSession.user_id == user.id).update(
-            {UserSession.revoked_at: datetime.now(timezone.utc)}
-        )
+        try:
+            with db.begin_nested():
+                db.query(UserSession).filter(UserSession.user_id == user.id).update(
+                    {UserSession.revoked_at: datetime.now(timezone.utc)}
+                )
+        except Exception as sess_err:
+            logger.warning(f"Could not revoke sessions for customer {user.id}: {sess_err}")
 
     db.commit()
 
@@ -2144,15 +2155,24 @@ def delete_admin_review(
     db: Session = Depends(get_db),
 ):
     try:
-        r_uuid = uuid.UUID(review_id)
-        rev = db.query(StoreReview).filter(StoreReview.id == r_uuid).first()
+        rid = str(review_id).strip()
+        r_uuid = None
+        try:
+            r_uuid = uuid.UUID(rid)
+        except Exception:
+            pass
+
+        rev = None
+        if r_uuid:
+            rev = db.query(StoreReview).filter(or_(StoreReview.id == r_uuid, StoreReview.id == str(r_uuid), StoreReview.id == rid)).first()
+        else:
+            rev = db.query(StoreReview).filter(StoreReview.id == rid).first()
+
         if rev:
             db.delete(rev)
             db.commit()
             return {"status": "success", "message": "Review deleted successfully"}
         return {"status": "success", "message": "Review already removed"}
-    except ValueError:
-        return {"status": "success", "message": "Review removed"}
     except Exception as e:
         db.rollback()
         logger.error(f"Failed to delete review: {e}")
@@ -2307,15 +2327,24 @@ def delete_admin_news(
     db: Session = Depends(get_db),
 ):
     try:
-        n_uuid = uuid.UUID(news_id)
-        article = db.query(PressMention).filter(PressMention.id == n_uuid).first()
+        nid = str(news_id).strip()
+        n_uuid = None
+        try:
+            n_uuid = uuid.UUID(nid)
+        except Exception:
+            pass
+
+        article = None
+        if n_uuid:
+            article = db.query(PressMention).filter(or_(PressMention.id == n_uuid, PressMention.id == str(n_uuid), PressMention.id == nid)).first()
+        else:
+            article = db.query(PressMention).filter(PressMention.id == nid).first()
+
         if article:
             db.delete(article)
             db.commit()
             return {"status": "success", "message": "News article deleted successfully"}
         return {"status": "success", "message": "News article already removed"}
-    except ValueError:
-        return {"status": "success", "message": "News article removed"}
     except Exception as e:
         db.rollback()
         logger.error(f"Failed to delete news article: {e}")

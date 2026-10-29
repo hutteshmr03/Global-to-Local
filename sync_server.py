@@ -91,11 +91,11 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
-    (f"{RAW_BASE}/dist_live/assets/index-BvBG3ixE.js", os.path.join(PUBLIC_HTML, "assets", "index-BvBG3ixE.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-BvBG3ixE.js", os.path.join(PUBLIC_HTML, "assets", "index-BvBG3ixE.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-BvBG3ixE.js", os.path.join(PUBLIC_HTML, "assets", "index-BvBG3ixE.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-BvBG3ixE.js", os.path.join(PUBLIC_HTML, "assets", "index-BvBG3ixE.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-BvBG3ixE.js", os.path.join(PUBLIC_HTML, "assets", "index-BvBG3ixE.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-D-ZFfTN9.js", os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")),
     (f"{RAW_BASE}/dist_live/assets/index-C7v29TNE.css", os.path.join(PUBLIC_HTML, "assets", "index-C7v29TNE.css")),
     (f"{RAW_BASE}/dist_live/assets/index-CX86KhWA.js", os.path.join(PUBLIC_HTML, "assets", "index-CX86KhWA.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dd9xhh54.js", os.path.join(PUBLIC_HTML, "assets", "index-Dd9xhh54.js")),
@@ -278,16 +278,18 @@ for g_root in gtl_targets:
                 
 
         # Sync images/site
-
         src_site = os.path.join(PUBLIC_HTML, "images", "site")
-
         if os.path.exists(src_site):
-
             dst_site = os.path.join(g_root, "images", "site")
-
             for sf in os.listdir(src_site):
-
                 safe_copy(os.path.join(src_site, sf), os.path.join(dst_site, sf))
+
+        # Sync images/catalog
+        src_catalog = os.path.join(PUBLIC_HTML, "images", "catalog")
+        if os.path.exists(src_catalog):
+            dst_catalog = os.path.join(g_root, "images", "catalog")
+            for cf in os.listdir(src_catalog):
+                safe_copy(os.path.join(src_catalog, cf), os.path.join(dst_catalog, cf))
 
         # Sync videos
 
@@ -310,14 +312,83 @@ for g_root in gtl_targets:
 
         print(f"[!] Notice on {g_root}: {g_err}", flush=True)
 
+# Specifically ensure all Agarbatti image variants exist across all active web roots
+
+for r_dir in [PUBLIC_HTML] + gtl_targets:
+
+    c_dir = os.path.join(r_dir, "images", "catalog")
+
+    os.makedirs(c_dir, exist_ok=True)
+
+    sandalwood_file = os.path.join(c_dir, "agarbatti-8211-sandalwood-80-grams.jpg")
+
+    for variant in [
+
+        "agarbatti-lavender-80-grams.jpg",
+
+        "agarbatti--lavender-80-grams.jpg",
+
+        "agarbatti-musk-80-grams.jpg",
+
+        "agarbatti--musk-80-grams.jpg",
+
+    ]:
+
+        dest_img = os.path.join(c_dir, variant)
+
+        if not os.path.exists(dest_img) or os.path.getsize(dest_img) < 1000:
+
+            try:
+
+                raw_img_url = f"{RAW_BASE}/public/images/catalog/{variant}"
+
+                req = urllib.request.Request(raw_img_url, headers={"User-Agent": "Mozilla/5.0"})
+
+                with urllib.request.urlopen(req, timeout=15) as res:
+
+                    with open(dest_img, "wb") as out_f:
+
+                        out_f.write(res.read())
+
+            except Exception:
+
+                if os.path.exists(sandalwood_file) and os.path.getsize(sandalwood_file) > 1000:
+
+                    shutil.copy2(sandalwood_file, dest_img)
+
+
+
+# Specifically ensure all Agarbatti image variants exist across all active web roots
+for r_dir in [PUBLIC_HTML] + gtl_targets:
+    c_dir = os.path.join(r_dir, "images", "catalog")
+    os.makedirs(c_dir, exist_ok=True)
+    sandalwood_file = os.path.join(c_dir, "agarbatti-8211-sandalwood-80-grams.jpg")
+    for variant in [
+        "agarbatti-lavender-80-grams.jpg",
+        "agarbatti--lavender-80-grams.jpg",
+        "agarbatti-musk-80-grams.jpg",
+        "agarbatti--musk-80-grams.jpg",
+    ]:
+        dest_img = os.path.join(c_dir, variant)
+        if not os.path.exists(dest_img) or os.path.getsize(dest_img) < 1000:
+            try:
+                raw_img_url = f"{RAW_BASE}/public/images/catalog/{variant}"
+                req = urllib.request.Request(raw_img_url, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=15) as res:
+                    with open(dest_img, "wb") as out_f:
+                        out_f.write(res.read())
+            except Exception:
+                if os.path.exists(sandalwood_file) and os.path.getsize(sandalwood_file) > 1000:
+                    shutil.copy2(sandalwood_file, dest_img)
+
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-BvBG3ixE.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-D-ZFfTN9.js")
 if os.path.exists(primary_bundle):
     all_asset_dirs = [os.path.join(PUBLIC_HTML, "assets")] + [os.path.join(g, "assets") for g in gtl_targets]
     for adir in all_asset_dirs:
         if os.path.exists(adir):
             for fn in os.listdir(adir):
-                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-BvBG3ixE.js":
+                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-D-ZFfTN9.js":
                     try:
                         shutil.copy2(primary_bundle, os.path.join(adir, fn))
                     except Exception:
@@ -686,6 +757,43 @@ try:
         except Exception as seed_err:
             print(f"[NOTE] store_reviews notice: {seed_err}", flush=True)
 
+        # F4. Ensure press_mentions table exists and retains default news articles
+        try:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS `press_mentions` (
+                  `id` VARCHAR(36) NOT NULL,
+                  `kind` VARCHAR(32) NOT NULL DEFAULT 'article',
+                  `publication_or_issuer` VARCHAR(160) NOT NULL,
+                  `title` VARCHAR(240) NOT NULL,
+                  `excerpt` TEXT DEFAULT NULL,
+                  `external_url` TEXT DEFAULT NULL,
+                  `image_url` TEXT DEFAULT NULL,
+                  `event_date` DATE DEFAULT NULL,
+                  `is_published` TINYINT(1) NOT NULL DEFAULT 1,
+                  `display_order` SMALLINT NOT NULL DEFAULT 0,
+                  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """))
+            conn.commit()
+
+            pm_count = conn.execute(text("SELECT COUNT(*) FROM press_mentions")).scalar()
+            if pm_count == 0:
+                conn.execute(text("""
+                    INSERT INTO press_mentions (id, kind, publication_or_issuer, title, excerpt, external_url, is_published, display_order)
+                    VALUES 
+                    ('news-seed-1', 'article', 'The Navhind Times', 'Global to Local supermarket opens in city', 'October 2020', 'https://www.navhindtimes.in/2020/10/28/business/global-to-local-supermarket-opens-in-city/', 1, 0),
+                    ('news-seed-2', 'article', 'Business Goa', 'Global to Local in Business Goa', 'March 2021', 'https://businessgoa.in/tag/global-to-local/', 1, 1),
+                    ('news-seed-3', 'article', 'Gomantak Times', 'Global to Local empowers rural Goan women entrepreneurs', 'August 2022', 'https://www.gomantaktimes.com/news/business/global-to-local-empowers-rural-goan-women-entrepreneurs', 1, 2),
+                    ('news-seed-4', 'article', 'The Goan', 'Feature on Global to Local', 'February 2025', '#', 1, 3),
+                    ('news-seed-5', 'article', 'Herald', 'Global to Local in the Herald', 'November 2024', '#', 1, 4);
+                """))
+                conn.commit()
+                print("[OK] Seeded default news articles to press_mentions table.", flush=True)
+        except Exception as pm_err:
+            print(f"[NOTE] press_mentions notice: {pm_err}", flush=True)
+
         # E. Ensure all products are active and not soft-deleted without overriding custom status
         conn.execute(text("""
             UPDATE products 
@@ -724,8 +832,22 @@ try:
             WHERE pi.id IS NULL;
 
         """))
-
         conn.commit()
+
+        try:
+            conn.execute(text("""
+                UPDATE product_images 
+                SET url = '/images/catalog/agarbatti-lavender-80-grams.jpg' 
+                WHERE product_id IN (SELECT id FROM products WHERE slug = 'agarbatti-lavender-80-grams');
+            """))
+            conn.execute(text("""
+                UPDATE product_images 
+                SET url = '/images/catalog/agarbatti--musk-80-grams.jpg' 
+                WHERE product_id IN (SELECT id FROM products WHERE slug = 'agarbatti--musk-80-grams');
+            """))
+            conn.commit()
+        except Exception:
+            pass
 
     print("[OK] Database schema hardened: Enquiries, audit logs, order events, and 100-unit inventory verified.", flush=True)
 
