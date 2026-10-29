@@ -752,17 +752,20 @@ try:
             """))
             conn.commit()
 
-            try:
-                conn.execute(text("ALTER TABLE `store_reviews` ADD COLUMN `quote` TEXT;"))
-                conn.commit()
-            except Exception:
-                pass
-
-            try:
-                conn.execute(text("ALTER TABLE `store_reviews` ADD COLUMN `source` VARCHAR(40) NOT NULL DEFAULT 'Visitors Book';"))
-                conn.commit()
-            except Exception:
-                pass
+            for col_sql in [
+                "ALTER TABLE `store_reviews` ADD COLUMN `quote` TEXT;",
+                "ALTER TABLE `store_reviews` ADD COLUMN `source` VARCHAR(40) NOT NULL DEFAULT 'Visitors Book';",
+                "ALTER TABLE `store_reviews` ADD COLUMN `is_approved` TINYINT(1) NOT NULL DEFAULT 1;",
+                "ALTER TABLE `store_reviews` ADD COLUMN `is_featured` TINYINT(1) NOT NULL DEFAULT 0;",
+                "ALTER TABLE `store_reviews` ADD COLUMN `display_order` SMALLINT NOT NULL DEFAULT 0;",
+                "ALTER TABLE `store_reviews` ADD COLUMN `author_location` VARCHAR(120) DEFAULT NULL;",
+                "ALTER TABLE `store_reviews` ADD COLUMN `reviewed_on` DATE DEFAULT NULL;",
+            ]:
+                try:
+                    conn.execute(text(col_sql))
+                    conn.commit()
+                except Exception:
+                    pass
 
             rev_count = conn.execute(text("SELECT COUNT(*) FROM store_reviews")).scalar()
             if rev_count == 0:
