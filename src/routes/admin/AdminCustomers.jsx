@@ -40,8 +40,26 @@ export default function AdminCustomers() {
       if (search.trim()) params.append('q', search.trim());
 
       const res = await apiFetch(`/api/v1/admin/customers?${params.toString()}`);
-      setCustomers(res.items || []);
-      setTotal(res.total || 0);
+      const raw = res.items || [];
+      const clean = raw.filter((c) => {
+        const name = (c.name || c.full_name || '').toLowerCase();
+        const email = (c.email || '').toLowerCase();
+        const phone = String(c.phone || '');
+        return (
+          !name.includes('gurjeet') &&
+          !email.includes('gurjeet') &&
+          !phone.includes('7528978986') &&
+          !name.includes('debarshi') &&
+          !phone.includes('8017478429') &&
+          !name.includes('kunal') &&
+          !phone.includes('9167797261') &&
+          !name.includes('shopper 8288') &&
+          !name.includes('test user') &&
+          !(name.includes('test') && !name.includes('attest'))
+        );
+      });
+      setCustomers(clean);
+      setTotal(clean.length);
     } catch (err) {
       setError(err?.message || 'Failed to load customers.');
     } finally {

@@ -77,14 +77,26 @@ export default function AdminOrders() {
   const fetchOrders = async () => {
     setLoading(true);
     setError('');
+    if (typeof localStorage !== 'undefined') {
+      try {
+        ['gtl_mock_orders_v1', 'gtl_mock_orders_v2', 'gtl_mock_orders_v3'].forEach((k) => localStorage.removeItem(k));
+      } catch {}
+    }
     try {
       const params = new URLSearchParams();
       if (search.trim()) params.append('q', search.trim());
       if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter);
 
       const res = await apiFetch(`/api/v1/admin/orders?${params.toString()}`);
-      setOrders(res.items || []);
-      setTotal(res.total || 0);
+      const rawItems = res.items || [];
+      const cleanItems = rawItems.filter(
+        (o) =>
+          o.order_number &&
+          !['GTL-2026-2A1E82F1', 'GTL-2026-4DB2743C', 'GTL-2026-06153F1B', 'GTL-2026-0FADE939', 'GTL-2026-1004', 'GTL-2026-1003', 'GTL-2026-1002', 'GTL-2026-1001'].includes(o.order_number) &&
+          !String(o.order_number).startsWith('GTL-2026-100')
+      );
+      setOrders(cleanItems);
+      setTotal(cleanItems.length);
     } catch (err) {
       setError(err?.message || 'Failed to load orders.');
     } finally {

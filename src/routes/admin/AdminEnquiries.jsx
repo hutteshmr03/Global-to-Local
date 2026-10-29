@@ -97,8 +97,12 @@ export default function AdminEnquiries() {
       if (typeFilter && typeFilter !== 'all') params.append('type', typeFilter);
 
       const res = await apiFetch(`/api/v1/admin/enquiries?${params.toString()}`);
-      setEnquiries(res.items || []);
-      setTotal(res.total || 0);
+      const raw = res.items || [];
+      const clean = raw.filter(
+        (e) => !e.name?.toLowerCase().includes('huttesha') && e.email?.toLowerCase() !== 'mrhuttesh003@gmail.com'
+      );
+      setEnquiries(clean);
+      setTotal(clean.length);
     } catch (err) {
       setError(err?.message || 'Failed to load customer enquiries.');
     } finally {
