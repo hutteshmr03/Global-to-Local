@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, ArrowUpRight, Plus } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ArrowUpRight, Plus, Send } from 'lucide-react';
 import { siteConfig } from '../lib/data';
 import { useFaqs } from '../lib/catalogue-hooks';
 import { apiFetch } from '../lib/api-client';
@@ -334,10 +334,10 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-[#3D2C22] bg-[#3D2C22] px-8 py-3.5 text-sm font-semibold text-white hover:bg-[#2A1E17] hover:border-[#2A1E17] transition-all duration-200 active:scale-[0.985] shadow-md"
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-pill border border-[#3D2C22] bg-[#3D2C22] px-8 py-3.5 text-sm font-semibold text-white hover:bg-[#2A1E17] hover:border-[#2A1E17] transition-all duration-200 active:scale-[0.985] shadow-md disabled:opacity-60"
                   >
-                    <span>Open in your email app</span>
-                    <ArrowUpRight className="h-4 w-4" />
+                    <span>{isSubmitting ? 'Sending...' : 'Send'}</span>
+                    <Send className="h-4 w-4" />
                   </button>
                 </form>
               </div>
