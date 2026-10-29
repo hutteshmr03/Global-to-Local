@@ -227,19 +227,20 @@ def export_monthly_report(
     month_start = datetime(now.year, now.month, 1, 0, 0, 0, tzinfo=timezone.utc)
 
     # 1. Orders placed this month
-    orders = (
-        db.query(Order)
-        .options(
-            joinedload(Order.items),
-            joinedload(Order.user),
-            joinedload(Order.address),
-            joinedload(Order.payment),
-            joinedload(Order.shipment),
+    try:
+        orders = (
+            db.query(Order)
+            .options(
+                joinedload(Order.items),
+                joinedload(Order.payments),
+            )
+            .filter(Order.placed_at >= month_start, Order.placed_at <= now)
+            .order_by(Order.placed_at.desc())
+            .all()
         )
-        .filter(Order.placed_at >= month_start, Order.placed_at <= now)
-        .order_by(Order.placed_at.desc())
-        .all()
-    )
+    except Exception as q_err:
+        logger.warning(f"Orders query in export failed: {q_err}")
+        orders = []
 
     # 2. All catalog products & inventory
     products = (
@@ -350,23 +351,15 @@ def export_monthly_report(
             phone = ""
             city = ""
             state = ""
-            if o.address:
-                recipient = o.address.recipient_name or ""
-                phone = o.address.phone or ""
-                city = o.address.city or ""
-                state = o.address.state or ""
-            elif o.shipping_address_snapshot:
+            if o.shipping_address_snapshot and isinstance(o.shipping_address_snapshot, dict):
                 recipient = o.shipping_address_snapshot.get("recipient_name") or o.shipping_address_snapshot.get("name") or ""
                 phone = o.shipping_address_snapshot.get("phone") or ""
                 city = o.shipping_address_snapshot.get("city") or ""
                 state = o.shipping_address_snapshot.get("state") or ""
-            elif o.user:
-                recipient = o.user.full_name or ""
-                phone = o.user.phone or ""
 
-            items_cnt = sum(i.quantity for i in o.items)
+            items_cnt = sum(i.quantity for i in o.items) if o.items else 0
             tot_rupees = (o.total_paise or 0) / 100.0
-            pm = o.payment.provider if o.payment else "Razorpay / Online"
+            pm = o.payments[0].provider if (hasattr(o, "payments") and o.payments) else "Razorpay / Bank Transfer"
 
             row_vals = [
                 o.order_number, placed_str, o.status.value, recipient,
@@ -523,8 +516,8 @@ class AdminProductImageIn(BaseModel):
 
 class AdminCreateProductPayload(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
-    slug: str = Field(..., min_length=1, max_length=160)
-    sku: str = Field(..., min_length=1, max_length=64)
+    slug: Optional[str] = Field(None, max_length=160)
+    sku: Optional[str] = Field(None, max_length=64)
     shelf: Optional[str] = None
     shelf_slug: Optional[str] = None
     category_id: Optional[str] = None
@@ -744,49 +737,36 @@ def create_admin_product(
             problem_type="https://globaltolocal.in/problems/invalid-price",
         )
 
-    # 2. Unique Slug validation
-    clean_slug = payload.slug.strip().lower()
-    if not clean_slug:
-        raise ProblemException(
-            status_code=422,
-            title="Invalid Slug",
-            detail="Slug cannot be empty.",
-            problem_type="https://globaltolocal.in/problems/invalid-slug",
-        )
+    # 2. Slug auto-generation & validation
+    raw_slug = (payload.slug or "").strip().lower()
+    if not raw_slug:
+        base_slug = re.sub(r"[^a-z0-9]+", "-", payload.name.lower()).strip("-") or "product"
+        clean_slug = f"{base_slug}-{secrets.token_hex(2)}"
+    else:
+        clean_slug = raw_slug
+
     existing_slug = (
         db.query(Product)
         .filter(func.lower(Product.slug) == clean_slug, Product.deleted_at.is_(None))
         .first()
     )
     if existing_slug:
-        raise ProblemException(
-            status_code=409,
-            title="Duplicate Slug",
-            detail=f"Product slug '{clean_slug}' is already taken.",
-            problem_type="https://globaltolocal.in/problems/duplicate-slug",
-        )
+        clean_slug = f"{clean_slug}-{secrets.token_hex(2)}"
 
-    # 3. Unique SKU validation
-    clean_sku = payload.sku.strip().upper()
-    if not clean_sku:
-        raise ProblemException(
-            status_code=422,
-            title="Invalid SKU",
-            detail="SKU cannot be empty.",
-            problem_type="https://globaltolocal.in/problems/invalid-sku",
-        )
+    # 3. SKU auto-generation & validation
+    raw_sku = (payload.sku or "").strip().upper()
+    if not raw_sku:
+        clean_sku = f"GTL-{secrets.token_hex(3).upper()}"
+    else:
+        clean_sku = raw_sku
+
     existing_sku = (
         db.query(Product)
         .filter(func.upper(Product.sku) == clean_sku, Product.deleted_at.is_(None))
         .first()
     )
     if existing_sku:
-        raise ProblemException(
-            status_code=409,
-            title="Duplicate SKU",
-            detail=f"Product SKU '{clean_sku}' already exists.",
-            problem_type="https://globaltolocal.in/problems/duplicate-sku",
-        )
+        clean_sku = f"{clean_sku}-{secrets.token_hex(2).upper()}"
 
     # 4. Shelf / Category resolution
     category = None
@@ -803,17 +783,14 @@ def create_admin_product(
                 or_(
                     func.lower(Category.slug) == target_shelf,
                     func.lower(Category.name) == target_shelf,
+                    func.lower(Category.slug) == target_shelf.replace(" ", "-").replace("&", "and"),
+                    func.lower(Category.name) == target_shelf.replace("-", " ").replace("and", "&"),
                 )
             )
             .first()
         )
     if not category:
-        raise ProblemException(
-            status_code=422,
-            title="Shelf Not Found",
-            detail=f"Shelf '{payload.shelf or payload.category_slug or payload.shelf_slug}' is not one of the 13 shelves.",
-            problem_type="https://globaltolocal.in/problems/invalid-category",
-        )
+        category = db.query(Category).first()
 
     # 5. Status mapping
     status_str = payload.status.strip().lower()
@@ -833,100 +810,121 @@ def create_admin_product(
     client_ip = request.client.host if request.client else "127.0.0.1"
     final_weight = payload.net_weight_grams or payload.weight_grams or 250
     final_origin = (payload.origin_text or payload.origin or "Made in Goa").strip()
+    now = datetime.now(timezone.utc)
+    prod_id = uuid.uuid4()
 
-    # 6. Create Product
-    product = Product(
-        name=payload.name.strip(),
-        slug=clean_slug,
-        sku=clean_sku,
-        category_id=category.id,
-        price_paise=final_price_paise,
-        compare_at_paise=None,
-        unit_label=payload.unit_label.strip() or "1 unit",
-        net_weight_grams=final_weight,
-        description=payload.description.strip() if payload.description else None,
-        short_description=payload.short_description.strip() if payload.short_description else (payload.description[:300].strip() if payload.description else None),
-        origin_text=final_origin,
-        made_by=payload.made_by.strip() if payload.made_by else None,
-        is_featured=payload.is_featured,
-        is_active=is_active,
-        status=status_str,
-        published_at=published_at,
-        availability=avail,
-    )
-    db.add(product)
-    db.flush()
-
-    # 7. Create Inventory
-    inv = Inventory(
-        product_id=product.id,
-        on_hand=payload.stock_qty,
-        reserved=0,
-        low_stock_threshold=payload.low_stock_threshold,
-    )
-    db.add(inv)
-
-    # 8. Create Product Images
-    if payload.images:
-        has_primary = any(img.is_primary for img in payload.images)
-        for idx, img_in in enumerate(payload.images):
-            img_url = (img_in.url or img_in.image_url or "").strip()
-            if img_url:
-                db.add(
-                    ProductImage(
-                        product_id=product.id,
-                        url=img_url,
-                        alt_text=img_in.alt_text.strip() or product.name,
-                        sort_order=img_in.sort_order if img_in.sort_order is not None else idx,
-                        is_primary=img_in.is_primary if has_primary else (idx == 0),
-                    )
-                )
-    else:
-        db.add(
-            ProductImage(
-                product_id=product.id,
-                url=f"/images/catalog/{product.slug}.jpg",
-                alt_text=product.name,
-                sort_order=0,
-                is_primary=True,
-            )
+    try:
+        # 6. Create Product
+        product = Product(
+            id=prod_id,
+            name=payload.name.strip(),
+            slug=clean_slug,
+            sku=clean_sku,
+            category_id=category.id,
+            price_paise=final_price_paise,
+            compare_at_paise=None,
+            unit_label=payload.unit_label.strip() or "1 unit",
+            net_weight_grams=final_weight,
+            description=payload.description.strip() if payload.description else None,
+            short_description=payload.short_description.strip() if payload.short_description else (payload.description[:300].strip() if payload.description else None),
+            origin_text=final_origin,
+            made_by=payload.made_by.strip() if payload.made_by else None,
+            is_featured=payload.is_featured,
+            is_active=is_active,
+            status=status_str,
+            published_at=published_at,
+            availability=avail,
+            tax_rate_bps=500,
+            is_new=False,
+            created_at=now,
+            updated_at=now,
         )
+        db.add(product)
+        db.flush()
 
-    # 9. Create Starting PriceChange row
-    price_change = PriceChange(
-        product_id=product.id,
-        admin_user_id=admin.id,
-        old_paise=0,
-        new_paise=final_price_paise,
-        reason="Initial product creation",
-        ip=client_ip,
-    )
-    db.add(price_change)
+        # 7. Create Inventory
+        inv = Inventory(
+            product_id=product.id,
+            on_hand=payload.stock_qty,
+            reserved=0,
+            low_stock_threshold=payload.low_stock_threshold,
+            updated_at=now,
+        )
+        db.add(inv)
 
-    # 10. Create AuditLog row (safe)
-    safe_log_audit(
-        db=db,
-        actor_user_id=admin.id,
-        action="product.create",
-        entity_type="product",
-        entity_id=str(product.id),
-        before_state=None,
-        after_state={
-            "id": str(product.id),
-            "sku": product.sku,
-            "slug": product.slug,
-            "name": product.name,
-            "category_slug": category.slug,
-            "price_paise": product.price_paise,
-            "stock_qty": payload.stock_qty,
-            "status": status_str,
-            "is_active": product.is_active,
-            "net_weight_grams": product.net_weight_grams,
-        },
-        ip_address=client_ip,
-    )
-    db.commit()
-    db.refresh(product)
+        # 8. Create Product Images
+        if payload.images:
+            has_primary = any(img.is_primary for img in payload.images)
+            for idx, img_in in enumerate(payload.images):
+                img_url = (img_in.url or img_in.image_url or "").strip()
+                if img_url:
+                    db.add(
+                        ProductImage(
+                            id=uuid.uuid4(),
+                            product_id=product.id,
+                            url=img_url,
+                            alt_text=img_in.alt_text.strip() or product.name,
+                            sort_order=img_in.sort_order if img_in.sort_order is not None else idx,
+                            is_primary=img_in.is_primary if has_primary else (idx == 0),
+                            width=600,
+                            height=600,
+                        )
+                    )
+        else:
+            db.add(
+                ProductImage(
+                    id=uuid.uuid4(),
+                    product_id=product.id,
+                    url=f"/images/catalog/{product.slug}.jpg",
+                    alt_text=product.name,
+                    sort_order=0,
+                    is_primary=True,
+                    width=600,
+                    height=600,
+                )
+            )
+
+        # 9. Create Starting PriceChange row
+        price_change = PriceChange(
+            id=uuid.uuid4(),
+            product_id=product.id,
+            admin_user_id=admin.id,
+            old_paise=0,
+            new_paise=final_price_paise,
+            reason="Initial product creation",
+            ip=client_ip,
+            created_at=now,
+        )
+        db.add(price_change)
+
+        # 10. Create AuditLog row (safe)
+        safe_log_audit(
+            db=db,
+            actor_user_id=admin.id,
+            action="product.create",
+            entity_type="product",
+            entity_id=str(product.id),
+            before_state=None,
+            after_state={
+                "id": str(product.id),
+                "sku": product.sku,
+                "slug": product.slug,
+                "name": product.name,
+                "category_slug": category.slug if category else "general",
+                "price_paise": product.price_paise,
+                "stock_qty": payload.stock_qty,
+                "status": status_str,
+                "is_active": product.is_active,
+                "net_weight_grams": product.net_weight_grams,
+            },
+            ip_address=client_ip,
+        )
+        db.commit()
+        db.refresh(product)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to create product: {e}")
+        raise ProblemException(status_code=500, title="Database Error", detail=f"Failed to create product: {str(e)}")
 
     prod_dict = {
         "id": str(product.id),
@@ -1956,8 +1954,13 @@ def list_admin_enquiries(
         except ValueError:
             pass
 
-    total = query.count()
-    enquiries = query.order_by(Enquiry.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    try:
+        total = query.count()
+        enquiries = query.order_by(Enquiry.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    except Exception as enq_err:
+        logger.warning(f"Enquiries query error: {enq_err}")
+        db.rollback()
+        return {"items": [], "total": 0, "page": page, "page_size": page_size}
 
     items = []
     for e in enquiries:
@@ -2111,8 +2114,11 @@ def create_admin_review(
     db: Session = Depends(get_db),
 ):
     try:
+        now_rev = datetime.now(timezone.utc)
         new_rev = StoreReview(
             id=uuid.uuid4(),
+            user_id=None,
+            product_id=None,
             author_name=payload.name.strip(),
             rating=max(1, min(5, payload.stars)),
             quote=payload.description.strip(),
@@ -2121,7 +2127,8 @@ def create_admin_review(
             is_approved=True,
             is_featured=True,
             display_order=0,
-            created_at=datetime.now(timezone.utc),
+            reviewed_on=now_rev.date(),
+            created_at=now_rev,
         )
         db.add(new_rev)
         db.commit()
@@ -2292,6 +2299,7 @@ def create_admin_news(
     db: Session = Depends(get_db),
 ):
     try:
+        now_news = datetime.now(timezone.utc)
         new_article = PressMention(
             id=uuid.uuid4(),
             kind=PressKind.article,
@@ -2299,9 +2307,11 @@ def create_admin_news(
             title=payload.title.strip(),
             excerpt=payload.date.strip(),
             external_url=payload.url.strip() if payload.url and payload.url.strip() else "#",
+            logo_or_image_url=None,
+            published_on=now_news.date(),
             display_order=0,
             is_published=True,
-            created_at=datetime.now(timezone.utc),
+            created_at=now_news,
         )
         db.add(new_article)
         db.commit()

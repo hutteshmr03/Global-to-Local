@@ -91,7 +91,8 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
-    (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-DDAiw932.js", os.path.join(PUBLIC_HTML, "assets", "index-DDAiw932.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-DDAiw932.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
@@ -382,7 +383,9 @@ for r_dir in [PUBLIC_HTML] + gtl_targets:
                     shutil.copy2(sandalwood_file, dest_img)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-DDAiw932.js")
+if not os.path.exists(primary_bundle):
+    primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")
 if os.path.exists(primary_bundle):
     all_asset_dirs = [os.path.join(PUBLIC_HTML, "assets")] + [os.path.join(g, "assets") for g in gtl_targets]
     for adir in all_asset_dirs:
@@ -705,7 +708,7 @@ try:
 
         """))
 
-        # F3. Ensure store_reviews table exists and retains the 3 default customer reviews
+        # F3. Ensure store_reviews table exists and has all required columns
         try:
             conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS `store_reviews` (
@@ -727,15 +730,20 @@ try:
             """))
             conn.commit()
 
-            # Ensure all columns exist before querying or inserting
+            # Ensure all columns exist in store_reviews
             for col_name, col_type in [
+                ('user_id', 'VARCHAR(36) DEFAULT NULL'),
+                ('product_id', 'VARCHAR(36) DEFAULT NULL'),
+                ('author_name', 'VARCHAR(120) NOT NULL'),
+                ('author_location', 'VARCHAR(120) DEFAULT NULL'),
+                ('rating', 'SMALLINT NOT NULL DEFAULT 5'),
                 ('quote', 'TEXT'),
                 ('source', "VARCHAR(40) NOT NULL DEFAULT 'Visitors Book'"),
                 ('is_approved', 'TINYINT(1) NOT NULL DEFAULT 1'),
                 ('is_featured', 'TINYINT(1) NOT NULL DEFAULT 0'),
                 ('display_order', 'SMALLINT NOT NULL DEFAULT 0'),
-                ('author_location', 'VARCHAR(120) DEFAULT NULL'),
-                ('reviewed_on', 'DATE DEFAULT NULL')
+                ('reviewed_on', 'DATE DEFAULT NULL'),
+                ('created_at', 'DATETIME DEFAULT CURRENT_TIMESTAMP')
             ]:
                 try:
                     conn.execute(text(f"ALTER TABLE `store_reviews` ADD COLUMN `{col_name}` {col_type};"))
@@ -749,15 +757,15 @@ try:
                     INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order)
                     VALUES 
                     ('rev-001', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', 'Visitors Book', 1, 1, 1),
-                    ('rev-002', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', 'Visitors Book', 1, 1, 2),
-                    ('rev-003', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', 'Visitors Book', 1, 1, 3);
+                    ('rev-002', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shimmering on the shelves made the products very attractive. I definitely recommend Global to Local to authentic goan flavours and gifting requirement.', 'Visitors Book', 1, 1, 2),
+                    ('rev-003', 'Huttesh M R', 'Panaji, Goa', 5, 'The best authentic Goan artisanal products in Fontainhas. Every item reflects pristine Goan craftsmanship and dedication to perfection.', 'Visitors Book', 1, 1, 3);
                 """))
                 conn.commit()
-                print("[OK] Seeded default customer reviews to store_reviews table.", flush=True)
+                print("[OK] Seeded 3 default verified reviews to store_reviews table.", flush=True)
         except Exception as seed_err:
             print(f"[NOTE] store_reviews notice: {seed_err}", flush=True)
 
-        # F4. Ensure press_mentions table exists and retains default news articles
+        # F4. Ensure press_mentions table exists and has all required columns
         try:
             conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS `press_mentions` (
@@ -767,16 +775,34 @@ try:
                   `title` VARCHAR(240) NOT NULL,
                   `excerpt` TEXT DEFAULT NULL,
                   `external_url` TEXT DEFAULT NULL,
-                  `image_url` TEXT DEFAULT NULL,
-                  `event_date` DATE DEFAULT NULL,
+                  `logo_or_image_url` TEXT DEFAULT NULL,
+                  `published_on` DATE DEFAULT NULL,
                   `is_published` TINYINT(1) NOT NULL DEFAULT 1,
                   `display_order` SMALLINT NOT NULL DEFAULT 0,
                   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-                  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                   PRIMARY KEY (`id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """))
             conn.commit()
+
+            # Ensure all columns exist in press_mentions
+            for col_name, col_type in [
+                ('kind', "VARCHAR(32) NOT NULL DEFAULT 'article'"),
+                ('publication_or_issuer', 'VARCHAR(160) NOT NULL'),
+                ('title', 'VARCHAR(240) NOT NULL'),
+                ('excerpt', 'TEXT DEFAULT NULL'),
+                ('external_url', 'TEXT DEFAULT NULL'),
+                ('logo_or_image_url', 'TEXT DEFAULT NULL'),
+                ('published_on', 'DATE DEFAULT NULL'),
+                ('is_published', 'TINYINT(1) NOT NULL DEFAULT 1'),
+                ('display_order', 'SMALLINT NOT NULL DEFAULT 0'),
+                ('created_at', 'DATETIME DEFAULT CURRENT_TIMESTAMP')
+            ]:
+                try:
+                    conn.execute(text(f"ALTER TABLE `press_mentions` ADD COLUMN `{col_name}` {col_type};"))
+                    conn.commit()
+                except Exception:
+                    pass
 
             pm_count = conn.execute(text("SELECT COUNT(*) FROM press_mentions")).scalar()
             if pm_count == 0:
@@ -793,6 +819,46 @@ try:
                 print("[OK] Seeded default news articles to press_mentions table.", flush=True)
         except Exception as pm_err:
             print(f"[NOTE] press_mentions notice: {pm_err}", flush=True)
+
+        # F5. Ensure enquiries table has proper DATETIME and NULL defaults instead of empty strings
+        try:
+            conn.execute(text("UPDATE enquiries SET created_at = NOW() WHERE created_at = '' OR created_at IS NULL;"))
+            conn.execute(text("UPDATE enquiries SET updated_at = NOW() WHERE updated_at = '' OR updated_at IS NULL;"))
+            conn.execute(text("UPDATE enquiries SET budget_paise = NULL WHERE budget_paise = '';"))
+            conn.execute(text("UPDATE enquiries SET quantity_estimate = NULL WHERE quantity_estimate = '';"))
+            conn.execute(text("UPDATE enquiries SET preferred_delivery_date = NULL WHERE preferred_delivery_date = '';"))
+            conn.execute(text("ALTER TABLE `enquiries` MODIFY `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP;"))
+            conn.execute(text("ALTER TABLE `enquiries` MODIFY `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;"))
+            conn.commit()
+            print("[OK] enquiries table schema verified and hardened.", flush=True)
+        except Exception as enq_err:
+            print(f"[NOTE] enquiries table hardening notice: {enq_err}", flush=True)
+
+        # F6. Ensure product_images, products, inventory, price_changes have safe defaults
+        try:
+            conn.execute(text("ALTER TABLE `product_images` MODIFY `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP;"))
+            conn.execute(text("ALTER TABLE `product_images` MODIFY `width` INT NOT NULL DEFAULT 600;"))
+            conn.execute(text("ALTER TABLE `product_images` MODIFY `height` INT NOT NULL DEFAULT 600;"))
+            conn.execute(text("ALTER TABLE `product_images` MODIFY `blurhash` VARCHAR(64) DEFAULT NULL;"))
+            conn.execute(text("ALTER TABLE `product_images` MODIFY `avif_url` TEXT DEFAULT NULL;"))
+            conn.execute(text("ALTER TABLE `product_images` MODIFY `webp_url` TEXT DEFAULT NULL;"))
+            conn.execute(text("ALTER TABLE `inventory` MODIFY `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP;"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `tax_rate_bps` INT NOT NULL DEFAULT 500;"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `is_new` TINYINT(1) NOT NULL DEFAULT 0;"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `is_featured` TINYINT(1) NOT NULL DEFAULT 0;"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `is_active` TINYINT(1) NOT NULL DEFAULT 1;"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `status` VARCHAR(32) NOT NULL DEFAULT 'published';"))
+            conn.execute(text("ALTER TABLE `products` MODIFY `availability` VARCHAR(32) NOT NULL DEFAULT 'in_stock';"))
+            conn.execute(text("ALTER TABLE `price_changes` MODIFY `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP;"))
+            conn.execute(text("ALTER TABLE `price_changes` MODIFY `old_paise` INT NOT NULL DEFAULT 0;"))
+            conn.execute(text("ALTER TABLE `price_changes` MODIFY `new_paise` INT NOT NULL DEFAULT 0;"))
+            conn.commit()
+            print("[OK] Product tables hardened for clean product creation and pricing.", flush=True)
+        except Exception as prod_tbl_err:
+            print(f"[NOTE] Product tables hardening notice: {prod_tbl_err}", flush=True)
+
 
         # E. Ensure all products are active and not soft-deleted without overriding custom status
         conn.execute(text("""

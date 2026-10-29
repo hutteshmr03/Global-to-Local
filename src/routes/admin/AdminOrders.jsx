@@ -147,14 +147,7 @@ export default function AdminOrders() {
   const handleExportReport = async () => {
     setExporting(true);
     try {
-      const isHosted =
-        typeof window !== 'undefined' &&
-        window.location.hostname !== 'localhost' &&
-        window.location.hostname !== '127.0.0.1';
-      
-      const primaryUrl = isHosted
-        ? 'https://global-to-local.onrender.com/api/v1/admin/reports/monthly-export'
-        : '/api/v1/admin/reports/monthly-export';
+      const primaryUrl = '/api/v1/admin/reports/monthly-export';
 
       const token = typeof localStorage !== 'undefined' ? localStorage.getItem('gtl_access_token') : null;
       let res = null;
