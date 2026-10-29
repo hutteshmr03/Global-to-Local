@@ -91,6 +91,8 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/assets/index-CWMtFyP2.js", os.path.join(PUBLIC_HTML, "assets", "index-CWMtFyP2.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BlTtjZ_W.css", os.path.join(PUBLIC_HTML, "assets", "index-BlTtjZ_W.css")),
     (f"{RAW_BASE}/dist_live/assets/index-C8ButpBZ.js", os.path.join(PUBLIC_HTML, "assets", "index-C8ButpBZ.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BlTtjZ_W.css", os.path.join(PUBLIC_HTML, "assets", "index-BlTtjZ_W.css")),
 
@@ -734,17 +736,71 @@ try:
 
         """))
 
-        # E2. Update orders with UTR to paid status
+        # --- Clean Reset: Orders, Enquiry, and Specified Customers ---
+        print("[*] Executing database clean reset...", flush=True)
 
-        conn.execute(text("""
+        # 1. Clear All Orders and related records
+        try:
+            conn.execute(text("DELETE FROM order_items;"))
+            conn.execute(text("DELETE FROM order_status_events;"))
+            conn.execute(text("DELETE FROM order_internal_notes;"))
+            conn.execute(text("DELETE FROM shipments;"))
+            conn.execute(text("DELETE FROM payments;"))
+            conn.execute(text("DELETE FROM orders;"))
+            print("[OK] Cleared all order records.", flush=True)
+        except Exception as e:
+            print(f"[NOTE] Order deletion notice: {e}", flush=True)
 
-            UPDATE orders 
+        # 2. Delete test enquiry 'HUTTESHA SWAMY M R'
+        try:
+            conn.execute(text("""
+                DELETE FROM enquiries 
+                WHERE LOWER(name) LIKE '%huttesha%' 
+                   OR LOWER(email) = 'mrhuttesh003@gmail.com';
+            """))
+            print("[OK] Cleared test enquiry (HUTTESHA SWAMY M R).", flush=True)
+        except Exception as e:
+            print(f"[NOTE] Enquiry deletion notice: {e}", flush=True)
 
-            SET status = 'paid', paid_at = NOW(), reservation_expires_at = NULL 
-
-            WHERE status = 'pending_payment' AND (customer_note LIKE '%UTR%' OR customer_note LIKE '%Bank Transfer%');
-
-        """))
+        # 3. Delete specific customers: Gurjeet kaur, Debarshi Dutta, KUNAL HALDIPUR, Shopper 8288, test user
+        try:
+            target_clause = """
+                role = 'customer' AND (
+                    LOWER(COALESCE(full_name, '')) LIKE '%gurjeet kaur%'
+                    OR LOWER(COALESCE(email, '')) LIKE '%gurjeetbhangu43%'
+                    OR phone LIKE '%7528978986%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%debarshi dutta%'
+                    OR phone LIKE '%8017478429%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%kunal haldipur%'
+                    OR phone LIKE '%9167797261%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%shopper 8288%'
+                    OR LOWER(COALESCE(full_name, '')) LIKE '%test user%'
+                    OR (LOWER(COALESCE(full_name, '')) LIKE '%test%' AND role = 'customer')
+                )
+            """
+            conn.execute(text(f"""
+                DELETE FROM addresses 
+                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
+            """))
+            conn.execute(text(f"""
+                DELETE FROM user_sessions 
+                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
+            """))
+            conn.execute(text(f"""
+                DELETE FROM cart_items 
+                WHERE cart_id IN (SELECT id FROM carts WHERE user_id IN (SELECT id FROM users WHERE {target_clause}));
+            """))
+            conn.execute(text(f"""
+                DELETE FROM carts 
+                WHERE user_id IN (SELECT id FROM users WHERE {target_clause});
+            """))
+            conn.execute(text(f"""
+                DELETE FROM users 
+                WHERE {target_clause};
+            """))
+            print("[OK] Removed requested test customers while preserving valid customers and admins.", flush=True)
+        except Exception as e:
+            print(f"[NOTE] Customer deletion notice: {e}", flush=True)
 
         # F. Set inventory for all products to exactly 100 units on_hand, 0 reserved
 

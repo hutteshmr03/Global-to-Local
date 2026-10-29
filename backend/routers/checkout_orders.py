@@ -244,13 +244,33 @@ def calculate_checkout_quote(
 
 
 def generate_next_order_number(db: Session) -> str:
+    """
+    Generates order numbers starting sequentially from 7233 for each year:
+    - 2026: GTL-2026-7233, GTL-2026-7234, ...
+    - 2027: GTL-2027-7233, GTL-2027-7234, ...
+    """
     year = datetime.now(timezone.utc).year
+    prefix = f"GTL-{year}-"
+    base_seq = 7233
     try:
-        count = db.query(func.count(Order.id)).scalar() or 0
-        rand_suffix = secrets.token_hex(2).upper()
-        return f"GTL-{year}-{(count + 1):04d}-{rand_suffix}"
-    except Exception:
-        return f"GTL-{year}-{secrets.token_hex(4).upper()}"
+        existing_orders = (
+            db.query(Order.order_number)
+            .filter(Order.order_number.like(f"{prefix}%"))
+            .all()
+        )
+        max_seq = base_seq - 1
+        for (ord_num,) in existing_orders:
+            if ord_num and ord_num.startswith(prefix):
+                raw_suffix = ord_num[len(prefix):].split("-")[0]
+                if raw_suffix.isdigit():
+                    val = int(raw_suffix)
+                    if val > max_seq:
+                        max_seq = val
+        next_seq = max(base_seq, max_seq + 1)
+        return f"GTL-{year}-{next_seq}"
+    except Exception as e:
+        logger.warning(f"Error computing order sequence fallback: {e}")
+        return f"GTL-{year}-{base_seq}"
 
 STATUS_LABELS: dict[OrderStatus, str] = {
     OrderStatus.pending_payment: "Preparing for dispatch",
