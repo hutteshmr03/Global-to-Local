@@ -29,6 +29,7 @@ import AdminOrderDetail from './routes/admin/AdminOrderDetail';
 import AdminCustomers from './routes/admin/AdminCustomers';
 import AdminEnquiries from './routes/admin/AdminEnquiries';
 import AdminReviews from './routes/admin/AdminReviews';
+import AdminNews from './routes/admin/AdminNews';
 import AdminAccount from './routes/admin/AdminAccount';
 
 import ScrollProgress from './components/common/ScrollProgress';
@@ -67,6 +68,7 @@ function AppShell() {
           <Route path="customers" element={<AdminCustomers />} />
           <Route path="enquiries" element={<AdminEnquiries />} />
           <Route path="reviews" element={<AdminReviews />} />
+          <Route path="news" element={<AdminNews />} />
           <Route path="account" element={<AdminAccount />} />
         </Route>
       </Routes>

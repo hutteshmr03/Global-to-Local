@@ -15,6 +15,7 @@ import {
   Store,
   UserCog,
   Star,
+  Newspaper,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/auth-store';
 
@@ -97,6 +98,7 @@ export default function AdminLayout() {
     { to: '/admin/customers', label: 'Customers', icon: Users },
     { to: '/admin/enquiries', label: 'Enquiries Inbox', icon: MessageSquare },
     { to: '/admin/reviews', label: 'Customer Reviews', icon: Star },
+    { to: '/admin/news', label: 'In the News', icon: Newspaper },
     { to: '/admin/account', label: 'My Account', icon: UserCog },
   ];
 

@@ -5,6 +5,7 @@ const STORAGE_USER = 'gtl_mock_auth_user_v1';
 const STORAGE_PRODUCTS = 'gtl_mock_products_v3';
 const STORAGE_CUSTOMERS = 'gtl_mock_customers_v2';
 const STORAGE_ENQUIRIES = 'gtl_mock_enquiries_v1';
+const STORAGE_NEWS = 'gtl_mock_news_v1';
 const STORAGE_PRICE_HISTORY = 'gtl_mock_price_history_v1';
 const STORAGE_ADDRESSES = 'gtl_mock_addresses_v1';
 const STORAGE_ORDERS = 'gtl_mock_orders_v2';
@@ -232,6 +233,55 @@ function initMockCustomers() {
   ];
 
   localStorage.setItem(STORAGE_CUSTOMERS, JSON.stringify(initial));
+  return initial;
+}
+
+function initMockNews() {
+  const existing = localStorage.getItem(STORAGE_NEWS);
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {}
+  }
+  const initial = [
+    {
+      id: 'news-1',
+      publication: 'The Navhind Times',
+      date: 'October 2020',
+      title: 'Global to Local supermarket opens in city',
+      url: 'https://www.navhindtimes.in/2020/10/28/business/global-to-local-supermarket-opens-in-city/',
+    },
+    {
+      id: 'news-2',
+      publication: 'Business Goa',
+      date: 'March 2021',
+      title: 'Global to Local in Business Goa',
+      url: 'https://businessgoa.in/tag/global-to-local/',
+    },
+    {
+      id: 'news-3',
+      publication: 'Gomantak Times',
+      date: 'August 2022',
+      title: 'Global to Local empowers rural Goan women entrepreneurs',
+      url: 'https://www.gomantaktimes.com/news/business/global-to-local-empowers-rural-goan-women-entrepreneurs',
+    },
+    {
+      id: 'news-4',
+      publication: 'The Goan',
+      date: 'February 2025',
+      title: 'Feature on Global to Local',
+      url: '#',
+    },
+    {
+      id: 'news-5',
+      publication: 'Herald',
+      date: 'November 2024',
+      title: 'Global to Local in the Herald',
+      url: '#',
+    },
+  ];
+  localStorage.setItem(STORAGE_NEWS, JSON.stringify(initial));
   return initial;
 }
 
@@ -1270,6 +1320,39 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     reviews = reviews.filter((r) => r.id !== revId);
     localStorage.setItem(STORAGE_REVIEWS, JSON.stringify(reviews));
     return { status: 'success', message: 'Review deleted successfully' };
+  }
+
+  // ADMIN NEWS & PRESS
+  if ((pathname === '/api/v1/admin/news' || pathname === '/api/v1/press') && method === 'GET') {
+    const news = initMockNews();
+    return { items: news, articles: news, awards: [], total: news.length };
+  }
+
+  if (pathname === '/api/v1/admin/news' && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const news = initMockNews();
+    const newArticle = {
+      id: `news-${Date.now()}`,
+      publication: body.publication || 'Press Outlet',
+      title: body.title || 'Global to Local in the News',
+      date: body.date || 'October 2026',
+      url: body.url || '#',
+      created_at: new Date().toISOString(),
+    };
+    news.unshift(newArticle);
+    localStorage.setItem(STORAGE_NEWS, JSON.stringify(news));
+    return newArticle;
+  }
+
+  if (pathname.startsWith('/api/v1/admin/news/') && method === 'DELETE') {
+    const newsId = pathname.replace('/api/v1/admin/news/', '').trim();
+    let news = initMockNews();
+    news = news.filter((n) => n.id !== newsId);
+    localStorage.setItem(STORAGE_NEWS, JSON.stringify(news));
+    return { status: 'success', message: 'News article deleted successfully' };
   }
 
   if (pathname === '/api/v1/categories') {

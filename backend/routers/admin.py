@@ -29,6 +29,8 @@ from backend.models import (
     OrderStatus,
     OrderStatusEvent,
     Payment,
+    PressKind,
+    PressMention,
     PriceChange,
     Product,
     ProductImage,
@@ -1872,3 +1874,166 @@ def delete_admin_review(
         db.rollback()
         logger.error(f"Failed to delete review: {e}")
         raise ProblemException(status_code=500, title="Database Error", detail=f"Failed to delete review: {str(e)}")
+
+
+
+# =====================================================================
+# IN THE NEWS / PRESS ARTICLES MANAGEMENT
+# =====================================================================
+
+class AdminNewsCreatePayload(BaseModel):
+    publication: str = Field(..., min_length=1, max_length=160)
+    title: str = Field(..., min_length=1, max_length=240)
+    date: str = Field(..., min_length=1, max_length=100)
+    url: Optional[str] = Field("#", max_length=500)
+
+
+DEFAULT_ADMIN_NEWS = [
+    {
+        "id": "news-seed-1",
+        "publication": "The Navhind Times",
+        "date": "October 2020",
+        "title": "Global to Local supermarket opens in city",
+        "url": "https://www.navhindtimes.in/2020/10/28/business/global-to-local-supermarket-opens-in-city/",
+        "display_order": 0,
+    },
+    {
+        "id": "news-seed-2",
+        "publication": "Business Goa",
+        "date": "March 2021",
+        "title": "Global to Local in Business Goa",
+        "url": "https://businessgoa.in/tag/global-to-local/",
+        "display_order": 1,
+    },
+    {
+        "id": "news-seed-3",
+        "publication": "Gomantak Times",
+        "date": "August 2022",
+        "title": "Global to Local empowers rural Goan women entrepreneurs",
+        "url": "https://www.gomantaktimes.com/news/business/global-to-local-empowers-rural-goan-women-entrepreneurs",
+        "display_order": 2,
+    },
+    {
+        "id": "news-seed-4",
+        "publication": "The Goan",
+        "date": "February 2025",
+        "title": "Feature on Global to Local",
+        "url": "#",
+        "display_order": 3,
+    },
+    {
+        "id": "news-seed-5",
+        "publication": "Herald",
+        "date": "November 2024",
+        "title": "Global to Local in the Herald",
+        "url": "#",
+        "display_order": 4,
+    },
+]
+
+
+@router.get("/news")
+def list_admin_news(
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    rows = (
+        db.query(PressMention)
+        .filter(PressMention.kind == PressKind.article)
+        .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
+        .all()
+    )
+    if not rows:
+        try:
+            for item in DEFAULT_ADMIN_NEWS:
+                pm = PressMention(
+                    id=uuid.uuid4(),
+                    kind=PressKind.article,
+                    publication_or_issuer=item["publication"],
+                    title=item["title"],
+                    excerpt=item["date"],
+                    external_url=item["url"],
+                    display_order=item["display_order"],
+                    is_published=True,
+                )
+                db.add(pm)
+            db.commit()
+            rows = (
+                db.query(PressMention)
+                .filter(PressMention.kind == PressKind.article)
+                .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
+                .all()
+            )
+        except Exception:
+            db.rollback()
+            return {"items": DEFAULT_ADMIN_NEWS, "total": len(DEFAULT_ADMIN_NEWS)}
+
+    items = [
+        {
+            "id": str(r.id),
+            "publication": r.publication_or_issuer,
+            "title": r.title,
+            "date": r.excerpt or "",
+            "url": r.external_url or "#",
+            "created_at": safe_iso(r.created_at),
+        }
+        for r in rows
+    ]
+    return {"items": items, "total": len(items)}
+
+
+@router.post("/news", status_code=status.HTTP_201_CREATED)
+def create_admin_news(
+    payload: AdminNewsCreatePayload,
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        new_article = PressMention(
+            id=uuid.uuid4(),
+            kind=PressKind.article,
+            publication_or_issuer=payload.publication.strip(),
+            title=payload.title.strip(),
+            excerpt=payload.date.strip(),
+            external_url=payload.url.strip() if payload.url and payload.url.strip() else "#",
+            display_order=0,
+            is_published=True,
+            created_at=datetime.now(timezone.utc),
+        )
+        db.add(new_article)
+        db.commit()
+        db.refresh(new_article)
+        return {
+            "id": str(new_article.id),
+            "publication": new_article.publication_or_issuer,
+            "title": new_article.title,
+            "date": new_article.excerpt or "",
+            "url": new_article.external_url or "#",
+            "created_at": safe_iso(new_article.created_at),
+        }
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to create news article: {e}")
+        raise ProblemException(status_code=500, title="Database Error", detail=f"Failed to create news article: {str(e)}")
+
+
+@router.delete("/news/{news_id}")
+def delete_admin_news(
+    news_id: str,
+    admin: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        n_uuid = uuid.UUID(news_id)
+        article = db.query(PressMention).filter(PressMention.id == n_uuid).first()
+        if article:
+            db.delete(article)
+            db.commit()
+            return {"status": "success", "message": "News article deleted successfully"}
+        return {"status": "success", "message": "News article already removed"}
+    except ValueError:
+        return {"status": "success", "message": "News article removed"}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to delete news article: {e}")
+        raise ProblemException(status_code=500, title="Database Error", detail=f"Failed to delete news article: {str(e)}")

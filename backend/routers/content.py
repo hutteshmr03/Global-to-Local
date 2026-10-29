@@ -1,5 +1,6 @@
 import json
 import re
+import uuid
 from datetime import date
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, Query, Request, status
@@ -16,6 +17,7 @@ from backend.models import (
     EnquiryType,
     Faq,
     NewsletterSubscriber,
+    PressKind,
     PressMention,
     SiteSetting,
     StoreReview,
@@ -171,21 +173,86 @@ def list_reviews(
     return {"items": items, "total": len(items)}
 
 
+DEFAULT_PRESS_ARTICLES = [
+    {
+        "id": "news-seed-1",
+        "publication": "The Navhind Times",
+        "date": "October 2020",
+        "title": "Global to Local supermarket opens in city",
+        "url": "https://www.navhindtimes.in/2020/10/28/business/global-to-local-supermarket-opens-in-city/",
+        "display_order": 0,
+    },
+    {
+        "id": "news-seed-2",
+        "publication": "Business Goa",
+        "date": "March 2021",
+        "title": "Global to Local in Business Goa",
+        "url": "https://businessgoa.in/tag/global-to-local/",
+        "display_order": 1,
+    },
+    {
+        "id": "news-seed-3",
+        "publication": "Gomantak Times",
+        "date": "August 2022",
+        "title": "Global to Local empowers rural Goan women entrepreneurs",
+        "url": "https://www.gomantaktimes.com/news/business/global-to-local-empowers-rural-goan-women-entrepreneurs",
+        "display_order": 2,
+    },
+    {
+        "id": "news-seed-4",
+        "publication": "The Goan",
+        "date": "February 2025",
+        "title": "Feature on Global to Local",
+        "url": "#",
+        "display_order": 3,
+    },
+    {
+        "id": "news-seed-5",
+        "publication": "Herald",
+        "date": "November 2024",
+        "title": "Global to Local in the Herald",
+        "url": "#",
+        "display_order": 4,
+    },
+]
+
+
 @router.get("/press")
 def list_press_mentions(db: Session = Depends(get_db)):
     rows = (
         db.query(PressMention)
         .filter(PressMention.is_published == True)  # noqa: E712
-        .order_by(PressMention.display_order.asc())
+        .order_by(PressMention.display_order.asc(), PressMention.created_at.asc())
         .all()
     )
+    if not rows:
+        try:
+            for item in DEFAULT_PRESS_ARTICLES:
+                pm = PressMention(
+                    id=uuid.uuid4(),
+                    kind=PressKind.article,
+                    publication_or_issuer=item["publication"],
+                    title=item["title"],
+                    excerpt=item["date"],
+                    external_url=item["url"],
+                    display_order=item["display_order"],
+                    is_published=True,
+                )
+                db.add(pm)
+            db.commit()
+            rows = db.query(PressMention).filter(PressMention.is_published == True).order_by(PressMention.display_order.asc(), PressMention.created_at.asc()).all()
+        except Exception:
+            db.rollback()
+            return {"items": DEFAULT_PRESS_ARTICLES, "articles": DEFAULT_PRESS_ARTICLES, "awards": [], "total": len(DEFAULT_PRESS_ARTICLES)}
+
     articles = []
     awards = []
     items = []
     for r in rows:
+        kind_str = r.kind.value if hasattr(r.kind, "value") else str(r.kind)
         entry = {
             "id": str(r.id),
-            "kind": r.kind.value,
+            "kind": kind_str,
             "publication_or_issuer": r.publication_or_issuer,
             "title": r.title,
             "excerpt": r.excerpt or "",
@@ -199,7 +266,7 @@ def list_press_mentions(db: Session = Depends(get_db)):
             "desc": r.excerpt or "",
         }
         items.append(entry)
-        if r.kind.value == "award":
+        if kind_str == "award":
             awards.append(entry)
         else:
             articles.append(entry)
