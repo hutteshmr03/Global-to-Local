@@ -285,14 +285,18 @@ function fileToDataUrl(file) {
   });
 }
 
-export class MockProblemError extends Error {
+export class ApiProblemError extends Error {
   constructor(status, detail) {
-    super(typeof detail === 'string' ? detail : detail?.detail || 'Request failed');
+    const msg = typeof detail === 'string' ? detail : detail?.detail || detail?.title || 'Request failed';
+    super(msg);
     this.name = 'ApiProblemError';
     this.status = status;
-    this.detail = typeof detail === 'string' ? detail : detail?.detail || this.message;
+    this.detail = msg;
+    this.title = typeof detail === 'object' ? detail?.title || 'Error' : 'Error';
   }
 }
+
+export const MockProblemError = ApiProblemError;
 
 export function resolveMockProduct(ref) {
   if (ref === undefined || ref === null || ref === '') return null;

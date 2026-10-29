@@ -91,9 +91,10 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
-    (f"{RAW_BASE}/dist_live/assets/index-DspL-m4w.js", os.path.join(PUBLIC_HTML, "assets", "index-DspL-m4w.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-DspL-m4w.js", os.path.join(PUBLIC_HTML, "assets", "index-DspL-m4w.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-DspL-m4w.js", os.path.join(PUBLIC_HTML, "assets", "index-DspL-m4w.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-mH96O20t.js", os.path.join(PUBLIC_HTML, "assets", "index-mH96O20t.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-mH96O20t.js", os.path.join(PUBLIC_HTML, "assets", "index-mH96O20t.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-mH96O20t.js", os.path.join(PUBLIC_HTML, "assets", "index-mH96O20t.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-mH96O20t.js", os.path.join(PUBLIC_HTML, "assets", "index-mH96O20t.js")),
     (f"{RAW_BASE}/dist_live/assets/index-C7v29TNE.css", os.path.join(PUBLIC_HTML, "assets", "index-C7v29TNE.css")),
     (f"{RAW_BASE}/dist_live/assets/index-CX86KhWA.js", os.path.join(PUBLIC_HTML, "assets", "index-CX86KhWA.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dd9xhh54.js", os.path.join(PUBLIC_HTML, "assets", "index-Dd9xhh54.js")),
@@ -309,13 +310,13 @@ for g_root in gtl_targets:
         print(f"[!] Notice on {g_root}: {g_err}", flush=True)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-DspL-m4w.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-mH96O20t.js")
 if os.path.exists(primary_bundle):
     all_asset_dirs = [os.path.join(PUBLIC_HTML, "assets")] + [os.path.join(g, "assets") for g in gtl_targets]
     for adir in all_asset_dirs:
         if os.path.exists(adir):
             for fn in os.listdir(adir):
-                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-DspL-m4w.js":
+                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-mH96O20t.js":
                     try:
                         shutil.copy2(primary_bundle, os.path.join(adir, fn))
                     except Exception:
