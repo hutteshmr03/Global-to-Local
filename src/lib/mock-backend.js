@@ -3,18 +3,17 @@ import { products as seedProducts, categories as seedCategories } from './data';
 // --- AUTO PURGE LEGACY TEST DATA FROM LOCALSTORAGE ---
 if (typeof localStorage !== 'undefined') {
   try {
-    ['gtl_mock_orders_v1', 'gtl_mock_orders_v2', 'gtl_mock_orders_v3', 'gtl_mock_orders_v4'].forEach((k) => localStorage.removeItem(k));
-    localStorage.setItem('gtl_mock_orders_v5', JSON.stringify([]));
-  } catch {}
-
-  try {
-    ['gtl_mock_enquiries_v1', 'gtl_mock_enquiries_v2', 'gtl_mock_enquiries_v3', 'gtl_mock_enquiries_v4'].forEach((k) => localStorage.removeItem(k));
-    localStorage.setItem('gtl_mock_enquiries_v5', JSON.stringify([]));
-  } catch {}
-
-  try {
-    ['gtl_mock_customers_v1', 'gtl_mock_customers_v2', 'gtl_mock_customers_v3', 'gtl_mock_customers_v4'].forEach((k) => localStorage.removeItem(k));
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.includes('customer') || k.includes('enquir') || k.includes('order'))) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
     localStorage.setItem('gtl_mock_customers_v5', JSON.stringify([]));
+    localStorage.setItem('gtl_mock_enquiries_v5', JSON.stringify([]));
+    localStorage.setItem('gtl_mock_orders_v5', JSON.stringify([]));
   } catch {}
 }
 

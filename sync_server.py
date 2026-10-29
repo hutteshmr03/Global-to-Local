@@ -91,6 +91,8 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/assets/index-Dl_HeRjt.js", os.path.join(PUBLIC_HTML, "assets", "index-Dl_HeRjt.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-C7v29TNE.css", os.path.join(PUBLIC_HTML, "assets", "index-C7v29TNE.css")),
     (f"{RAW_BASE}/dist_live/assets/index-CX86KhWA.js", os.path.join(PUBLIC_HTML, "assets", "index-CX86KhWA.js")),
     (f"{RAW_BASE}/dist_live/assets/index-Dd9xhh54.js", os.path.join(PUBLIC_HTML, "assets", "index-Dd9xhh54.js")),
     (f"{RAW_BASE}/dist_live/assets/index-DzociDw5.js", os.path.join(PUBLIC_HTML, "assets", "index-DzociDw5.js")),
@@ -299,9 +301,24 @@ for g_root in gtl_targets:
 
         print(f"[OK] Successfully deployed build & reverse proxy to: {g_root}", flush=True)
 
+
     except Exception as g_err:
 
         print(f"[!] Notice on {g_root}: {g_err}", flush=True)
+
+# Unify all legacy javascript bundles so cached HTML never runs outdated code
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-Dl_HeRjt.js")
+if os.path.exists(primary_bundle):
+    all_asset_dirs = [os.path.join(PUBLIC_HTML, "assets")] + [os.path.join(g, "assets") for g in gtl_targets]
+    for adir in all_asset_dirs:
+        if os.path.exists(adir):
+            for fn in os.listdir(adir):
+                if fn.startswith("index-") and fn.endswith(".js") and fn != "index-Dl_HeRjt.js":
+                    try:
+                        shutil.copy2(primary_bundle, os.path.join(adir, fn))
+                    except Exception:
+                        pass
+    print("[OK] All legacy JavaScript bundle aliases unified to latest clean build.", flush=True)
 
 # 4. Purge LiteSpeed cache
 
@@ -365,7 +382,23 @@ try:
             conn.execute(text("DELETE FROM user_sessions WHERE user_id IN (SELECT id FROM users WHERE role = 'customer');"))
             conn.execute(text("DELETE FROM cart_items WHERE cart_id IN (SELECT id FROM carts WHERE user_id IN (SELECT id FROM users WHERE role = 'customer'));"))
             conn.execute(text("DELETE FROM carts WHERE user_id IN (SELECT id FROM users WHERE role = 'customer');"))
-            conn.execute(text("DELETE FROM users WHERE role = 'customer';"))
+            conn.execute(text("""
+                DELETE FROM users 
+                WHERE (
+                    role = 'customer' 
+                    OR LOWER(email) LIKE '%example.com%' 
+                    OR LOWER(full_name) LIKE '%maria%' 
+                    OR LOWER(full_name) LIKE '%rahul%' 
+                    OR LOWER(full_name) LIKE '%sancho%' 
+                    OR LOWER(full_name) LIKE '%pooja%' 
+                    OR LOWER(full_name) LIKE '%max%' 
+                    OR LOWER(full_name) LIKE '%gurjeet%' 
+                    OR LOWER(full_name) LIKE '%debarshi%' 
+                    OR LOWER(full_name) LIKE '%kunal%' 
+                    OR LOWER(full_name) LIKE '%shopper 8288%' 
+                    OR (LOWER(full_name) LIKE '%test%' AND LOWER(full_name) NOT LIKE '%attest%')
+                ) AND role != 'admin' AND email NOT IN ('admin@globaltolocal.in', 'founder@globaltolocal.in');
+            """))
             conn.commit()
             print("[OK] Customer reset successfully: cleared all customer accounts while preserving admin accounts.", flush=True)
         except Exception as e:

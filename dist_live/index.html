@@ -8,10 +8,24 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="shortcut icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/logo.png" />
-    <script type="module" crossorigin src="/assets/index-CX86KhWA.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BlTtjZ_W.css">
+    <script>
+      try {
+        var toRemove = [];
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && (k.indexOf('customer') !== -1 || k.indexOf('enquir') !== -1 || k.indexOf('order') !== -1)) {
+            toRemove.push(k);
+          }
+        }
+        for (var j = 0; j < toRemove.length; j++) {
+          localStorage.removeItem(toRemove[j]);
+        }
+      } catch(e) {}
+    </script>
+    <script type="module" crossorigin src="/assets/index-Dl_HeRjt.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C7v29TNE.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>
