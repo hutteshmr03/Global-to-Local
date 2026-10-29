@@ -751,6 +751,18 @@ try:
             """))
             conn.commit()
 
+            try:
+                conn.execute(text("ALTER TABLE `store_reviews` ADD COLUMN `quote` TEXT;"))
+                conn.commit()
+            except Exception:
+                pass
+
+            try:
+                conn.execute(text("ALTER TABLE `store_reviews` ADD COLUMN `source` VARCHAR(40) NOT NULL DEFAULT 'Visitors Book';"))
+                conn.commit()
+            except Exception:
+                pass
+
             rev_count = conn.execute(text("SELECT COUNT(*) FROM store_reviews")).scalar()
             if rev_count == 0:
                 conn.execute(text("""
