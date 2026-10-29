@@ -557,6 +557,71 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
     };
   }
 
+  // Direct Phone Login & Registration Handler
+  if ((pathname === '/api/v1/auth/phone/direct' || pathname === '/api/v1/auth/phone-login') && method === 'POST') {
+    let body = options.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const rawDigits = (body?.phone || '').replace(/\D/g, '');
+    const cleanPhone = rawDigits.slice(-10); // Standard 10-digit Indian mobile
+    const isSignup = body?.mode === 'register' || body?.mode === 'signup';
+
+    const customers = initMockCustomers();
+    const existing = customers.find((c) => {
+      const p = (c.phone || '').replace(/\D/g, '').slice(-10);
+      return p && p === cleanPhone;
+    });
+
+    if (isSignup) {
+      if (existing) {
+        throw new ApiProblemError(409, {
+          title: 'Account Already Exists',
+          detail: 'An account with this mobile number already exists. Please sign in.',
+        });
+      }
+      const newCustomer = {
+        id: `cust-${Date.now()}`,
+        full_name: (body?.name || 'Customer').trim(),
+        name: (body?.name || 'Customer').trim(),
+        email: body?.email || `${cleanPhone}@customer.globaltolocal.in`,
+        phone: cleanPhone.length === 10 ? `+91 ${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}` : cleanPhone,
+        role: 'customer',
+        is_active: true,
+        order_count: 0,
+        created_at: new Date().toISOString(),
+      };
+      customers.push(newCustomer);
+      localStorage.setItem(STORAGE_CUSTOMERS, JSON.stringify(customers));
+      localStorage.setItem(STORAGE_USER, JSON.stringify(newCustomer));
+      return {
+        user: newCustomer,
+        access_token: 'mock-jwt-token-' + Date.now(),
+        csrf_token: 'mock-csrf-token-' + Date.now(),
+      };
+    } else {
+      // Login mode: strictly verify if account exists
+      if (!existing) {
+        throw new ApiProblemError(404, {
+          title: 'Account Not Found',
+          detail: 'There is no account with this mobile number. Please create a new account.',
+        });
+      }
+      if (!existing.is_active) {
+        throw new ApiProblemError(403, {
+          title: 'Account Inactive',
+          detail: 'This account has been deactivated. Please contact support.',
+        });
+      }
+      localStorage.setItem(STORAGE_USER, JSON.stringify(existing));
+      return {
+        user: existing,
+        access_token: 'mock-jwt-token-' + Date.now(),
+        csrf_token: 'mock-csrf-token-' + Date.now(),
+      };
+    }
+  }
+
   if (pathname === '/api/v1/auth/otp/request' && method === 'POST') {
     return {
       status: 'otp_sent',

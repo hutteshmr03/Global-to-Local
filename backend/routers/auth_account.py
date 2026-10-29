@@ -240,7 +240,7 @@ def direct_phone_auth(
             raise ProblemException(
                 status_code=404,
                 title="Account Not Found",
-                detail="No account found with this mobile number. Please create an account first.",
+                detail="There is no account with this mobile number. Please create a new account.",
                 problem_type="https://globaltolocal.in/problems/account-not-found",
             )
         elif not user.is_active:
