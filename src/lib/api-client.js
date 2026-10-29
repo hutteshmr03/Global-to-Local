@@ -172,8 +172,8 @@ export async function apiFetch(path, options = {}) {
   // Standalone fallback: Only when backend server is completely unreachable (networkFailed)
   // or proxy gateway failed (444, 502, 503, 504 on hosted preview environments).
   const isGatewayUnreachable = res && [444, 502, 503, 504].includes(res.status);
-  const isRouteNotFound = res && res.status === 404;
-  if (networkFailed || isGatewayUnreachable || isRouteNotFound) {
+  const isHtml404 = res && res.status === 404 && !(res.headers.get('content-type') || '').includes('json');
+  if (networkFailed || isGatewayUnreachable || isHtml404) {
     try {
       const mockResult = await handleMockBackend(path, options, method);
       if (mockResult !== undefined) {

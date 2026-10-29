@@ -1,21 +1,6 @@
 import { products as seedProducts, categories as seedCategories } from './data';
 
-// --- AUTO PURGE LEGACY TEST DATA FROM LOCALSTORAGE ---
-if (typeof localStorage !== 'undefined') {
-  try {
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && (k.includes('customer') || k.includes('enquir') || k.includes('order'))) {
-        keysToRemove.push(k);
-      }
-    }
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
-    localStorage.setItem('gtl_mock_customers_v5', JSON.stringify([]));
-    localStorage.setItem('gtl_mock_enquiries_v5', JSON.stringify([]));
-    localStorage.setItem('gtl_mock_orders_v5', JSON.stringify([]));
-  } catch {}
-}
+// Legacy storage purge disabled so newly registered customers persist permanently.
 
 const STORAGE_USER = 'gtl_mock_auth_user_v1';
 const STORAGE_PRODUCTS = 'gtl_mock_products_v3';
@@ -181,14 +166,12 @@ function initMockCustomers() {
             !name.includes('rahul naik') &&
             !name.includes('sancho fernandes') &&
             !name.includes('pooja naik') &&
-            !name.includes('max') &&
+            email !== 'max@example.com' &&
             !email.includes('example.com') &&
             !name.includes('gurjeet') &&
             !name.includes('debarshi') &&
-            !name.includes('kunal') &&
-            !name.includes('shopper 8288') &&
-            !name.includes('test user') &&
-            !(name.includes('test') && !name.includes('attest'))
+            !name.includes('kunal haldipur') &&
+            !name.includes('shopper 8288')
           );
         });
         localStorage.setItem(STORAGE_CUSTOMERS, JSON.stringify(clean));

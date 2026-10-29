@@ -49,15 +49,12 @@ export default function AdminCustomers() {
           !name.includes('rahul naik') &&
           !name.includes('sancho fernandes') &&
           !name.includes('pooja naik') &&
-          !name.includes('max') &&
+          email !== 'max@example.com' &&
           !email.includes('example.com') &&
           !name.includes('gurjeet') &&
-          !email.includes('gurjeet') &&
           !name.includes('debarshi') &&
-          !name.includes('kunal') &&
-          !name.includes('shopper 8288') &&
-          !name.includes('test user') &&
-          !(name.includes('test') && !name.includes('attest'))
+          !name.includes('kunal haldipur') &&
+          !name.includes('shopper 8288')
         );
       });
       setCustomers(clean);
