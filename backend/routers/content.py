@@ -185,7 +185,7 @@ def list_reviews(
 
 DEFAULT_PRESS_ARTICLES = [
     {
-        "id": "news-seed-1",
+        "id": "ab575cb4-952c-5887-afe8-7bfa1b421a19",
         "publication": "The Navhind Times",
         "date": "October 2020",
         "title": "Global to Local supermarket opens in city",
@@ -193,7 +193,7 @@ DEFAULT_PRESS_ARTICLES = [
         "display_order": 0,
     },
     {
-        "id": "news-seed-2",
+        "id": "eae0d3eb-264e-543f-8766-2d9c748e2065",
         "publication": "Business Goa",
         "date": "March 2021",
         "title": "Global to Local in Business Goa",
@@ -201,7 +201,7 @@ DEFAULT_PRESS_ARTICLES = [
         "display_order": 1,
     },
     {
-        "id": "news-seed-3",
+        "id": "5283bf83-49b3-5239-9e6c-7078b3146dc4",
         "publication": "Gomantak Times",
         "date": "August 2022",
         "title": "Global to Local empowers rural Goan women entrepreneurs",
@@ -209,7 +209,7 @@ DEFAULT_PRESS_ARTICLES = [
         "display_order": 2,
     },
     {
-        "id": "news-seed-4",
+        "id": "70c06e69-1a9e-5c27-b576-7e27172dc658",
         "publication": "The Goan",
         "date": "February 2025",
         "title": "Feature on Global to Local",
@@ -217,7 +217,7 @@ DEFAULT_PRESS_ARTICLES = [
         "display_order": 3,
     },
     {
-        "id": "news-seed-5",
+        "id": "d7de9b1b-9929-5478-ad0e-927bd95311aa",
         "publication": "Herald",
         "date": "November 2024",
         "title": "Global to Local in the Herald",
@@ -229,17 +229,23 @@ DEFAULT_PRESS_ARTICLES = [
 
 @router.get("/press")
 def list_press_mentions(db: Session = Depends(get_db)):
-    rows = (
-        db.query(PressMention)
-        .filter(PressMention.is_published == True)  # noqa: E712
-        .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
-        .all()
-    )
+    try:
+        rows = (
+            db.query(PressMention)
+            .filter(PressMention.is_published == True)  # noqa: E712
+            .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
+            .all()
+        )
+    except Exception as e:
+        logger.error(f"Error querying press_mentions in list_press_mentions: {e}")
+        db.rollback()
+        rows = []
+
     if not rows:
         try:
             for item in DEFAULT_PRESS_ARTICLES:
                 pm = PressMention(
-                    id=uuid.uuid4(),
+                    id=uuid.UUID(item["id"]),
                     kind=PressKind.article,
                     publication_or_issuer=item["publication"],
                     title=item["title"],
@@ -251,8 +257,9 @@ def list_press_mentions(db: Session = Depends(get_db)):
                 db.add(pm)
             db.commit()
             rows = db.query(PressMention).filter(PressMention.is_published == True).order_by(PressMention.display_order.asc(), PressMention.created_at.desc()).all()
-        except Exception:
+        except Exception as e:
             db.rollback()
+            logger.error(f"Error seeding default press articles: {e}")
             return {"items": DEFAULT_PRESS_ARTICLES, "articles": DEFAULT_PRESS_ARTICLES, "awards": [], "total": len(DEFAULT_PRESS_ARTICLES)}
 
     articles = []

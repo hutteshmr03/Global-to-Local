@@ -2207,7 +2207,7 @@ class AdminNewsCreatePayload(BaseModel):
 
 DEFAULT_ADMIN_NEWS = [
     {
-        "id": "news-seed-1",
+        "id": "ab575cb4-952c-5887-afe8-7bfa1b421a19",
         "publication": "The Navhind Times",
         "date": "October 2020",
         "title": "Global to Local supermarket opens in city",
@@ -2215,7 +2215,7 @@ DEFAULT_ADMIN_NEWS = [
         "display_order": 0,
     },
     {
-        "id": "news-seed-2",
+        "id": "eae0d3eb-264e-543f-8766-2d9c748e2065",
         "publication": "Business Goa",
         "date": "March 2021",
         "title": "Global to Local in Business Goa",
@@ -2223,7 +2223,7 @@ DEFAULT_ADMIN_NEWS = [
         "display_order": 1,
     },
     {
-        "id": "news-seed-3",
+        "id": "5283bf83-49b3-5239-9e6c-7078b3146dc4",
         "publication": "Gomantak Times",
         "date": "August 2022",
         "title": "Global to Local empowers rural Goan women entrepreneurs",
@@ -2231,7 +2231,7 @@ DEFAULT_ADMIN_NEWS = [
         "display_order": 2,
     },
     {
-        "id": "news-seed-4",
+        "id": "70c06e69-1a9e-5c27-b576-7e27172dc658",
         "publication": "The Goan",
         "date": "February 2025",
         "title": "Feature on Global to Local",
@@ -2239,7 +2239,7 @@ DEFAULT_ADMIN_NEWS = [
         "display_order": 3,
     },
     {
-        "id": "news-seed-5",
+        "id": "d7de9b1b-9929-5478-ad0e-927bd95311aa",
         "publication": "Herald",
         "date": "November 2024",
         "title": "Global to Local in the Herald",
@@ -2254,17 +2254,23 @@ def list_admin_news(
     admin: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db),
 ):
-    rows = (
-        db.query(PressMention)
-        .filter(PressMention.kind == PressKind.article)
-        .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
-        .all()
-    )
+    try:
+        rows = (
+            db.query(PressMention)
+            .filter(PressMention.kind == PressKind.article)
+            .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
+            .all()
+        )
+    except Exception as e:
+        logger.error(f"Error querying press_mentions in list_admin_news: {e}")
+        db.rollback()
+        rows = []
+
     if not rows:
         try:
             for item in DEFAULT_ADMIN_NEWS:
                 pm = PressMention(
-                    id=uuid.uuid4(),
+                    id=uuid.UUID(item["id"]),
                     kind=PressKind.article,
                     publication_or_issuer=item["publication"],
                     title=item["title"],
@@ -2281,23 +2287,29 @@ def list_admin_news(
                 .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
                 .all()
             )
-        except Exception:
+        except Exception as e:
             db.rollback()
+            logger.error(f"Error seeding default admin news: {e}")
             return {"items": DEFAULT_ADMIN_NEWS, "total": len(DEFAULT_ADMIN_NEWS)}
 
-    items = [
-        {
-            "id": str(r.id),
-            "publication": r.publication_or_issuer,
-            "title": r.title,
-            "date": r.excerpt or "",
-            "url": r.external_url or "#",
-            "published_on": r.published_on.isoformat() if r.published_on else None,
-            "is_published": r.is_published,
-            "created_at": safe_iso(r.created_at),
-        }
-        for r in rows
-    ]
+    items = []
+    for r in rows:
+        try:
+            pub_date = None
+            if r.published_on:
+                pub_date = r.published_on.isoformat() if hasattr(r.published_on, "isoformat") else str(r.published_on)
+            items.append({
+                "id": str(r.id),
+                "publication": r.publication_or_issuer,
+                "title": r.title,
+                "date": r.excerpt or "",
+                "url": r.external_url or "#",
+                "published_on": pub_date,
+                "is_published": r.is_published,
+                "created_at": safe_iso(r.created_at),
+            })
+        except Exception as item_err:
+            logger.error(f"Error serializing news row: {item_err}")
     return {"items": items, "total": len(items)}
 
 
