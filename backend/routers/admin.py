@@ -2292,6 +2292,8 @@ def list_admin_news(
             "title": r.title,
             "date": r.excerpt or "",
             "url": r.external_url or "#",
+            "published_on": r.published_on.isoformat() if r.published_on else None,
+            "is_published": r.is_published,
             "created_at": safe_iso(r.created_at),
         }
         for r in rows
@@ -2329,6 +2331,8 @@ def create_admin_news(
             "title": new_article.title,
             "date": new_article.excerpt or "",
             "url": new_article.external_url or "#",
+            "published_on": new_article.published_on.isoformat() if new_article.published_on else None,
+            "is_published": new_article.is_published,
             "created_at": safe_iso(new_article.created_at),
         }
     except Exception as e:

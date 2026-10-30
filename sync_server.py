@@ -91,6 +91,8 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/assets/index-J9i0aMOR.js", os.path.join(PUBLIC_HTML, "assets", "index-J9i0aMOR.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-BlAh8GAk.css", os.path.join(PUBLIC_HTML, "assets", "index-BlAh8GAk.css")),
     (f"{RAW_BASE}/dist_live/assets/index-Dg75Hq0W.js", os.path.join(PUBLIC_HTML, "assets", "index-Dg75Hq0W.js")),
     (f"{RAW_BASE}/dist_live/assets/index-CsWdp-YE.css", os.path.join(PUBLIC_HTML, "assets", "index-CsWdp-YE.css")),
     (f"{RAW_BASE}/dist_live/assets/index-DzAExp0c.js", os.path.join(PUBLIC_HTML, "assets", "index-DzAExp0c.js")),
@@ -387,7 +389,11 @@ for r_dir in [PUBLIC_HTML] + gtl_targets:
                     shutil.copy2(sandalwood_file, dest_img)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-CuxZTNtu.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-J9i0aMOR.js")
+if not os.path.exists(primary_bundle):
+    primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-Dg75Hq0W.js")
+if not os.path.exists(primary_bundle):
+    primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-CuxZTNtu.js")
 if not os.path.exists(primary_bundle):
     primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")
 if os.path.exists(primary_bundle):

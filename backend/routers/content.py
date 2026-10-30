@@ -232,7 +232,7 @@ def list_press_mentions(db: Session = Depends(get_db)):
     rows = (
         db.query(PressMention)
         .filter(PressMention.is_published == True)  # noqa: E712
-        .order_by(PressMention.display_order.asc(), PressMention.created_at.asc())
+        .order_by(PressMention.display_order.asc(), PressMention.created_at.desc())
         .all()
     )
     if not rows:
@@ -250,7 +250,7 @@ def list_press_mentions(db: Session = Depends(get_db)):
                 )
                 db.add(pm)
             db.commit()
-            rows = db.query(PressMention).filter(PressMention.is_published == True).order_by(PressMention.display_order.asc(), PressMention.created_at.asc()).all()
+            rows = db.query(PressMention).filter(PressMention.is_published == True).order_by(PressMention.display_order.asc(), PressMention.created_at.desc()).all()
         except Exception:
             db.rollback()
             return {"items": DEFAULT_PRESS_ARTICLES, "articles": DEFAULT_PRESS_ARTICLES, "awards": [], "total": len(DEFAULT_PRESS_ARTICLES)}

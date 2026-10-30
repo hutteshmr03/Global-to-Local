@@ -88,6 +88,10 @@ export default function AdminReviews() {
         body: JSON.stringify(payload),
       });
 
+      if (!created || !created.id) {
+        throw new Error('Server did not return a valid review ID.');
+      }
+
       // Prepend the new review immediately
       setReviews((prev) => [created, ...prev]);
       setShowAddModal(false);
@@ -199,9 +203,19 @@ export default function AdminReviews() {
 
       {/* Error Notification */}
       {error && (
-        <div className="flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800 shadow-xs">
-          <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
-          <span>{error}</span>
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800 shadow-xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchReviews}
+            className="inline-flex items-center gap-1.5 rounded-pill bg-rose-100 hover:bg-rose-200 text-rose-800 px-3 py-1 text-xs font-semibold transition-colors shrink-0"
+          >
+            <RefreshCw className="h-3 w-3" />
+            <span>Retry</span>
+          </button>
         </div>
       )}
 

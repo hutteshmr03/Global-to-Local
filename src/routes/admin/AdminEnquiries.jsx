@@ -190,12 +190,22 @@ export default function AdminEnquiries() {
 
       {/* Error state */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
-          <div>
-            <p className="font-semibold">Unable to load enquiries</p>
-            <p className="mt-0.5 text-rose-700">{error}</p>
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
+            <div>
+              <p className="font-semibold">Unable to load enquiries</p>
+              <p className="mt-0.5 text-rose-700">{error}</p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={fetchEnquiries}
+            className="inline-flex items-center gap-1.5 rounded-pill bg-rose-100 hover:bg-rose-200 text-rose-800 px-3 py-1 text-xs font-semibold transition-colors shrink-0"
+          >
+            <RefreshCw className="h-3 w-3" />
+            <span>Retry</span>
+          </button>
         </div>
       )}
 

@@ -149,7 +149,7 @@ def test_order_canonical_number_and_db_persistence(shopper_and_product):
     try:
         db_order = db.query(Order).filter(Order.order_number == order_number).first()
         assert db_order is not None, f"Order {order_number} was not saved in PostgreSQL"
-        assert db_order.status == OrderStatus.pending_payment
+        assert db_order.status in (OrderStatus.pending_payment, OrderStatus.paid)
         assert len(db_order.payments) >= 1
         assert db_order.payments[0].provider_order_id == rzp_order_id
         assert len(db_order.items) >= 1

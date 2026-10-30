@@ -235,7 +235,6 @@ export function useReviews(source, fallbackList = PRIMARY_VISITORS_REVIEWS) {
         return fallbackList;
       }
     },
-    initialData: fallbackList,
     placeholderData: fallbackList,
   });
 }
@@ -261,18 +260,21 @@ export function useAdminReviews() {
 export function usePress(fallbackData = { articles: [], awards: [] }) {
   return useQuery({
     queryKey: ['press'],
+    staleTime: 5000,
     queryFn: async () => {
       try {
         const res = await apiFetch('/api/v1/press');
-        return {
-          articles: res.articles || fallbackData.articles,
-          awards: res.awards || fallbackData.awards,
-        };
+        if (res && Array.isArray(res.articles)) {
+          return {
+            articles: res.articles,
+            awards: Array.isArray(res.awards) ? res.awards : fallbackData.awards,
+          };
+        }
+        return fallbackData;
       } catch {
         return fallbackData;
       }
     },
-    initialData: fallbackData,
     placeholderData: fallbackData,
   });
 }

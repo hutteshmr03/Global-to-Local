@@ -80,14 +80,14 @@ export default function AdminNews() {
     setError('');
     try {
       const res = await apiFetch('/api/v1/admin/news');
-      if (res && Array.isArray(res.items) && res.items.length > 0) {
+      if (res && Array.isArray(res.items)) {
         setArticles(res.items);
       } else {
-        setArticles(DEFAULT_ARTICLES);
+        setArticles([]);
       }
     } catch (err) {
-      // Graceful fallback to default articles
-      setArticles(DEFAULT_ARTICLES);
+      setError(err?.detail || err?.message || 'Failed to load news articles from server.');
+      setArticles([]);
     } finally {
       setLoading(false);
     }
@@ -133,8 +133,11 @@ export default function AdminNews() {
         body: JSON.stringify(payload),
       });
 
-      const newArticle = created?.id ? created : { ...payload, id: `news-${Date.now()}` };
-      setArticles((prev) => [newArticle, ...prev]);
+      if (!created || !created.id) {
+        throw new Error('Server did not return a valid article ID.');
+      }
+
+      setArticles((prev) => [created, ...prev]);
       setShowAddModal(false);
       setPublication('');
       setTitle('');
@@ -144,6 +147,7 @@ export default function AdminNews() {
       // Invalidate live store cache
       try {
         queryClient.invalidateQueries({ queryKey: ['press'] });
+        queryClient.refetchQueries({ queryKey: ['press'] });
       } catch {}
 
       setSuccessMsg('News article added successfully and published live!');
@@ -169,6 +173,7 @@ export default function AdminNews() {
       // Invalidate live store cache
       try {
         queryClient.invalidateQueries({ queryKey: ['press'] });
+        queryClient.refetchQueries({ queryKey: ['press'] });
       } catch {}
 
       setSuccessMsg('News article deleted successfully.');
@@ -241,6 +246,24 @@ export default function AdminNews() {
         <div className="flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-800 shadow-xs">
           <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
           <span>{successMsg}</span>
+        </div>
+      )}
+
+      {/* Error Notification with Retry */}
+      {error && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs sm:text-sm font-medium text-rose-800 shadow-xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchNews}
+            className="inline-flex items-center gap-1.5 rounded-pill bg-rose-100 hover:bg-rose-200 text-rose-800 px-3 py-1 text-xs font-semibold transition-colors shrink-0"
+          >
+            <RefreshCw className="h-3 w-3" />
+            <span>Retry</span>
+          </button>
         </div>
       )}
 

@@ -748,6 +748,24 @@ export default function AdminProducts() {
         </div>
       )}
 
+      {/* Error Banner with Retry */}
+      {error && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs sm:text-sm font-medium text-rose-800 shadow-xs">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={fetchProducts}
+            className="inline-flex items-center gap-1.5 rounded-pill bg-rose-100 hover:bg-rose-200 text-rose-800 px-3 py-1 text-xs font-semibold transition-colors shrink-0"
+          >
+            <RefreshCw className="h-3 w-3" />
+            <span>Retry</span>
+          </button>
+        </div>
+      )}
+
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <form onSubmit={handleSearchSubmit} className="relative flex-1">
