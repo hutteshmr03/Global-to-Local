@@ -115,10 +115,10 @@ export default function AdminLayout() {
     <div className="admin-scope min-h-screen bg-ground flex flex-col text-content font-sans overflow-x-clip">
       {/* Admin Top Navigation Bar */}
       <header className="sticky top-0 z-40 border-b border-border/60 bg-surface/95 backdrop-blur-md shadow-xs">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between gap-3 sm:gap-4">
-            {/* Left: Brand Logo Symbol & Admin Badge */}
-            <div className="flex items-center gap-3 shrink-0">
+        <div className="mx-auto w-full max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8">
+          <div className="flex h-16 items-center justify-between gap-2 sm:gap-3 xl:gap-4">
+            {/* Left: Brand Logo Symbol */}
+            <div className="flex items-center shrink-0">
               <Link
                 to="/admin"
                 className="flex items-center group focus:outline-none"
@@ -134,14 +134,11 @@ export default function AdminLayout() {
                   </div>
                 </div>
               </Link>
-              <span className="rounded-pill bg-palm/10 border border-palm/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-palm whitespace-nowrap shrink-0">
-                Admin Office
-              </span>
             </div>
 
             {/* Desktop Navigation Links: Pill-Style Container (>= 1024px) */}
             <nav
-              className="relative hidden lg:flex items-center gap-1 rounded-pill border border-border/60 bg-surface/90 backdrop-blur-md text-content shadow-xs px-2 py-1 shrink-0"
+              className="relative hidden lg:flex items-center gap-0.5 xl:gap-1 rounded-pill border border-border/60 bg-surface/90 backdrop-blur-md text-content shadow-xs px-1.5 xl:px-2 py-1 shrink min-w-0"
               aria-label="Admin Navigation"
             >
               {navItems.map((item) => {
@@ -152,7 +149,7 @@ export default function AdminLayout() {
                     to={item.to}
                     end={item.end}
                     className={({ isActive }) =>
-                      `relative whitespace-nowrap rounded-pill px-3 py-1.5 text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                      `relative whitespace-nowrap rounded-pill px-2.5 xl:px-3 py-1.5 text-[11px] xl:text-xs font-semibold transition-all duration-200 flex items-center gap-1 xl:gap-1.5 shrink-0 ${
                         isActive
                           ? 'bg-palm text-white shadow-xs'
                           : 'text-content-muted hover:text-content hover:bg-surface-muted'
@@ -167,12 +164,12 @@ export default function AdminLayout() {
             </nav>
 
             {/* Right: View Store & Sign Out (>= 1024px) */}
-            <div className="hidden lg:flex items-center gap-3 shrink-0">
+            <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
               <Link
                 to="/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-pill px-3 py-1.5 text-xs font-semibold text-content-muted hover:text-content hover:bg-surface-muted transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-pill px-2.5 xl:px-3 py-1.5 text-xs font-semibold text-content-muted hover:text-content hover:bg-surface-muted transition-colors whitespace-nowrap"
                 title="Open Public Customer Storefront in new tab"
               >
                 <span>View Store</span>
@@ -184,7 +181,7 @@ export default function AdminLayout() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border border-border bg-ground px-3.5 py-1.5 text-xs font-semibold text-content hover:bg-surface hover:border-content-subtle transition-all shadow-xs whitespace-nowrap min-h-[36px]"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-pill border border-border bg-ground px-3 xl:px-3.5 py-1.5 text-xs font-semibold text-content hover:bg-surface hover:border-content-subtle transition-all shadow-xs whitespace-nowrap min-h-[36px]"
                 title="Sign out of admin office"
               >
                 <LogOut className="h-3.5 w-3.5 text-accent" />
