@@ -91,8 +91,8 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
-    (f"{RAW_BASE}/dist_live/assets/index-DDAiw932.js", os.path.join(PUBLIC_HTML, "assets", "index-DDAiw932.js")),
-    (f"{RAW_BASE}/dist_live/assets/index-DDAiw932.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-CuxZTNtu.js", os.path.join(PUBLIC_HTML, "assets", "index-CuxZTNtu.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-CuxZTNtu.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BC7S-BuO.js", os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")),
@@ -383,7 +383,7 @@ for r_dir in [PUBLIC_HTML] + gtl_targets:
                     shutil.copy2(sandalwood_file, dest_img)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-DDAiw932.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-CuxZTNtu.js")
 if not os.path.exists(primary_bundle):
     primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-BC7S-BuO.js")
 if os.path.exists(primary_bundle):
@@ -762,6 +762,24 @@ try:
                 """))
                 conn.commit()
                 print("[OK] Seeded 3 default verified reviews to store_reviews table.", flush=True)
+
+            # Ensure source column has standard "Visitors' Book" across all reviews
+            conn.execute(text("UPDATE store_reviews SET source = 'Visitors\' Book' WHERE source LIKE '%Visitor%';"))
+            conn.commit()
+
+            # Ensure the user's added review '123' exists in MySQL so all devices see it immediately
+            try:
+                rev_123 = conn.execute(text("SELECT COUNT(*) FROM store_reviews WHERE author_name = '123'")).scalar()
+                if rev_123 == 0:
+                    conn.execute(text("""
+                        INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order, created_at)
+                        VALUES 
+                        ('rev-user-123', '123', '', 5, '123', "Visitors' Book", 1, 1, 0, NOW());
+                    """))
+                    conn.commit()
+                    print("[OK] Review '123' inserted into store_reviews table.", flush=True)
+            except Exception:
+                pass
         except Exception as seed_err:
             print(f"[NOTE] store_reviews notice: {seed_err}", flush=True)
 
@@ -946,6 +964,31 @@ if os.path.exists(BASE_DIR):
     time.sleep(5)
 
     print("[OK] Uvicorn service restarted in background on port 8008.", flush=True)
+
+    # Install 24/7 Crontab Keep-Alive Watchdog for Uvicorn
+    try:
+        watchdog_path = os.path.join(BASE_DIR, "keep_alive.sh")
+        with open(watchdog_path, "w", encoding="utf-8") as wf:
+            wf.write(f"""#!/bin/bash
+pgrep -f "uvicorn.*8008" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    cd {BASE_DIR}
+    nohup {PYTHON_BIN} -u -m uvicorn backend.main:app --host 127.0.0.1 --port 8008 --workers 1 >> {log_file} 2>&1 &
+fi
+""")
+        os.chmod(watchdog_path, 0o755)
+
+        res_cron = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
+        cur_cron = res_cron.stdout if res_cron.returncode == 0 else ""
+        cron_cmd = f"* * * * * /bin/bash {watchdog_path} > /dev/null 2>&1"
+        if "keep_alive.sh" not in cur_cron:
+            new_cron = (cur_cron.strip() + f"\n# GTL Uvicorn 24/7 Watchdog\n{cron_cmd}\n") if cur_cron.strip() else f"{cron_cmd}\n"
+            subprocess.run(["crontab", "-"], input=new_cron, text=True, check=True)
+            print("[OK] 24/7 Keep-alive watchdog installed in crontab.", flush=True)
+        else:
+            print("[OK] 24/7 Keep-alive watchdog active in crontab.", flush=True)
+    except Exception as cw_err:
+        print(f"[NOTE] Crontab watchdog notice: {cw_err}", flush=True)
 
 # 4. Comprehensive Live Health Checks (with retry)
 

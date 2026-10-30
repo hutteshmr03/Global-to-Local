@@ -93,7 +93,17 @@ def list_reviews(
     try:
         query = db.query(StoreReview).filter(StoreReview.is_approved == True)  # noqa: E712
         if source:
-            query = query.filter(StoreReview.source == source)
+            clean_source = source.replace("'", "").replace("’", "").strip().lower()
+            query = query.filter(
+                or_(
+                    StoreReview.source == source,
+                    StoreReview.source == source.replace("'", ""),
+                    StoreReview.source == source.replace("’", ""),
+                    StoreReview.source == source.replace("Visitors Book", "Visitors' Book"),
+                    StoreReview.source == source.replace("Visitors' Book", "Visitors Book"),
+                    func.replace(func.replace(func.lower(StoreReview.source), "'", ""), "’", "") == clean_source,
+                )
+            )
         if featured is not None:
             query = query.filter(StoreReview.is_featured == featured)
         rows = query.order_by(StoreReview.display_order.asc(), StoreReview.created_at.desc()).all()
