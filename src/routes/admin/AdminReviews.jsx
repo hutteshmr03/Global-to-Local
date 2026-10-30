@@ -103,6 +103,7 @@ export default function AdminReviews() {
       // Invalidate customer reviews cache so home & social corner update immediately!
       try {
         queryClient.invalidateQueries({ queryKey: ['reviews'] });
+        queryClient.refetchQueries({ queryKey: ['reviews'] });
       } catch {}
 
       setSuccessMsg('Review added successfully and published to live website!');
@@ -125,6 +126,7 @@ export default function AdminReviews() {
       setDeletingId(null);
       try {
         queryClient.invalidateQueries({ queryKey: ['reviews'] });
+        queryClient.refetchQueries({ queryKey: ['reviews'] });
       } catch {}
       setSuccessMsg('Review deleted successfully.');
       setTimeout(() => setSuccessMsg(''), 4000);

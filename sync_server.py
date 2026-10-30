@@ -91,6 +91,7 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/assets/index-DSnCbPCg.js", os.path.join(PUBLIC_HTML, "assets", "index-DSnCbPCg.js")),
     (f"{RAW_BASE}/dist_live/assets/index-J9i0aMOR.js", os.path.join(PUBLIC_HTML, "assets", "index-J9i0aMOR.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BlAh8GAk.css", os.path.join(PUBLIC_HTML, "assets", "index-BlAh8GAk.css")),
     (f"{RAW_BASE}/dist_live/assets/index-Dg75Hq0W.js", os.path.join(PUBLIC_HTML, "assets", "index-Dg75Hq0W.js")),
@@ -389,7 +390,9 @@ for r_dir in [PUBLIC_HTML] + gtl_targets:
                     shutil.copy2(sandalwood_file, dest_img)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-J9i0aMOR.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-DSnCbPCg.js")
+if not os.path.exists(primary_bundle):
+    primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-J9i0aMOR.js")
 if not os.path.exists(primary_bundle):
     primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-Dg75Hq0W.js")
 if not os.path.exists(primary_bundle):
@@ -729,8 +732,8 @@ try:
                   `author_location` VARCHAR(120) DEFAULT NULL,
                   `rating` SMALLINT NOT NULL DEFAULT 5,
                   `quote` TEXT NOT NULL,
-                  `source` VARCHAR(40) NOT NULL DEFAULT 'Visitors Book',
-                  `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+                  `source` VARCHAR(40) NOT NULL DEFAULT "Visitors' Book",
+                  `is_featured` TINYINT(1) NOT NULL DEFAULT 1,
                   `is_approved` TINYINT(1) NOT NULL DEFAULT 1,
                   `display_order` SMALLINT NOT NULL DEFAULT 0,
                   `reviewed_on` DATE DEFAULT NULL,
@@ -748,9 +751,9 @@ try:
                 ('author_location', 'VARCHAR(120) DEFAULT NULL'),
                 ('rating', 'SMALLINT NOT NULL DEFAULT 5'),
                 ('quote', 'TEXT'),
-                ('source', "VARCHAR(40) NOT NULL DEFAULT 'Visitors Book'"),
+                ('source', "VARCHAR(40) NOT NULL DEFAULT 'Visitors'' Book'"),
                 ('is_approved', 'TINYINT(1) NOT NULL DEFAULT 1'),
-                ('is_featured', 'TINYINT(1) NOT NULL DEFAULT 0'),
+                ('is_featured', 'TINYINT(1) NOT NULL DEFAULT 1'),
                 ('display_order', 'SMALLINT NOT NULL DEFAULT 0'),
                 ('reviewed_on', 'DATE DEFAULT NULL'),
                 ('created_at', 'DATETIME DEFAULT CURRENT_TIMESTAMP')
@@ -761,35 +764,26 @@ try:
                 except Exception:
                     pass
 
+            # Purge any legacy non-UUID reviews (rev-001, rev-002, rev-003, rev-user-123) that crash SQLAlchemy
+            conn.execute(text("DELETE FROM store_reviews WHERE id LIKE 'rev-%';"))
+            conn.commit()
+
             rev_count = conn.execute(text("SELECT COUNT(*) FROM store_reviews")).scalar()
             if rev_count == 0:
                 conn.execute(text("""
-                    INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order)
+                    INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order, created_at)
                     VALUES 
-                    ('rev-001', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', 'Visitors Book', 1, 1, 1),
-                    ('rev-002', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shimmering on the shelves made the products very attractive. I definitely recommend Global to Local to authentic goan flavours and gifting requirement.', 'Visitors Book', 1, 1, 2),
-                    ('rev-003', 'Huttesh M R', 'Panaji, Goa', 5, 'The best authentic Goan artisanal products in Fontainhas. Every item reflects pristine Goan craftsmanship and dedication to perfection.', 'Visitors Book', 1, 1, 3);
+                    ('ec960142-c54a-5ee6-8c9c-98486d8b6be2', '123', '', 5, '123', "Visitors' Book", 1, 1, 0, NOW()),
+                    ('69ceb732-e711-5a8e-a4b1-fa84beb27619', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', "Visitors' Book", 1, 1, 1, NOW()),
+                    ('9899d568-12d7-5d78-b36a-6987dbbab494', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny\'s house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', "Visitors' Book", 1, 1, 2, NOW()),
+                    ('e151ab35-605e-5d98-bb72-e14c5f679245', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', "Visitors' Book", 1, 1, 3, NOW());
                 """))
                 conn.commit()
-                print("[OK] Seeded 3 default verified reviews to store_reviews table.", flush=True)
+                print("[OK] Seeded verified reviews with valid UUIDs to store_reviews table.", flush=True)
 
             # Ensure source column has standard "Visitors' Book" across all reviews
             conn.execute(text("UPDATE store_reviews SET source = 'Visitors'' Book' WHERE source LIKE '%Visitor%';"))
             conn.commit()
-
-            # Ensure the user's added review '123' exists in MySQL so all devices see it immediately
-            try:
-                rev_123 = conn.execute(text("SELECT COUNT(*) FROM store_reviews WHERE author_name = '123'")).scalar()
-                if rev_123 == 0:
-                    conn.execute(text("""
-                        INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order, created_at)
-                        VALUES 
-                        ('rev-user-123', '123', '', 5, '123', "Visitors' Book", 1, 1, 0, NOW());
-                    """))
-                    conn.commit()
-                    print("[OK] Review '123' inserted into store_reviews table.", flush=True)
-            except Exception:
-                pass
         except Exception as seed_err:
             print(f"[NOTE] store_reviews notice: {seed_err}", flush=True)
 
@@ -852,17 +846,45 @@ try:
         except Exception as pm_err:
             print(f"[NOTE] press_mentions notice: {pm_err}", flush=True)
 
-        # F5. Ensure enquiries table has proper DATETIME and NULL defaults instead of empty strings
+        # F5. Ensure enquiries table has all columns and proper DATETIME/NULL defaults
         try:
+            # Ensure all columns exist in enquiries table
+            for col_name, col_type in [
+                ('type', "VARCHAR(32) NOT NULL DEFAULT 'general'"),
+                ('status', "VARCHAR(32) NOT NULL DEFAULT 'new'"),
+                ('name', "VARCHAR(120) NOT NULL DEFAULT ''"),
+                ('email', "VARCHAR(255) NOT NULL DEFAULT ''"),
+                ('phone', "VARCHAR(20) DEFAULT NULL"),
+                ('organisation', "VARCHAR(160) DEFAULT NULL"),
+                ('pincode', "VARCHAR(10) DEFAULT NULL"),
+                ('subject', "VARCHAR(200) DEFAULT NULL"),
+                ('message', "TEXT NOT NULL"),
+                ('budget_paise', "INT DEFAULT NULL"),
+                ('quantity_estimate', "INT DEFAULT NULL"),
+                ('preferred_delivery_date', "DATE DEFAULT NULL"),
+                ('assigned_to', "VARCHAR(36) DEFAULT NULL"),
+                ('internal_notes', "TEXT DEFAULT NULL"),
+                ('ip_address', "VARCHAR(64) DEFAULT NULL"),
+                ('user_agent', "VARCHAR(255) DEFAULT NULL"),
+                ('created_at', "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+                ('updated_at', "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+            ]:
+                try:
+                    conn.execute(text(f"ALTER TABLE `enquiries` ADD COLUMN `{col_name}` {col_type};"))
+                    conn.commit()
+                except Exception:
+                    pass
+
             conn.execute(text("UPDATE enquiries SET created_at = NOW() WHERE created_at = '' OR created_at IS NULL;"))
             conn.execute(text("UPDATE enquiries SET updated_at = NOW() WHERE updated_at = '' OR updated_at IS NULL;"))
             conn.execute(text("UPDATE enquiries SET budget_paise = NULL WHERE budget_paise = '';"))
             conn.execute(text("UPDATE enquiries SET quantity_estimate = NULL WHERE quantity_estimate = '';"))
             conn.execute(text("UPDATE enquiries SET preferred_delivery_date = NULL WHERE preferred_delivery_date = '';"))
+            conn.execute(text("ALTER TABLE `enquiries` MODIFY `message` TEXT NOT NULL;"))
             conn.execute(text("ALTER TABLE `enquiries` MODIFY `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP;"))
             conn.execute(text("ALTER TABLE `enquiries` MODIFY `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;"))
             conn.commit()
-            print("[OK] enquiries table schema verified and hardened.", flush=True)
+            print("[OK] enquiries table schema verified, columns ensured, and hardened.", flush=True)
         except Exception as enq_err:
             print(f"[NOTE] enquiries table hardening notice: {enq_err}", flush=True)
 

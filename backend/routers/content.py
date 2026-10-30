@@ -5,6 +5,7 @@ from datetime import date
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, Query, Request, status
 from pydantic import BaseModel, EmailStr, Field, field_validator
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from backend.core.errors import ProblemException
 from backend.core.providers import send_enquiry_acknowledgement_email, verify_captcha_token
@@ -108,12 +109,29 @@ def list_reviews(
             query = query.filter(StoreReview.is_featured == featured)
         rows = query.order_by(StoreReview.display_order.asc(), StoreReview.created_at.desc()).all()
     except Exception as e:
+        logger.error(f"Error querying store_reviews: {e}")
         rows = []
 
     if not rows and (not source or source == "Visitors' Book"):
         default_items = [
             {
-                "id": "rev-001",
+                "id": "ec960142-c54a-5ee6-8c9c-98486d8b6be2",
+                "name": "123",
+                "author_name": "123",
+                "author": "123",
+                "stars": 5,
+                "rating": 5,
+                "description": "123",
+                "quote": "123",
+                "location": "",
+                "author_location": "",
+                "role": "",
+                "source": "Visitors' Book",
+                "is_featured": True,
+                "created_at": "2026-10-30T10:00:00Z",
+            },
+            {
+                "id": "69ceb732-e711-5a8e-a4b1-fa84beb27619",
                 "name": "Gifty Abraham",
                 "author_name": "Gifty Abraham",
                 "author": "Gifty Abraham",
@@ -126,9 +144,10 @@ def list_reviews(
                 "role": "",
                 "source": "Visitors' Book",
                 "is_featured": True,
+                "created_at": "2024-01-15T10:00:00Z",
             },
             {
-                "id": "rev-002",
+                "id": "9899d568-12d7-5d78-b36a-6987dbbab494",
                 "name": "Stedwick Fernandes",
                 "author_name": "Stedwick Fernandes",
                 "author": "Stedwick Fernandes",
@@ -144,7 +163,7 @@ def list_reviews(
                 "created_at": "2024-01-20T14:30:00Z",
             },
             {
-                "id": "rev-003",
+                "id": "e151ab35-605e-5d98-bb72-e14c5f679245",
                 "name": "Swapna Pujari",
                 "author_name": "Swapna Pujari",
                 "author": "Swapna Pujari",
@@ -374,6 +393,7 @@ def submit_enquiry(
             )
 
     enquiry = Enquiry(
+        id=uuid.uuid4(),
         type=payload.type,
         status=EnquiryStatus.new,
         name=payload.name,
