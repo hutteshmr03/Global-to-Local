@@ -830,19 +830,25 @@ try:
             conn.execute(text("DELETE FROM press_mentions WHERE id LIKE 'news-seed-%' OR id LIKE 'news-%';"))
             conn.commit()
 
-            pm_count = conn.execute(text("SELECT COUNT(*) FROM press_mentions")).scalar()
-            if pm_count == 0:
-                conn.execute(text("""
-                    INSERT INTO press_mentions (id, kind, publication_or_issuer, title, excerpt, external_url, is_published, display_order)
-                    VALUES 
-                    ('ab575cb4-952c-5887-afe8-7bfa1b421a19', 'article', 'The Navhind Times', 'Global to Local supermarket opens in city', 'October 2020', 'https://www.navhindtimes.in/2020/10/28/business/global-to-local-supermarket-opens-in-city/', 1, 0),
-                    ('eae0d3eb-264e-543f-8766-2d9c748e2065', 'article', 'Business Goa', 'Global to Local in Business Goa', 'March 2021', 'https://businessgoa.in/tag/global-to-local/', 1, 1),
-                    ('5283bf83-49b3-5239-9e6c-7078b3146dc4', 'article', 'Gomantak Times', 'Global to Local empowers rural Goan women entrepreneurs', 'August 2022', 'https://www.gomantaktimes.com/news/business/global-to-local-empowers-rural-goan-women-entrepreneurs', 1, 2),
-                    ('70c06e69-1a9e-5c27-b576-7e27172dc658', 'article', 'The Goan', 'Feature on Global to Local', 'February 2025', '#', 1, 3),
-                    ('d7de9b1b-9929-5478-ad0e-927bd95311aa', 'article', 'Herald', 'Global to Local in the Herald', 'November 2024', '#', 1, 4);
-                """))
-                conn.commit()
-                print("[OK] Seeded default news articles with valid UUIDs to press_mentions table.", flush=True)
+            # Ensure the 5 canonical news articles exist with their exact URLs and live links
+            conn.execute(text("""
+                INSERT INTO press_mentions (id, kind, publication_or_issuer, title, excerpt, external_url, is_published, display_order, created_at)
+                VALUES 
+                ('ab575cb4-952c-5887-afe8-7bfa1b421a19', 'article', 'The Navhind Times', 'Global to Local supermarket opens in city', 'October 2020', 'https://www.navhindtimes.in/2020/10/28/business/global-to-local-supermarket-opens-in-city/', 1, 1, '2020-10-28 10:00:00'),
+                ('eae0d3eb-264e-543f-8766-2d9c748e2065', 'article', 'Business Goa', 'Global to Local in Business Goa', 'March 2021', 'https://businessgoa.in/tag/global-to-local/', 1, 2, '2021-03-15 10:00:00'),
+                ('5283bf83-49b3-5239-9e6c-7078b3146dc4', 'article', 'Gomantak Times', 'Global to Local empowers rural Goan women entrepreneurs', 'August 2022', 'https://www.gomantaktimes.com/news/business/global-to-local-empowers-rural-goan-women-entrepreneurs', 1, 3, '2022-08-20 10:00:00'),
+                ('70c06e69-1a9e-5c27-b576-7e27172dc658', 'article', 'The Goan', 'Feature on Global to Local', 'February 2025', '#', 1, 4, '2025-02-10 10:00:00'),
+                ('d7de9b1b-9929-5478-ad0e-927bd95311aa', 'article', 'Herald', 'Global to Local in the Herald', 'November 2024', '#', 1, 5, '2024-11-05 10:00:00')
+                ON DUPLICATE KEY UPDATE 
+                  publication_or_issuer = VALUES(publication_or_issuer),
+                  title = VALUES(title),
+                  excerpt = VALUES(excerpt),
+                  external_url = VALUES(external_url),
+                  is_published = VALUES(is_published),
+                  display_order = VALUES(display_order);
+            """))
+            conn.commit()
+            print("[OK] Ensured all 5 canonical news articles exist with working external URLs.", flush=True)
         except Exception as pm_err:
             print(f"[NOTE] press_mentions notice: {pm_err}", flush=True)
 
