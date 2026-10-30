@@ -768,7 +768,7 @@ try:
                 print("[OK] Seeded 3 default verified reviews to store_reviews table.", flush=True)
 
             # Ensure source column has standard "Visitors' Book" across all reviews
-            conn.execute(text("UPDATE store_reviews SET source = 'Visitors\' Book' WHERE source LIKE '%Visitor%';"))
+            conn.execute(text("UPDATE store_reviews SET source = 'Visitors'' Book' WHERE source LIKE '%Visitor%';"))
             conn.commit()
 
             # Ensure the user's added review '123' exists in MySQL so all devices see it immediately
