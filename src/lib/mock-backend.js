@@ -961,7 +961,7 @@ export async function handleMockBackend(path, options = {}, method = 'GET') {
         )
       : orders;
 
-    const list = userOrders.length > 0 ? userOrders : orders;
+    const list = authUser ? userOrders : orders;
     return { items: list, total: list.length };
   }
 

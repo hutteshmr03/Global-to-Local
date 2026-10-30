@@ -130,7 +130,6 @@ export default function AdminOrderDetail() {
         method: 'PATCH',
         body: {
           new_status: targetStatus,
-          status: targetStatus,
           carrier: targetStatus === 'shipped' ? (carrier || 'Delhivery Express') : undefined,
           tracking_number: targetStatus === 'shipped' ? (trackingNumber || undefined) : undefined,
           tracking_url: targetStatus === 'shipped' ? (trackingUrl || undefined) : undefined,
@@ -317,10 +316,11 @@ export default function AdminOrderDetail() {
                       <button
                         type="button"
                         onClick={() => handleOpenTransitionModal(nextTransition.next)}
-                        className="w-full py-2 px-3 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-xs font-bold text-center transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+                        disabled={submittingStatus}
+                        className="w-full py-2 px-3 rounded-xl bg-[#C45C4A] hover:bg-[#B04F3E] text-white text-xs font-bold text-center transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                       >
                         <nextTransition.icon className="h-3.5 w-3.5" />
-                        <span>{nextTransition.label} &rarr;</span>
+                        <span>{submittingStatus ? 'Updating...' : `${nextTransition.label} →`}</span>
                       </button>
                     )}
                     {isCompleted && (

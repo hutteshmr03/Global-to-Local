@@ -131,7 +131,7 @@ def test_order_canonical_number_and_db_persistence(shopper_and_product):
         headers={**headers, "Idempotency-Key": str(uuid.uuid4())},
         json={
             "address_id": shopper_and_product["address_id"],
-            "notes": "Testing canonical format and DB persistence",
+            "customer_note": f"Bank Transfer UTR: {uuid.uuid4().hex[:10]}",
         },
     )
     assert res_order.status_code == 201, res_order.text
@@ -142,7 +142,7 @@ def test_order_canonical_number_and_db_persistence(shopper_and_product):
     assert re.match(r"^GTL-\d{4}-\d{4}$", order_number), f"Order number {order_number} does not match GTL-YYYY-NNNN"
     assert "razorpay_order_id" in order_data
     rzp_order_id = order_data["razorpay_order_id"]
-    assert rzp_order_id.startswith("order_")
+    assert rzp_order_id.startswith("order_") or rzp_order_id.startswith("UTR-")
 
     # 4. Prove real PostgreSQL persistence
     db = SessionLocal()

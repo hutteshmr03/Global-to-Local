@@ -1600,19 +1600,92 @@ def update_admin_order_status(
             "new_status": target_status_str,
         }
 
-    VALID_STATUSES = {"pending_payment", "paid", "packed", "shipped", "delivered", "cancelled"}
-    if target_status_str not in VALID_STATUSES:
+    # Strict forward-only fulfillment progression: paid -> packed -> shipped -> delivered
+    # Cancellations are permitted from pending_payment, paid, or packed.
+    FORWARD_STATUS_TRANSITIONS = {
+        "pending_payment": ["paid", "cancelled"],
+        "paid": ["packed", "cancelled"],
+        "packed": ["shipped", "cancelled"],
+        "shipped": ["delivered"],
+    }
+
+    allowed_targets = FORWARD_STATUS_TRANSITIONS.get(curr_status_str, [])
+    if target_status_str not in allowed_targets:
         raise ProblemException(
             status_code=400,
             title="Invalid Status Transition",
-            detail=f"Cannot transition order to '{target_status_str}'.",
+            detail=f"Cannot transition order from '{curr_status_str}' to '{target_status_str}'.",
             problem_type="https://globaltolocal.in/problems/invalid-transition",
         )
 
     old_status_val = curr_status_str
     client_ip = request.client.host if request.client else "127.0.0.1"
 
-    # Audit log (fail-safe)
+    # Atomic transaction for Order status, OrderStatusEvent, and Shipment
+    try:
+        event = OrderStatusEvent(
+            order_id=order.id,
+            from_status=old_status_val,
+            to_status=target_status_str,
+            actor_user_id=admin.id,
+            note=payload.note or f"Order marked as {target_status_str.capitalize()} by admin.",
+            created_at=datetime.now(timezone.utc),
+        )
+        db.add(event)
+
+        try:
+            order.status = OrderStatus(target_status_str)
+        except Exception:
+            order.status = target_status_str
+        order.updated_at = datetime.now(timezone.utc)
+        if target_status_str == "paid" and not order.paid_at:
+            order.paid_at = datetime.now(timezone.utc)
+        elif target_status_str == "cancelled" and not order.cancelled_at:
+            order.cancelled_at = datetime.now(timezone.utc)
+
+        if payload.carrier or payload.tracking_number or target_status_str in ("shipped", "delivered"):
+            shipment = order.shipments[0] if (order.shipments and len(order.shipments) > 0) else None
+            if not shipment:
+                shipment = Shipment(
+                    id=str(uuid.uuid4()),
+                    order_id=order.id,
+                    carrier=payload.carrier or "Delhivery Express",
+                    awb_or_tracking_number=payload.tracking_number or f"DEL-{secrets.token_hex(4).upper()}",
+                    tracking_url=payload.tracking_url or "",
+                    status=ShipmentStatus.in_transit if target_status_str == "shipped" else (ShipmentStatus.delivered if target_status_str == "delivered" else ShipmentStatus.label_created),
+                    dispatched_at=datetime.now(timezone.utc) if target_status_str == "shipped" else None,
+                    delivered_at=datetime.now(timezone.utc) if target_status_str == "delivered" else None,
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc),
+                )
+                db.add(shipment)
+            else:
+                if payload.carrier:
+                    shipment.carrier = payload.carrier
+                if payload.tracking_number:
+                    shipment.awb_or_tracking_number = payload.tracking_number
+                if payload.tracking_url:
+                    shipment.tracking_url = payload.tracking_url
+                if target_status_str == "shipped":
+                    shipment.status = ShipmentStatus.in_transit
+                    if not shipment.dispatched_at:
+                        shipment.dispatched_at = datetime.now(timezone.utc)
+                elif target_status_str == "delivered":
+                    shipment.status = ShipmentStatus.delivered
+                    if not shipment.delivered_at:
+                        shipment.delivered_at = datetime.now(timezone.utc)
+
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.error(f"Order status transition failed: {exc}")
+        raise ProblemException(
+            status_code=500,
+            title="Order Status Update Failed",
+            detail="Failed to update order status in database. Please try again.",
+        )
+
+    # Post-commit audit log (fail-safe)
     try:
         safe_log_audit(
             db=db,
@@ -1624,75 +1697,9 @@ def update_admin_order_status(
             after_state={"status": target_status_str, "note": payload.note},
             ip_address=client_ip,
         )
+        db.commit()
     except Exception as a_err:
         logger.warning(f"Audit log notice: {a_err}")
-
-    # Order status event (fail-safe savepoint)
-    try:
-        with db.begin_nested():
-            event = OrderStatusEvent(
-                order_id=order.id,
-                from_status=old_status_val,
-                to_status=target_status_str,
-                actor_user_id=admin.id,
-                note=payload.note or f"Order marked as {target_status_str.capitalize()} by admin.",
-                created_at=datetime.now(timezone.utc),
-            )
-            db.add(event)
-            db.flush()
-    except Exception as e:
-        logger.warning(f"Could not record order status event: {e}")
-
-    # Update order status
-    try:
-        order.status = OrderStatus(target_status_str)
-    except Exception:
-        order.status = target_status_str
-    order.updated_at = datetime.now(timezone.utc)
-    if target_status_str == "paid" and not order.paid_at:
-        order.paid_at = datetime.now(timezone.utc)
-    elif target_status_str == "cancelled" and not order.cancelled_at:
-        order.cancelled_at = datetime.now(timezone.utc)
-
-    # If carrier or tracking provided or status is shipped/delivered, manage shipment (fail-safe savepoint)
-    if payload.carrier or payload.tracking_number or target_status_str in ("shipped", "delivered"):
-        try:
-            with db.begin_nested():
-                shipment = order.shipments[0] if (order.shipments and len(order.shipments) > 0) else None
-                if not shipment:
-                    shipment = Shipment(
-                        id=str(uuid.uuid4()),
-                        order_id=order.id,
-                        carrier=payload.carrier or "Delhivery Express",
-                        awb_or_tracking_number=payload.tracking_number or f"DEL-{secrets.token_hex(4).upper()}",
-                        tracking_url=payload.tracking_url or "",
-                        status=ShipmentStatus.in_transit if target_status_str == "shipped" else (ShipmentStatus.delivered if target_status_str == "delivered" else ShipmentStatus.label_created),
-                        dispatched_at=datetime.now(timezone.utc) if target_status_str == "shipped" else None,
-                        delivered_at=datetime.now(timezone.utc) if target_status_str == "delivered" else None,
-                        created_at=datetime.now(timezone.utc),
-                        updated_at=datetime.now(timezone.utc),
-                    )
-                    db.add(shipment)
-                else:
-                    if payload.carrier:
-                        shipment.carrier = payload.carrier
-                    if payload.tracking_number:
-                        shipment.awb_or_tracking_number = payload.tracking_number
-                    if payload.tracking_url:
-                        shipment.tracking_url = payload.tracking_url
-                    if target_status_str == "shipped":
-                        shipment.status = ShipmentStatus.in_transit
-                        if not shipment.dispatched_at:
-                            shipment.dispatched_at = datetime.now(timezone.utc)
-                    elif target_status_str == "delivered":
-                        shipment.status = ShipmentStatus.delivered
-                        if not shipment.delivered_at:
-                            shipment.delivered_at = datetime.now(timezone.utc)
-                db.flush()
-        except Exception as s_err:
-            logger.warning(f"Could not record shipment: {s_err}")
-
-    db.commit()
 
     # Dispatch status email to customer (fail-safe)
     try:

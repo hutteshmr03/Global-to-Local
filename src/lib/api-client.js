@@ -73,12 +73,14 @@ export function getCartSessionToken() {
 export class ApiProblemError extends Error {
   constructor(status, problem) {
     const rawMsg = problem?.detail || problem?.title || `Request failed (${status})`;
-    const isServerError = status >= 500 || String(rawMsg).includes('500') || String(rawMsg).includes('ECONNREFUSED');
-    const friendlyMsg = isServerError ? 'Something went wrong. Please try again.' : rawMsg;
+    const isServerError = status >= 500 || String(rawMsg).includes('ECONNREFUSED');
+    const friendlyMsg = rawMsg && rawMsg !== `Request failed (${status})`
+      ? rawMsg
+      : (isServerError ? 'Something went wrong. Please try again.' : rawMsg);
     super(friendlyMsg);
     this.name = 'ApiProblemError';
     this.status = status;
-    this.title = problem?.title || (isServerError ? 'Something went wrong' : 'Error');
+    this.title = problem?.title || (isServerError ? 'Service Temporarily Unavailable' : 'Error');
     this.detail = friendlyMsg;
     this.type = problem?.type || '';
     this.errors = problem?.errors || [];
@@ -137,32 +139,52 @@ export async function apiFetch(path, options = {}) {
   // Call relative endpoint path which Apache/LiteSpeed proxies directly to Python backend on port 8008
   const primaryUrl = path;
 
+  const isMockEnabled = import.meta.env.VITE_USE_MOCK === 'true';
+  const timeoutMs = method === 'GET' ? 10000 : 15000;
+  const maxRetries = method === 'GET' ? 2 : 0;
+
   let res = null;
   let networkFailed = false;
 
-  try {
-    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timeoutMs = (method !== 'GET' || path.startsWith('/api/v1/admin')) ? 15000 : 4500;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      // Exponential backoff for GET: 800ms, 1600ms
+      await new Promise((resolve) => setTimeout(resolve, 800 * Math.pow(2, attempt - 1)));
+    }
+
+    let controller = null;
+    let timeoutId = null;
+    networkFailed = false;
+
     try {
+      controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      timeoutId = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
       res = await fetch(primaryUrl, {
         ...fetchOptions,
         signal: controller ? controller.signal : undefined,
       });
+    } catch (err) {
+      networkFailed = true;
+      res = null;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }
-  } catch (err) {
-    networkFailed = true;
+
+    // If fetch succeeded with response not in [502, 503, 504], stop retrying
+    if (res && ![502, 503, 504].includes(res.status)) {
+      break;
+    }
+
+    // Do not retry mutations
+    if (method !== 'GET') {
+      break;
+    }
   }
 
-  // Primary call is already local origin relative path
-
-  // Standalone fallback: Only when backend server is completely unreachable (networkFailed)
-  // or proxy gateway failed (444, 502, 503, 504 on hosted preview environments).
   const isGatewayUnreachable = res && [444, 502, 503, 504].includes(res.status);
   const isHtml404 = res && res.status === 404 && !(res.headers.get('content-type') || '').includes('json');
-  if (networkFailed || isGatewayUnreachable || isHtml404) {
+
+  if (isMockEnabled && (networkFailed || isGatewayUnreachable || isHtml404)) {
     try {
       const mockResult = await handleMockBackend(path, options, method);
       if (mockResult !== undefined) {
@@ -176,8 +198,11 @@ export async function apiFetch(path, options = {}) {
     }
   }
 
-  if (networkFailed || !res) {
-    throw new ApiProblemError(503, { detail: 'Backend server is unreachable.' });
+  if (networkFailed || !res || isGatewayUnreachable) {
+    throw new ApiProblemError(503, {
+      title: 'Service Temporarily Unavailable',
+      detail: 'Server is waking up, please try again in a moment.',
+    });
   }
 
   // Automatic token refresh on 401 (except for auth endpoints themselves)
