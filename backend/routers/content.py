@@ -115,22 +115,6 @@ def list_reviews(
     if not rows and (not source or source == "Visitors' Book"):
         default_items = [
             {
-                "id": "ec960142-c54a-5ee6-8c9c-98486d8b6be2",
-                "name": "123",
-                "author_name": "123",
-                "author": "123",
-                "stars": 5,
-                "rating": 5,
-                "description": "123",
-                "quote": "123",
-                "location": "",
-                "author_location": "",
-                "role": "",
-                "source": "Visitors' Book",
-                "is_featured": True,
-                "created_at": "2026-10-30T10:00:00Z",
-            },
-            {
                 "id": "69ceb732-e711-5a8e-a4b1-fa84beb27619",
                 "name": "Gifty Abraham",
                 "author_name": "Gifty Abraham",

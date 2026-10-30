@@ -764,22 +764,29 @@ try:
                 except Exception:
                     pass
 
-            # Purge any legacy non-UUID reviews (rev-001, rev-002, rev-003, rev-user-123) that crash SQLAlchemy
-            conn.execute(text("DELETE FROM store_reviews WHERE id LIKE 'rev-%';"))
+            # Purge test review '123' and legacy non-UUID reviews
+            conn.execute(text("DELETE FROM store_reviews WHERE author_name = '123' OR quote = '123' OR id = 'ec960142-c54a-5ee6-8c9c-98486d8b6be2' OR id LIKE 'rev-%';"))
             conn.commit()
 
-            rev_count = conn.execute(text("SELECT COUNT(*) FROM store_reviews")).scalar()
-            if rev_count == 0:
-                conn.execute(text("""
-                    INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order, created_at)
-                    VALUES 
-                    ('ec960142-c54a-5ee6-8c9c-98486d8b6be2', '123', '', 5, '123', "Visitors' Book", 1, 1, 0, NOW()),
-                    ('69ceb732-e711-5a8e-a4b1-fa84beb27619', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', "Visitors' Book", 1, 1, 1, NOW()),
-                    ('9899d568-12d7-5d78-b36a-6987dbbab494', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny\'s house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', "Visitors' Book", 1, 1, 2, NOW()),
-                    ('e151ab35-605e-5d98-bb72-e14c5f679245', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', "Visitors' Book", 1, 1, 3, NOW());
-                """))
-                conn.commit()
-                print("[OK] Seeded verified reviews with valid UUIDs to store_reviews table.", flush=True)
+            # Ensure the 3 verified authentic reviews are present with valid UUIDs
+            conn.execute(text("""
+                INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order, created_at)
+                VALUES 
+                ('69ceb732-e711-5a8e-a4b1-fa84beb27619', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', "Visitors' Book", 1, 1, 1, NOW()),
+                ('9899d568-12d7-5d78-b36a-6987dbbab494', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny\'s house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', "Visitors' Book", 1, 1, 2, NOW()),
+                ('e151ab35-605e-5d98-bb72-e14c5f679245', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', "Visitors' Book", 1, 1, 3, NOW())
+                ON DUPLICATE KEY UPDATE
+                  author_name = VALUES(author_name),
+                  author_location = VALUES(author_location),
+                  rating = VALUES(rating),
+                  quote = VALUES(quote),
+                  source = VALUES(source),
+                  is_featured = VALUES(is_featured),
+                  is_approved = 1,
+                  display_order = VALUES(display_order);
+            """))
+            conn.commit()
+            print("[OK] Ensured 3 authentic customer reviews exist without test items.", flush=True)
 
             # Ensure source column has standard "Visitors' Book" across all reviews
             conn.execute(text("UPDATE store_reviews SET source = 'Visitors'' Book' WHERE source LIKE '%Visitor%';"))
@@ -826,8 +833,8 @@ try:
                 except Exception:
                     pass
 
-            # Purge any legacy non-UUID ids that crash SQLAlchemy UUID validation
-            conn.execute(text("DELETE FROM press_mentions WHERE id LIKE 'news-seed-%' OR id LIKE 'news-%';"))
+            # Purge test articles (123, 1234, 12345) and legacy non-UUID ids
+            conn.execute(text("DELETE FROM press_mentions WHERE title LIKE '%123%' OR publication_or_issuer LIKE '%123%' OR excerpt LIKE '%123%' OR title = '1234' OR id LIKE 'news-seed-%' OR id LIKE 'news-%';"))
             conn.commit()
 
             # Ensure the 5 canonical news articles exist with their exact URLs and live links
