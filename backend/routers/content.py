@@ -1,7 +1,8 @@
 import json
+import logging
 import re
 import uuid
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, Query, Request, status
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -24,9 +25,114 @@ from backend.models import (
     StoreReview,
 )
 
+logger = logging.getLogger("gtl.content")
+
 router = APIRouter(prefix="/api/v1", tags=["Content & Enquiries"])
 
 GOA_PINCODE_RE = re.compile(r"^403\d{3}$")
+
+CANONICAL_STORE_REVIEWS = [
+    {
+        "id": "69ceb732-e711-5a8e-a4b1-fa84beb27619",
+        "name": "Gifty Abraham",
+        "author_name": "Gifty Abraham",
+        "stars": 5,
+        "rating": 5,
+        "quote": "Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.",
+        "description": "Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.",
+        "location": "",
+        "author_location": "",
+        "source": "Visitors' Book",
+        "is_featured": True,
+        "is_approved": True,
+        "display_order": 1,
+        "created_at": "2024-01-15T10:00:00+00:00",
+    },
+    {
+        "id": "9899d568-12d7-5d78-b36a-6987dbbab494",
+        "name": "Stedwick Fernandes",
+        "author_name": "Stedwick Fernandes",
+        "stars": 5,
+        "rating": 5,
+        "quote": "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+        "description": "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+        "location": "",
+        "author_location": "",
+        "source": "Visitors' Book",
+        "is_featured": True,
+        "is_approved": True,
+        "display_order": 2,
+        "created_at": "2024-01-20T14:30:00+00:00",
+    },
+    {
+        "id": "e151ab35-605e-5d98-bb72-e14c5f679245",
+        "name": "Swapna Pujari",
+        "author_name": "Swapna Pujari",
+        "stars": 5,
+        "rating": 5,
+        "quote": "Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.",
+        "description": "Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.",
+        "location": "SilhouetteIndia",
+        "author_location": "SilhouetteIndia",
+        "source": "Visitors' Book",
+        "is_featured": True,
+        "is_approved": True,
+        "display_order": 3,
+        "created_at": "2024-02-05T09:15:00+00:00",
+    },
+]
+
+
+def ensure_canonical_reviews(db: Session):
+    try:
+        inserted = False
+        for c in CANONICAL_STORE_REVIEWS:
+            cid = uuid.UUID(c["id"])
+            exists = (
+                db.query(StoreReview)
+                .filter(
+                    or_(
+                        StoreReview.id == cid,
+                        StoreReview.author_name == c["author_name"],
+                    )
+                )
+                .first()
+            )
+            if not exists:
+                new_rev = StoreReview(
+                    id=cid,
+                    user_id=None,
+                    product_id=None,
+                    author_name=c["author_name"],
+                    author_location=c["author_location"],
+                    rating=c["rating"],
+                    quote=c["quote"],
+                    source=c["source"],
+                    is_featured=True,
+                    is_approved=True,
+                    display_order=c["display_order"],
+                    created_at=datetime.fromisoformat(c["created_at"]),
+                )
+                db.add(new_rev)
+                inserted = True
+            else:
+                updated = False
+                if not exists.is_approved:
+                    exists.is_approved = True
+                    updated = True
+                if not exists.is_featured:
+                    exists.is_featured = True
+                    updated = True
+                if exists.source != "Visitors' Book":
+                    exists.source = "Visitors' Book"
+                    updated = True
+                if updated:
+                    inserted = True
+        if inserted:
+            db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.warning(f"Error ensuring canonical reviews: {e}")
 
 
 @router.get("/pages/{slug}")
@@ -92,6 +198,7 @@ def list_reviews(
     db: Session = Depends(get_db),
 ):
     try:
+        ensure_canonical_reviews(db)
         query = db.query(StoreReview).filter(StoreReview.is_approved == True)  # noqa: E712
         if source:
             clean_source = source.replace("'", "").replace("’", "").strip().lower()

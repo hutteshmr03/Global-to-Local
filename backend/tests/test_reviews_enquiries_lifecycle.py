@@ -71,24 +71,34 @@ def test_reviews_full_lifecycle(admin_client_and_token):
     review_id = created["id"]
     assert created["author_name"] == unique_author
 
-    # Step 2: Admin list includes review
+# Step 2: Admin list includes BOTH the new review AND all existing canonical reviews
     admin_list = client.get("/api/v1/admin/reviews", headers=auth_headers)
     assert admin_list.status_code == 200
     items = admin_list.json().get("items", [])
-    assert any(r["id"] == review_id for r in items), "Review not found in admin list"
+    assert any(r["id"] == review_id for r in items), "New review not found in admin list"
+    assert any(r.get("name") == "Gifty Abraham" or r.get("author_name") == "Gifty Abraham" for r in items), "Gifty Abraham missing from admin reviews"
+    assert any(r.get("name") == "Stedwick Fernandes" or r.get("author_name") == "Stedwick Fernandes" for r in items), "Stedwick Fernandes missing from admin reviews"
+    assert any(r.get("name") == "Swapna Pujari" or r.get("author_name") == "Swapna Pujari" for r in items), "Swapna Pujari missing from admin reviews"
+    assert len(items) >= 4, f"Expected at least 4 reviews in admin list, got {len(items)}"
 
-    # Step 3: Public reviews endpoint includes review
+    # Step 3: Public reviews endpoint includes BOTH the new review AND all existing canonical reviews
     public_res = client.get("/api/v1/reviews?source=Visitors%27%20Book")
     assert public_res.status_code == 200
     public_items = public_res.json().get("items", [])
-    assert any(r["id"] == review_id for r in public_items), "Review not found in public list"
+    assert any(r["id"] == review_id for r in public_items), "New review not found in public list"
+    assert any(r.get("name") == "Gifty Abraham" or r.get("author_name") == "Gifty Abraham" or r.get("author") == "Gifty Abraham" for r in public_items), "Gifty Abraham missing from public reviews"
+    assert any(r.get("name") == "Stedwick Fernandes" or r.get("author_name") == "Stedwick Fernandes" or r.get("author") == "Stedwick Fernandes" for r in public_items), "Stedwick Fernandes missing from public reviews"
+    assert any(r.get("name") == "Swapna Pujari" or r.get("author_name") == "Swapna Pujari" or r.get("author") == "Swapna Pujari" for r in public_items), "Swapna Pujari missing from public reviews"
+    assert len(public_items) >= 4, f"Expected at least 4 reviews in public list, got {len(public_items)}"
 
-    # Step 4: Admin deletes review
+    # Step 4: Admin deletes the newly created test review
     del_res = client.delete(f"/api/v1/admin/reviews/{review_id}", headers=auth_headers)
     assert del_res.status_code == 200
 
-    # Step 5: Public reviews endpoint confirms deletion
+    # Step 5: Public reviews endpoint confirms deletion of new review while canonical reviews remain intact
     public_res_after = client.get("/api/v1/reviews?source=Visitors%27%20Book")
     assert public_res_after.status_code == 200
     public_items_after = public_res_after.json().get("items", [])
     assert not any(r["id"] == review_id for r in public_items_after), "Deleted review still present"
+    assert any(r.get("name") == "Gifty Abraham" or r.get("author_name") == "Gifty Abraham" or r.get("author") == "Gifty Abraham" for r in public_items_after), "Canonical review missing after delete"
+    assert len(public_items_after) >= 3, f"Expected at least 3 canonical reviews, got {len(public_items_after)}"

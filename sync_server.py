@@ -207,7 +207,7 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
     try:
         # SMART SKIP: If video or image already exists and is healthy (>1000 bytes), skip download to speed up sync!
         is_large_static = fname.endswith(('.mp4', '.jpg', '.jpeg', '.png'))
-        is_old_bundle = fname.startswith('index-') and fname not in ('index-CX86KhWA.js', 'index-Dd9xhh54.js', 'index-DzociDw5.js', 'index-CWMtFyP2.js', 'index-BlTtjZ_W.css')
+        is_old_bundle = fname.startswith('index-') and fname not in ('index-DSnCbPCg.js', 'index-BlAh8GAk.css', 'index-CX86KhWA.js', 'index-Dd9xhh54.js', 'index-DzociDw5.js', 'index-CWMtFyP2.js', 'index-BlTtjZ_W.css')
         if (is_large_static or is_old_bundle) and os.path.exists(dest) and os.path.getsize(dest) > 1000:
             print(f" [CACHE HIT - ALREADY DOWNLOADED] ({os.path.getsize(dest)} bytes)", flush=True)
             continue
@@ -769,27 +769,50 @@ try:
             conn.commit()
 
             # Ensure the 3 verified authentic reviews are present with valid UUIDs
-            conn.execute(text("""
-                INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order, created_at)
-                VALUES 
-                ('69ceb732-e711-5a8e-a4b1-fa84beb27619', 'Gifty Abraham', '', 5, 'Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.', "Visitors' Book", 1, 1, 1, NOW()),
-                ('9899d568-12d7-5d78-b36a-6987dbbab494', 'Stedwick Fernandes', '', 5, 'The store had Kokani music playing. The light shades were so much like the ones in my great granny\'s house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.', "Visitors' Book", 1, 1, 2, NOW()),
-                ('e151ab35-605e-5d98-bb72-e14c5f679245', 'Swapna Pujari', 'SilhouetteIndia', 5, 'Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.', "Visitors' Book", 1, 1, 3, NOW())
-                ON DUPLICATE KEY UPDATE
-                  author_name = VALUES(author_name),
-                  author_location = VALUES(author_location),
-                  rating = VALUES(rating),
-                  quote = VALUES(quote),
-                  source = VALUES(source),
-                  is_featured = VALUES(is_featured),
-                  is_approved = 1,
-                  display_order = VALUES(display_order);
-            """))
+            conn.execute(
+                text("""
+                    INSERT INTO store_reviews (id, author_name, author_location, rating, quote, source, is_featured, is_approved, display_order, created_at)
+                    VALUES 
+                    (:id1, :name1, :loc1, :rating1, :quote1, :src1, 1, 1, 1, NOW()),
+                    (:id2, :name2, :loc2, :rating2, :quote2, :src2, 1, 1, 2, NOW()),
+                    (:id3, :name3, :loc3, :rating3, :quote3, :src3, 1, 1, 3, NOW())
+                    ON DUPLICATE KEY UPDATE
+                      author_name = VALUES(author_name),
+                      author_location = VALUES(author_location),
+                      rating = VALUES(rating),
+                      quote = VALUES(quote),
+                      source = VALUES(source),
+                      is_featured = 1,
+                      is_approved = 1,
+                      display_order = VALUES(display_order);
+                """),
+                {
+                    "id1": "69ceb732-e711-5a8e-a4b1-fa84beb27619",
+                    "name1": "Gifty Abraham",
+                    "loc1": "",
+                    "rating1": 5,
+                    "quote1": "Global to Local is a world of authentic Goan Treasures. A very aesthetic space with organic Goan delicacies and traditional items. Love the way they empower women through their business ideas. A must visit place.",
+                    "src1": "Visitors' Book",
+                    "id2": "9899d568-12d7-5d78-b36a-6987dbbab494",
+                    "name2": "Stedwick Fernandes",
+                    "loc2": "",
+                    "rating2": 5,
+                    "quote2": "The store had Kokani music playing. The light shades were so much like the ones in my great granny's house. The staff was super courteous and hospitable...I will 100% recommend this store to family, friends and everyone I know.",
+                    "src2": "Visitors' Book",
+                    "id3": "e151ab35-605e-5d98-bb72-e14c5f679245",
+                    "name3": "Swapna Pujari",
+                    "loc3": "SilhouetteIndia",
+                    "rating3": 5,
+                    "quote3": "Our go to place all such needs is Global to Local and I highly recommend Global to Local for authentic goan hampers and gifting requirements.",
+                    "src3": "Visitors' Book",
+                }
+            )
             conn.commit()
             print("[OK] Ensured 3 authentic customer reviews exist without test items.", flush=True)
 
-            # Ensure source column has standard "Visitors' Book" across all reviews
-            conn.execute(text("UPDATE store_reviews SET source = 'Visitors'' Book' WHERE source LIKE '%Visitor%';"))
+            # Ensure source column has standard "Visitors' Book" and all reviews are approved
+            conn.execute(text("UPDATE store_reviews SET source = 'Visitors'' Book' WHERE source LIKE '%Visitor%' OR source IS NULL;"))
+            conn.execute(text("UPDATE store_reviews SET is_approved = 1, is_featured = 1 WHERE is_approved = 0 OR is_approved IS NULL;"))
             conn.commit()
         except Exception as seed_err:
             print(f"[NOTE] store_reviews notice: {seed_err}", flush=True)

@@ -2030,6 +2030,8 @@ def list_admin_reviews(
     db: Session = Depends(get_db),
 ):
     try:
+        from backend.routers.content import ensure_canonical_reviews
+        ensure_canonical_reviews(db)
         rows = (
             db.query(StoreReview)
             .order_by(StoreReview.display_order.asc(), StoreReview.created_at.desc())
