@@ -76,6 +76,8 @@ files_to_sync = [
 
     (f"{RAW_BASE}/backend/core/security.py", os.path.join(BASE_DIR, "backend", "core", "security.py")),
 
+    (f"{RAW_BASE}/backend/core/providers.py", os.path.join(BASE_DIR, "backend", "core", "providers.py")),
+
     (f"{RAW_BASE}/backend/routers/catalogue.py", os.path.join(BASE_DIR, "backend", "routers", "catalogue.py")),
 
     (f"{RAW_BASE}/backend/routers/cart.py", os.path.join(BASE_DIR, "backend", "routers", "cart.py")),

@@ -876,7 +876,7 @@ def create_order(
     except Exception as err:
         logger.warning(f"Could not log order status event: {err}")
 
-    razorpay_order_id = f"UTR-{utr_val}"
+    razorpay_order_id = f"UTR-{utr_val}-{order.order_number}"
     payment = Payment(
         id=uuid.uuid4(),
         order_id=order.id,
@@ -913,6 +913,13 @@ def create_order(
     except Exception as err:
         logger.warning(f"Could not record idempotency: {err}")
     db.commit()
+
+    # Automatically alert store admin (gtlenterprise02@gmail.com) on every order placed
+    try:
+        from backend.core.providers import send_admin_order_notification
+        send_admin_order_notification(order=order, db=db)
+    except Exception as email_err:
+        logger.warning(f"Could not send admin order notification: {email_err}")
 
     return response_payload
 
@@ -1010,6 +1017,13 @@ def finalize_order_payment(
         total_paise=order.total_paise,
         items_count=sum(i.quantity for i in order.items),
     )
+
+    # Automatically alert store admin (gtlenterprise02@gmail.com) on payment finalized
+    try:
+        from backend.core.providers import send_admin_order_notification
+        send_admin_order_notification(order=order, db=db)
+    except Exception as email_err:
+        logger.warning(f"Could not send admin order notification: {email_err}")
 
     return order
 
