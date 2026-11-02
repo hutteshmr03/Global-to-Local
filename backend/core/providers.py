@@ -348,36 +348,59 @@ def send_admin_order_notification(order: Any, db: Optional[Any] = None) -> None:
         items_text_str = "\n".join(items_text_list) if items_text_list else "  (See admin dashboard for items)"
         items_html_str = "".join(items_html_rows) if items_html_rows else "<tr><td colspan='4' style='padding: 12px;'>See Admin Dashboard for items</td></tr>"
 
-        # Payment info
+        # Extract Bank Transfer UTR Number cleanly
+        utr_number = ""
         note = getattr(order, "customer_note", "") or ""
+        if note:
+            cleaned = note.strip()
+            for prefix in ("Bank Transfer UTR:", "Bank Transfer UTR", "Bank Transfer:", "Bank Transfer", "UTR:", "UTR -", "UTR-"):
+                if cleaned.upper().startswith(prefix.upper()):
+                    cleaned = cleaned[len(prefix):].strip()
+            if cleaned:
+                utr_number = cleaned
+
+        if not utr_number and db and hasattr(order, "id"):
+            try:
+                from backend.models import Payment
+                pay = db.query(Payment).filter(Payment.order_id == order.id).first()
+                if pay:
+                    p_id = getattr(pay, "provider_payment_id", "") or getattr(pay, "provider_order_id", "") or ""
+                    if "UTR-" in p_id:
+                        utr_number = p_id.split("UTR-")[-1].split("-")[0].strip()
+            except Exception:
+                pass
+
+        # Payment info description
         payments = getattr(order, "payments", None) or []
-        payment_info = "Bank Transfer"
+        payment_info = f"Bank Transfer (UTR: {utr_number})" if utr_number else "Bank Transfer"
         if payments:
             p0 = payments[0]
             prov = getattr(p0, "provider", "bank_transfer")
             pay_id = getattr(p0, "provider_payment_id", "") or getattr(p0, "provider_order_id", "") or ""
             if prov == "razorpay":
-                payment_info = f"Online / Razorpay (Payment ID: {pay_id})"
+                payment_info = f"Online / Razorpay (ID: {pay_id})"
             elif prov == "bank_transfer":
-                payment_info = f"Bank Transfer (Ref / UTR: {pay_id or note or 'Verified'})"
-        elif note:
-            payment_info = f"Bank Transfer ({note})"
+                payment_info = f"Bank Transfer (UTR: {utr_number or pay_id or note or 'Verified'})"
 
         placed_at = getattr(order, "placed_at", None) or datetime.now(timezone.utc)
         date_str = placed_at.strftime("%d %b %Y, %I:%M %p UTC")
 
-        # Subject
-        subject = f"🔔 New Order Received: #{order_num} (₹{total_rs:,.2f}) — Global to Local"
+        # Subject line highlighting UTR for immediate verification
+        if utr_number:
+            subject = f"🔔 New Order #{order_num} (₹{total_rs:,.2f}) [UTR: {utr_number}] — Global to Local"
+        else:
+            subject = f"🔔 New Order #{order_num} (₹{total_rs:,.2f}) — Global to Local"
 
         # Plain text body
+        utr_line = f"BANK UTR NUMBER: {utr_number}\n" if utr_number else ""
         body_text = f"""======================================================================
 🔔 NEW ORDER RECEIVED — GLOBAL TO LOCAL (globaltolocal.in)
 ======================================================================
 
-Order Number: #{order_num}
-Placed At:    {date_str}
-Payment:      {payment_info}
-Order Status: PAID / PREPARING FOR DISPATCH
+Order Number:    #{order_num}
+Placed At:       {date_str}
+Payment Mode:    {payment_info}
+{utr_line}Order Status:    PAID / PREPARING FOR DISPATCH
 
 CUSTOMER DETAILS:
 --------------------------------------------------
@@ -428,6 +451,12 @@ https://globaltolocal.in/admin/orders
           <span style="font-size: 15px; font-weight: 700; color: #065F46;">🔔 New Customer Order Placed</span>
           <span style="float: right; font-size: 15px; font-weight: 800; color: #065F46;">₹{total_rs:,.2f}</span>
         </div>
+        {f'''
+        <div style="background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 12px 16px; margin-top: 10px;">
+          <span style="font-size: 11px; font-weight: 700; color: #92400E; text-transform: uppercase; letter-spacing: 0.5px; display: block;">Bank Reference / UTR Number:</span>
+          <span style="font-size: 18px; font-weight: 800; color: #78350F; font-family: monospace; letter-spacing: 1.5px;">{utr_number}</span>
+        </div>
+        ''' if utr_number else ''}
       </td>
     </tr>
     <tr>

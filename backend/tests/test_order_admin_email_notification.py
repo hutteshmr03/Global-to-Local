@@ -14,6 +14,7 @@ def test_admin_receives_email_and_customer_does_not():
         rand_suffix = uuid.uuid4().hex[:6]
         test_email = f"customer.{rand_suffix}@example.com"
         test_phone = f"98{uuid.uuid4().int % 100000000:08d}"
+        test_utr = f"UTR{uuid.uuid4().hex[:10].upper()}"
 
         # 1. Setup a test customer
         user = User(
@@ -36,7 +37,8 @@ def test_admin_receives_email_and_customer_does_not():
             inv = Inventory(product_id=prod.id, on_hand=100, reserved=0)
             db.add(inv)
         else:
-            inv.on_hand = max(inv.on_hand, 50)
+            inv.on_hand = 100
+            inv.reserved = 0
         db.commit()
 
         # 3. Clear outbox before order placement
@@ -51,7 +53,7 @@ def test_admin_receives_email_and_customer_does_not():
         }
 
         order_payload = {
-            "customer_note": f"Bank Transfer UTR: {uuid.uuid4().hex[:12].upper()}",
+            "customer_note": f"Bank Transfer UTR: {test_utr}",
             "delivery_address": {
                 "name": "Maria Fernandes",
                 "phone": test_phone,
@@ -84,6 +86,8 @@ def test_admin_receives_email_and_customer_does_not():
         assert test_phone in admin_msg["body"], "Customer phone missing from admin email"
         assert "Panaji" in admin_msg["body"], "Delivery city missing from admin email"
         assert "403001" in admin_msg["body"], "Delivery pincode missing from admin email"
+        assert test_utr in admin_msg["subject"], f"UTR {test_utr} missing from email subject: {admin_msg['subject']}"
+        assert test_utr in admin_msg["body"], f"UTR {test_utr} missing from email body"
 
         # 7. Verify that CUSTOMER (customer.email.tester@example.com) NEVER received an email
         customer_emails = [e for e in DEV_EMAIL_OUTBOX if e["recipient"] == user.email]
