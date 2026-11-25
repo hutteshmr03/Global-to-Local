@@ -615,29 +615,29 @@ def test_addresses_and_bag_merge_rules(client: TestClient, db_session):
 def test_shipping_8000_goa_and_12000_pan_india_no_free_threshold_no_minimum(client: TestClient, db_session):
     prod = db_session.query(Product).filter(Product.is_active == True).first()
 
-    # 1. Goa Express (403xxx) = Rs 80 (8000 paise), no free-shipping threshold, no minimum order
+    # 1. Goa Express (403xxx) = Rs 200 (20000 paise), no free-shipping threshold, no minimum order
     r_goa = client.get("/api/v1/shipping/estimate?pincode=403001")
     assert r_goa.status_code == 200
     goa = r_goa.json()
-    assert goa["shipping_paise"] == 8000
+    assert goa["shipping_paise"] == 20000
     assert goa["zone_name"] == "Goa Express"
     assert goa["is_goa"] is True
     assert goa["free_shipping_threshold_paise"] is None
     assert goa["minimum_order_paise"] == 0
 
-    # Even with a high-value cart, Goa shipping stays 8000 paise (no free shipping above threshold)
+    # Even with a high-value cart, Goa shipping stays 20000 paise (no free shipping above threshold)
     r_quote_goa = client.post(
         "/api/v1/checkout/quote",
         json={"pincode": "403001", "items": [{"product_id": str(prod.id), "quantity": 10}]},
     )
     assert r_quote_goa.status_code == 200
-    assert r_quote_goa.json()["shipping_paise"] == 8000
+    assert r_quote_goa.json()["shipping_paise"] == 20000
 
-    # 2. Pan-India Standard = Rs 120 (12000 paise), no free-shipping threshold, no minimum order
+    # 2. Pan-India Standard = Rs 200 (20000 paise), no free-shipping threshold, no minimum order
     r_roi = client.get("/api/v1/shipping/estimate?pincode=400001")
     assert r_roi.status_code == 200
     roi = r_roi.json()
-    assert roi["shipping_paise"] == 12000
+    assert roi["shipping_paise"] == 20000
     assert roi["zone_name"] == "Pan-India Standard"
     assert roi["is_goa"] is False
     assert roi["free_shipping_threshold_paise"] is None
@@ -648,7 +648,7 @@ def test_shipping_8000_goa_and_12000_pan_india_no_free_threshold_no_minimum(clie
         json={"pincode": "400001", "items": [{"product_id": str(prod.id), "quantity": 10}]},
     )
     assert r_quote_roi.status_code == 200
-    assert r_quote_roi.json()["shipping_paise"] == 12000
+    assert r_quote_roi.json()["shipping_paise"] == 20000
 
 
 def test_order_creation_idempotency_webhook_signature_and_duplicate_event(client: TestClient, db_session):
@@ -694,8 +694,8 @@ def test_order_creation_idempotency_webhook_signature_and_duplicate_event(client
     ord_data = r_ord1.json()
     order_number = ord_data["order_number"]
     assert ord_data["status"] == "pending_payment"
-    assert ord_data["shipping_paise"] == 8000
-    assert ord_data["total_paise"] == prod.price_paise * 2 + 8000
+    assert ord_data["shipping_paise"] == 20000
+    assert ord_data["total_paise"] == prod.price_paise * 2 + 20000
 
     db_session.expire_all()
     inv_mid = db_session.query(Inventory).filter(Inventory.product_id == prod.id).first()

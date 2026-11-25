@@ -76,23 +76,12 @@ export default function CheckoutPage() {
       }
     : newAddress;
 
-  const [shippingCostPaise, setShippingCostPaise] = useState(
-    activeAddress.pincode?.startsWith('403') ? 8000 : 12000
-  );
-  const [shippingZoneName, setShippingZoneName] = useState(
-    activeAddress.pincode?.startsWith('403') ? 'Goa Express' : 'Pan-India Standard'
-  );
+  const [shippingCostPaise, setShippingCostPaise] = useState(20000);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const pin = (activeAddress.pincode || '').trim();
-    if (pin.startsWith('403')) {
-      setShippingCostPaise(8000);
-      setShippingZoneName('Goa Express');
-    } else {
-      setShippingCostPaise(12000);
-      setShippingZoneName('Pan-India Standard');
-    }
+    setShippingCostPaise(20000);
 
     if (/^[1-9]\d{5}$/.test(pin)) {
       let cancelled = false;
@@ -100,9 +89,6 @@ export default function CheckoutPage() {
         .then((quote) => {
           if (!cancelled && quote && typeof quote.shipping_paise === 'number') {
             setShippingCostPaise(quote.shipping_paise);
-            if (quote.zone_name) {
-              setShippingZoneName(quote.zone_name);
-            }
           }
         })
         .catch(() => {});
@@ -571,7 +557,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-content-muted">
-                    Shipping ({shippingZoneName})
+                    Delivery charge
                   </span>
                   <span className="font-sans font-bold tabular-nums tracking-tight text-content">{formatPrice(shippingCostPaise)}</span>
                 </div>

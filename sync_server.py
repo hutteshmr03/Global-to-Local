@@ -93,6 +93,8 @@ files_to_sync = [
     # Frontend SPA build
 
     (f"{RAW_BASE}/dist_live/index.html", os.path.join(PUBLIC_HTML, "index.html")),
+    (f"{RAW_BASE}/dist_live/assets/index-DgdDBIAD.js", os.path.join(PUBLIC_HTML, "assets", "index-DgdDBIAD.js")),
+    (f"{RAW_BASE}/dist_live/assets/index-C1wQQrDT.css", os.path.join(PUBLIC_HTML, "assets", "index-C1wQQrDT.css")),
     (f"{RAW_BASE}/dist_live/assets/index-DSnCbPCg.js", os.path.join(PUBLIC_HTML, "assets", "index-DSnCbPCg.js")),
     (f"{RAW_BASE}/dist_live/assets/index-J9i0aMOR.js", os.path.join(PUBLIC_HTML, "assets", "index-J9i0aMOR.js")),
     (f"{RAW_BASE}/dist_live/assets/index-BlAh8GAk.css", os.path.join(PUBLIC_HTML, "assets", "index-BlAh8GAk.css")),
@@ -209,7 +211,7 @@ for i, (url, dest) in enumerate(files_to_sync, 1):
     try:
         # SMART SKIP: If video or image already exists and is healthy (>1000 bytes), skip download to speed up sync!
         is_large_static = fname.endswith(('.mp4', '.jpg', '.jpeg', '.png'))
-        is_old_bundle = fname.startswith('index-') and fname not in ('index-DSnCbPCg.js', 'index-BlAh8GAk.css', 'index-CX86KhWA.js', 'index-Dd9xhh54.js', 'index-DzociDw5.js', 'index-CWMtFyP2.js', 'index-BlTtjZ_W.css')
+        is_old_bundle = fname.startswith('index-') and fname not in ('index-DgdDBIAD.js', 'index-C1wQQrDT.css', 'index-DSnCbPCg.js', 'index-BlAh8GAk.css', 'index-CX86KhWA.js', 'index-Dd9xhh54.js', 'index-DzociDw5.js', 'index-CWMtFyP2.js', 'index-BlTtjZ_W.css')
         if (is_large_static or is_old_bundle) and os.path.exists(dest) and os.path.getsize(dest) > 1000:
             print(f" [CACHE HIT - ALREADY DOWNLOADED] ({os.path.getsize(dest)} bytes)", flush=True)
             continue
@@ -392,7 +394,9 @@ for r_dir in [PUBLIC_HTML] + gtl_targets:
                     shutil.copy2(sandalwood_file, dest_img)
 
 # Unify all legacy javascript bundles so cached HTML never runs outdated code
-primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-DSnCbPCg.js")
+primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-DgdDBIAD.js")
+if not os.path.exists(primary_bundle):
+    primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-DSnCbPCg.js")
 if not os.path.exists(primary_bundle):
     primary_bundle = os.path.join(PUBLIC_HTML, "assets", "index-J9i0aMOR.js")
 if not os.path.exists(primary_bundle):
@@ -950,6 +954,14 @@ try:
             print("[OK] Product tables hardened for clean product creation and pricing.", flush=True)
         except Exception as prod_tbl_err:
             print(f"[NOTE] Product tables hardening notice: {prod_tbl_err}", flush=True)
+
+        # F7. Set flat Rs. 200 (20000 paise) delivery charge across all locations
+        try:
+            conn.execute(text("UPDATE `shipping_rates` SET `rate_paise` = 20000 WHERE `is_active` = 1;"))
+            conn.commit()
+            print("[OK] Updated all active shipping_rates to 20000 paise (Rs. 200).", flush=True)
+        except Exception as ship_err:
+            print(f"[NOTE] shipping_rates update notice: {ship_err}", flush=True)
 
 
         # E. Ensure all products are active and not soft-deleted without overriding custom status

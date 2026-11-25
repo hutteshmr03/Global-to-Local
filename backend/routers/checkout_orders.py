@@ -124,7 +124,7 @@ def compute_shipping_for_pincode(
     if not selected_rate and rates:
         selected_rate = rates[-1]
 
-    rate_paise = selected_rate.rate_paise if selected_rate else (8000 if is_goa else 12000)
+    rate_paise = 20000
     days_min = selected_rate.estimated_days_min if selected_rate else (1 if is_goa else 3)
     days_max = selected_rate.estimated_days_max if selected_rate else (2 if is_goa else 7)
 
