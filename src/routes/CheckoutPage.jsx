@@ -5,6 +5,7 @@ import { useCartStore } from '../lib/cart-store';
 import { useAuthStore } from '../lib/auth-store';
 import { formatPrice, siteConfig } from '../lib/data';
 import { apiFetch } from '../lib/api-client';
+import { calculateDeliveryChargePaise, getOrderWeightGrams } from '../lib/shipping';
 
 function makeIdempotencyKey() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -76,16 +77,22 @@ export default function CheckoutPage() {
       }
     : newAddress;
 
-  const [shippingCostPaise, setShippingCostPaise] = useState(20000);
+  const totalWeightGrams = getOrderWeightGrams(items);
+  const [shippingCostPaise, setShippingCostPaise] = useState(() =>
+    calculateDeliveryChargePaise(getOrderWeightGrams(items))
+  );
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const pin = (activeAddress.pincode || '').trim();
-    setShippingCostPaise(20000);
+    const computedPaise = calculateDeliveryChargePaise(totalWeightGrams);
+    setShippingCostPaise(computedPaise);
 
     if (/^[1-9]\d{5}$/.test(pin)) {
       let cancelled = false;
-      apiFetch(`/api/v1/shipping/estimate?pincode=${encodeURIComponent(pin)}`)
+      apiFetch(
+        `/api/v1/shipping/estimate?pincode=${encodeURIComponent(pin)}&weight_grams=${encodeURIComponent(totalWeightGrams)}`
+      )
         .then((quote) => {
           if (!cancelled && quote && typeof quote.shipping_paise === 'number') {
             setShippingCostPaise(quote.shipping_paise);
@@ -96,7 +103,7 @@ export default function CheckoutPage() {
         cancelled = true;
       };
     }
-  }, [activeAddress.pincode]);
+  }, [activeAddress.pincode, totalWeightGrams]);
 
   if (!isInitialized) {
     return <main id="main-content" className="pt-28 sm:pt-32 lg:pt-36 pb-20 bg-ground min-h-screen" />;

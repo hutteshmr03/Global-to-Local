@@ -3,6 +3,7 @@ logger = logging.getLogger("gtl.checkout")
 import hashlib
 import hmac
 import json
+import math
 import re
 import secrets
 import uuid
@@ -58,10 +59,39 @@ ALLOWED_STATUS_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
 
 
 
+WEIGHT_UNIT_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(kg|kgs|kilogram|kilograms|g|gm|gms|gram|grams)\b", re.IGNORECASE)
+NON_WEIGHT_UNIT_RE = re.compile(
+    r"(?:\b|\d)(piece|pieces|pc|pcs|unit|units|ml|ltr|litre|litres|liter|liters)\b", re.IGNORECASE
+)
+
+
+def get_product_chargeable_weight_grams(unit_label: Optional[str]) -> int:
+    """Return weight in grams only for products sold by mass (g/gm/grams/kg); piece/volume items return 0."""
+    label = (unit_label or "").strip()
+    if not label or NON_WEIGHT_UNIT_RE.search(label):
+        return 0
+    m = WEIGHT_UNIT_RE.search(label)
+    if not m:
+        return 0
+    val = float(m.group(1))
+    unit = m.group(2).lower()
+    grams = val * 1000.0 if unit.startswith("k") else val
+    return max(0, int(round(grams)))
+
+
+def compute_delivery_charge_paise(weight_grams: int) -> int:
+    """Base Rs. 200 (20000 paise) up to 3 kg; +Rs. 100 (10000 paise) per kg (or part thereof) above 3 kg."""
+    w = max(0, int(weight_grams or 0))
+    if w <= 3000:
+        return 20000
+    extra_kg_slabs = math.ceil((w - 3000) / 1000.0)
+    return 20000 + (extra_kg_slabs * 10000)
+
+
 def compute_shipping_for_pincode(
     db: Session,
     pincode: str,
-    weight_grams: int = 500,
+    weight_grams: int = 0,
 ) -> dict[str, Any]:
     clean_pin = (pincode or "").strip()
     if not PINCODE_6_RE.match(clean_pin):
@@ -109,7 +139,7 @@ def compute_shipping_for_pincode(
             problem_type="https://globaltolocal.in/problems/unserviceable-pincode",
         )
 
-    w = max(1, int(weight_grams or 500))
+    w = max(0, int(weight_grams or 0))
     rates = (
         db.query(ShippingRate)
         .filter(ShippingRate.zone_id == matched_zone.id, ShippingRate.is_active == True)  # noqa: E712
@@ -124,7 +154,7 @@ def compute_shipping_for_pincode(
     if not selected_rate and rates:
         selected_rate = rates[-1]
 
-    rate_paise = 20000
+    rate_paise = compute_delivery_charge_paise(w)
     days_min = selected_rate.estimated_days_min if selected_rate else (1 if is_goa else 3)
     days_max = selected_rate.estimated_days_max if selected_rate else (2 if is_goa else 7)
 
@@ -150,7 +180,7 @@ def compute_shipping_for_pincode(
 @router.get("/shipping/estimate")
 def estimate_shipping(
     pincode: str = Query(..., min_length=6, max_length=6),
-    weight_grams: int = Query(500, ge=1, le=200000),
+    weight_grams: int = Query(0, ge=0, le=500000),
     db: Session = Depends(get_db),
 ):
     return compute_shipping_for_pincode(db=db, pincode=pincode, weight_grams=weight_grams)
@@ -189,7 +219,7 @@ def calculate_checkout_quote(
                 )
             line_total = prod.price_paise * entry.quantity
             subtotal_paise += line_total
-            total_weight_grams += (prod.net_weight_grams or 250) * entry.quantity
+            total_weight_grams += get_product_chargeable_weight_grams(prod.unit_label) * entry.quantity
             line_items_out.append(
                 {
                     "product_id": str(prod.id),
@@ -210,7 +240,7 @@ def calculate_checkout_quote(
                     continue
                 line_total = prod.price_paise * ci.quantity
                 subtotal_paise += line_total
-                total_weight_grams += (prod.net_weight_grams or 250) * ci.quantity
+                total_weight_grams += get_product_chargeable_weight_grams(prod.unit_label) * ci.quantity
                 line_items_out.append(
                     {
                         "product_id": str(prod.id),
@@ -226,7 +256,7 @@ def calculate_checkout_quote(
     ship_info = compute_shipping_for_pincode(
         db=db,
         pincode=payload.pincode,
-        weight_grams=max(250, total_weight_grams),
+        weight_grams=total_weight_grams,
     )
     shipping_paise = ship_info["shipping_paise"]
     total_paise = subtotal_paise + shipping_paise
@@ -772,7 +802,7 @@ def create_order(
         unit_price = prod.price_paise
         line_total = unit_price * qty
         subtotal_paise += line_total
-        total_weight_grams += (prod.net_weight_grams or 250) * qty
+        total_weight_grams += get_product_chargeable_weight_grams(prod.unit_label) * qty
 
         primary_img = next((img for img in prod.images if img.is_primary), prod.images[0] if prod.images else None)
         img_url = primary_img.url if primary_img else f"/images/catalog/{prod.slug}.jpg"
@@ -790,7 +820,7 @@ def create_order(
     ship_info = compute_shipping_for_pincode(
         db=db,
         pincode=address_snapshot["pincode"],
-        weight_grams=max(250, total_weight_grams),
+        weight_grams=total_weight_grams,
     )
     shipping_paise = ship_info["shipping_paise"]
     total_paise = subtotal_paise + shipping_paise
